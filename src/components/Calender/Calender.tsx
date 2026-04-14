@@ -1,6 +1,7 @@
 import { Fragment, useMemo, useState } from "react";
 import { getWeekDays } from "../../utils/date/dateHelper";
 import "./calender.css";
+import DailyTotals from "../../components/DailyTotals/DailyTotals";
 
 const timeSlots = ["Morgon", "Förmiddag", "Eftermiddag", "Kväll"];
 
@@ -69,6 +70,7 @@ export default function Calendar() {
             ))}
           </Fragment>
         ))}
+        <DailyTotals />
       </div>
     </section>
   );

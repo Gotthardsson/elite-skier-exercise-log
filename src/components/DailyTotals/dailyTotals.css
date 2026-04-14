@@ -1,0 +1,11 @@
+.daily-total-label {
+  min-height: 48px;
+}
+
+.daily-total {
+  min-height: 48px;
+  display: grid;
+  place-items: center;
+  color: #98a0ad;
+  font-weight: 700;
+}
