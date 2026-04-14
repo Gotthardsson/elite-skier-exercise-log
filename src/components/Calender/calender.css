@@ -1,15 +1,15 @@
 .calendar {
-  padding: 24px;
-  max-width: 65vw;
+  max-width: 80vw;
   min-width: 60vw;
   margin: 0 auto;
 }
 
 .calendar-nav {
   display: flex;
-  justify-content: center;
+  justify-content: left;
   gap: 12px;
   margin-bottom: 20px;
+  margin-top: 30px;
 }
 
 .calendar-nav button {
