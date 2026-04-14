@@ -1,0 +1,43 @@
+.navigation-bar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 175px;
+  min-height: 100%;
+  padding-top: 100px;
+  border-right: solid black 2px;
+  background-color: #ffffff;
+}
+
+.nav-items {
+  display: flex;
+  flex-direction: column;
+  border-top: solid black 2px;
+  padding-top: 5px;
+  width: 100%;
+}
+
+.nav-item {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: black;
+  border-radius: 8px;
+  padding: 12px;
+  width: 175px;
+  height: 20px;
+}
+
+.selected {
+  background-color: black;
+  color: #ffffff;
+}
+
+.nav-item:hover {
+  background-color: lightgray;
+  cursor: pointer;
+}
+
+.selected:hover {
+  background-color: black;
+}
