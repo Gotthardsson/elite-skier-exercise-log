@@ -1,6 +1,7 @@
 import "./App.css";
 import Calender from "./pages/calender/Calender";
 import Stats from "./pages/stats/Stats";
+import Templates from "./pages/templates/Templates";
 import NavigationMenu from "./components/Navigation/NavigtionMenu";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -17,6 +18,7 @@ function App() {
             <Route path="/" element={<Calender />} />
             <Route path="/calendar" element={<Calender />} />
             <Route path="/stats" element={<Stats />} />
+            <Route path="/templates" element={<Templates />} />
           </Routes>
         </main>
       </div>
