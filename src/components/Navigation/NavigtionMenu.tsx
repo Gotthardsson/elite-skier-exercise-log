@@ -24,6 +24,15 @@ export default function NavigationMenu() {
         </NavLink>
 
         <NavLink
+          to="/templates"
+          className={({ isActive }) =>
+            isActive ? "nav-item selected" : "nav-item"
+          }
+        >
+          Mallar
+        </NavLink>
+
+        <NavLink
           to="/account"
           className={({ isActive }) =>
             isActive ? "nav-item selected" : "nav-item"

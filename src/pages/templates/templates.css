@@ -1,0 +1,39 @@
+
+
+
+.header{
+    padding: 10px;
+}
+.title{
+    margin-top: 0;
+}
+.subtitle{
+    color: hsla(0, 0%, 0%, 0.7);
+}
+.template-card{
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+    padding: 5px;
+    max-width: 200px;
+    border: 1px solid;
+    border-radius: 10px;
+    max-height: 80px;
+    shadow: 2px;
+}
+.card-title{
+    font-size: 1em;
+    margin: 0;
+}
+.card-sport{
+    margin: 0px 2px 0px 2px;
+    font-size: 0.8em;
+    color: hsl(0, 0%, 60%);
+}
+.card-comment{
+    font-size: 0.8em;
+    margin: 10px 2px 0px 0px;
+}
+.card-zone{
+    margin: 0;
+}
