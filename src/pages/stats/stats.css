@@ -1,0 +1,60 @@
+.stats-menu {
+  display: flex;
+  flex-direction: row;
+  margin-top: 50px;
+  justify-self: center;
+  width: 95%;
+  height: 100px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  align-items: center;
+  padding: 30px;
+}
+
+.drop-down-button {
+  margin-left: 30px;
+}
+
+.stats-div {
+  display: flex;
+  flex-direction: row;
+  margin-top: 50px;
+  justify-self: center;
+  justify-content: left;
+  width: 95%;
+}
+
+.stats-item {
+  width: 300px;
+  height: 50px;
+  text-align: center;
+  border: solid black 2px;
+  background-color: #ffffff;
+  border-radius: 10px;
+}
+
+.total-time-planned {
+  margin-left: 30px;
+}
+
+.sickdays-injurydays {
+  margin-left: 30px;
+}
+
+.logged-time-per-zon {
+  width: 95%;
+  height: 200px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  justify-self: center;
+  margin-top: 50px;
+}
+
+.time-per-sport {
+  width: 95%;
+  height: 200px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  justify-self: center;
+  margin-top: 50px;
+}
