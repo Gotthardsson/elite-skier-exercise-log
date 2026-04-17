@@ -2,11 +2,14 @@ import { Fragment, useMemo, useState } from "react";
 import { getWeekDays } from "../../utils/date/dateHelper";
 import "./calender.css";
 import DailyTotals from "../../components/DailyTotals/DailyTotals";
+import SessionModal from "./SessionModal";
 
 const timeSlots = ["Morgon", "Förmiddag", "Eftermiddag", "Kväll"];
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
+
+  const [buttonPopup, setButtonPopup] = useState(false);
 
   const days = useMemo(() => getWeekDays(currentDate), [currentDate]);
 
@@ -64,6 +67,9 @@ export default function Calendar() {
                 key={`${slot}-${day.key}`}
                 className="calendar-cell"
                 type="button"
+                onClick={() => {
+                  setButtonPopup(true);
+                }}
               >
                 +
               </button>
@@ -72,6 +78,7 @@ export default function Calendar() {
         ))}
         <DailyTotals />
       </div>
+      <SessionModal trigger={buttonPopup} setTrigger={setButtonPopup} />
     </section>
   );
 }

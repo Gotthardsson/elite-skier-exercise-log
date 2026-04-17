@@ -1,0 +1,187 @@
+.session-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-inner {
+  position: relative;
+  padding: 32px;
+  width: 100%;
+  height: auto;
+  max-width: 640px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+}
+
+.log-mode {
+  border: solid #11b981 2px;
+}
+
+.plan-mode {
+  border: solid #3b82f6 2px;
+}
+
+.popup-inner .popup-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.log-type-div {
+  width: 80%;
+  display: flex;
+}
+
+.log-type-btn {
+  width: 25%;
+  height: 30px;
+  border: none;
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+  border: solid #3b82f6 1px;
+}
+
+.plan-type-btn {
+  width: 25%;
+  height: 30px;
+  border: none;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border: solid #11b981 1px;
+}
+
+.log-selected {
+  background-color: #11b981;
+
+  width: 25%;
+  border: none;
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+}
+
+.plan-selected {
+  background-color: #3b82f6;
+  border: solid #3b82f6 1px;
+}
+
+.date-and-time-div {
+  display: flex;
+  flex-direction: row;
+  width: 80%;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.date-btn {
+  width: 50%;
+}
+
+.p-datepicker-group-container {
+  background-color: white;
+  width: 300px;
+  height: 180px;
+  margin-top: 10px;
+  border: solid black 2px;
+  position: fixed;
+  top: 10;
+}
+
+.p-datepicker-header {
+  font-size: 16px;
+  display: flex;
+  justify-content: space-around;
+  align-items: space-around;
+  height: 30px;
+}
+
+.p-datepicker-year p-link {
+  margin-left: 5px;
+}
+/* span:hover {
+  background-color: black;
+  color: white;
+  border-radius: 25%;
+}
+
+.datepicker-other-month:hover {
+  background-color: black;
+  color: white;
+  border-radius: 25%;
+} */
+
+.time-of-day-div {
+  display: flex;
+  flex-direction: column;
+}
+
+.label-popup {
+  font-size: 12px;
+  color: gray;
+}
+
+.time-of-day-select {
+  width: 150px;
+}
+
+.activity-div {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+}
+
+.activity-select {
+  width: 200px;
+}
+.zones-times-div {
+  display: flex;
+  flex-direction: row;
+  width: 80%;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+.zone-input-div {
+  display: flex;
+  flex-direction: column;
+}
+.zone-input {
+  width: 50px;
+  height: 20px;
+}
+
+.comment-div {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  margin-top: 20px;
+}
+
+.comment-input {
+  height: 100px;
+  padding-top: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  font-size: 12px;
+}
+
+.ranges-div {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  margin-top: 20px;
+}
+.popup-save-btn {
+  margin-top: 20px;
+  width: 100px;
+}
