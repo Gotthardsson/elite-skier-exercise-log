@@ -6,8 +6,9 @@ main #root {
 .app-layout {
   display: grid;
   grid-template-columns: 220px 1fr;
-  min-height: 89vh; /* 🔥 detta är viktigt */
+  min-height: 95vh;
   min-width: 100vh;
+  height: 100%;
 }
 main {
   width: 100%;
