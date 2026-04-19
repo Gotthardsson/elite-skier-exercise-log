@@ -14,6 +14,7 @@ import "./templates.css"
                 <p className="card-sport">{sport} - {length} min</p>
                 <p className="card-comment">{comment}</p>
                 <p className="card-zone">{heartRateZone}</p>
+                <div className="card-zone-line"></div>
             </div>
 
         );

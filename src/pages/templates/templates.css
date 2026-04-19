@@ -3,36 +3,74 @@
 
 .header{
     padding: 10px;
+    border-bottom: 2px solid black;
+    height:80px
 }
 .title{
     margin-top: 0;
 }
 .subtitle{
     color: hsla(0, 0%, 0%, 0.7);
+    
+}
+.new-buttons{
+    display: flex;
+    padding: 10px;
+}
+.new-template{
+    margin-right: 10px;
+    padding: 5px;
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    background-color: rgba(230, 230, 230, 0.1);
+    cursor: pointer;
+}
+.new-template:hover{
+    background-color: rgba(230, 230, 230, 0.5);
+}
+.new-folder{
+    display: flex;
+    margin-right: 10px;
+    padding: 5px;
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    background-color: rgba(230, 230, 230, 0.1);
+    cursor: pointer;
+}
+.new-folder:hover{
+    background-color: rgba(230, 230, 230, 0.5);
+}
+.icons-in-text{
+    margin-right: 5px;
+}
+.templates-container{
+    display: flex;
 }
 .template-card{
     display: flex;
     flex-direction: column;
     margin: 10px;
-    padding: 5px;
-    max-width: 200px;
-    border: 1px solid;
+    padding: 15px;
+    padding-bottom: 10px;
+    max-width: 300px;
+    border: 1px solid rgba(0, 0, 0, 0.473);
     border-radius: 10px;
-    max-height: 80px;
-    shadow: 2px;
+    max-height: 120px;
+    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.219);
 }
 .card-title{
     font-size: 1em;
     margin: 0;
 }
 .card-sport{
-    margin: 0px 2px 0px 2px;
+    margin: 2px 2px 0px 2px;
     font-size: 0.8em;
     color: hsl(0, 0%, 60%);
 }
 .card-comment{
     font-size: 0.8em;
-    margin: 10px 2px 0px 0px;
+    margin: 5px 2px 0px 2px;
+    min-height: 30px;
 }
 .card-zone{
     margin: 0;
@@ -53,4 +91,16 @@ label{
 .zone-inputs{
     display: flex;
     
+    margin-top: 2px;
+    margin-bottom: 5px;
+    background-color: hsla(120, 92%, 44%, 0.6);
+    border-radius: 5px;
+    max-width: 40px;
+    text-align: center;
+}
+.card-zone-line{
+    height:8px;
+    width: 300px;
+    border-radius: 5px;
+    background-color: hsla(120, 92%, 44%, 0.6);
 }
