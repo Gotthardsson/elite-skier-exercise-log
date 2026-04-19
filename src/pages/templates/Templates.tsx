@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import "./templates.css"
 import TemplateCard from './TemplateCard';
+import NewTemplate from './NewTemplateDialog';
 
     function Templates(){
 
@@ -27,6 +28,8 @@ import TemplateCard from './TemplateCard';
                 <TemplateCard/>
                 <TemplateCard/>
             </div>
+            <NewTemplate/>
+
        </>);
     };
 

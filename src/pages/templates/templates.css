@@ -73,6 +73,24 @@
     min-height: 30px;
 }
 .card-zone{
+    margin: 0;
+}
+.new-template-container{
+    display: flex;
+    margin: auto;
+    flex-direction: column;
+    margin-top: 20px;
+    width: 450px;
+    border: 1px solid;
+    padding: 20px;
+    border-radius: 10px;
+}
+label{
+    display:block;
+}
+.zone-inputs{
+    display: flex;
+    
     margin-top: 2px;
     margin-bottom: 5px;
     background-color: hsla(120, 92%, 44%, 0.6);
