@@ -1,6 +1,6 @@
 import { useState } from "react";
-import "./switchViewComponent.css";
 
+import "./calender.css";
 type Props = {
   onChange: (isLogSelected: boolean) => void;
 };
