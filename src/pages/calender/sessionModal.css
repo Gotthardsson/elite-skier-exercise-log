@@ -52,6 +52,10 @@
   border: solid #3b82f6 1px;
 }
 
+.log-type-btn:hover {
+  cursor: pointer;
+}
+
 .plan-type-btn {
   width: 25%;
   height: 30px;
@@ -59,6 +63,10 @@
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   border: solid #11b981 1px;
+}
+
+.plan-type-btn {
+  cursor: pointer;
 }
 
 .log-selected {
