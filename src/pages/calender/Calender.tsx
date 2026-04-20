@@ -2,8 +2,8 @@ import { Fragment, useMemo, useState } from "react";
 import { getWeekDays } from "../../utils/date/dateHelper";
 import "./calender.css";
 import DailyTotals from "../../components/DailyTotals/DailyTotals";
-import SessionModal from "./SessionModal";
-import SwitchViewComponent from "./SwitchViewComponent/SwitchViewComponent";
+import SessionModal from "./sessionModal/SessionModal";
+import SwitchViewComponent from "./SwitchViewComponent";
 
 const timeSlots = ["Morgon", "Förmiddag", "Eftermiddag", "Kväll"];
 

@@ -2,7 +2,7 @@ import "./sessionModal.css";
 import { useState } from "react";
 
 import { Calendar } from "primereact/calendar";
-import zones from "../../localdata/zones";
+import zones from "../../../localdata/zones";
 
 export default function SessionModal(props) {
   //Framtiden ta in bool ifrån vilken vy man ör i:
