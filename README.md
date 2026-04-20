@@ -42,3 +42,5 @@ Klona projektet:
 git clone <repo-url>
 cd <repo-namn>
 ```
+##Extra installationer som krävs
+- npm install primereact
