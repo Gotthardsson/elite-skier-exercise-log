@@ -43,4 +43,6 @@ git clone <repo-url>
 cd <repo-namn>
 ```
 ##Extra installationer som krävs
+```bash
 - npm install primereact
+```
