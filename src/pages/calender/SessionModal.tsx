@@ -1,5 +1,5 @@
-import "./sessionModual.css";
-import { Fragment, useState } from "react";
+import "./sessionModal.css";
+import { useState } from "react";
 
 import { Calendar } from "primereact/calendar";
 import zones from "../../localdata/zones";

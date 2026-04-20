@@ -3,6 +3,7 @@ import { getWeekDays } from "../../utils/date/dateHelper";
 import "./calender.css";
 import DailyTotals from "../../components/DailyTotals/DailyTotals";
 import SessionModal from "./SessionModal";
+import SwitchViewComponent from "./SwitchViewComponent/SwitchViewComponent";
 
 const timeSlots = ["Morgon", "Förmiddag", "Eftermiddag", "Kväll"];
 
@@ -10,6 +11,7 @@ export default function Calendar() {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
 
   const [buttonPopup, setButtonPopup] = useState(false);
+  const [borderStyle, setBorderStyle] = useState("3px solid #2fd08f");
 
   const days = useMemo(() => getWeekDays(currentDate), [currentDate]);
 
@@ -42,9 +44,18 @@ export default function Calendar() {
         <button type="button" onClick={handleNextWeek}>
           →
         </button>
+        <SwitchViewComponent
+          onChange={(isLogSelected) => {
+            const newBorder = isLogSelected
+              ? "3px solid #2fd08f"
+              : "3px solid #3b82f6";
+
+            setBorderStyle(newBorder);
+          }}
+        />
       </div>
 
-      <div className="calendar-grid">
+      <div className="calendar-grid" style={{ border: borderStyle }}>
         <div className="calendar-corner" />
 
         {days.map((day) => (
