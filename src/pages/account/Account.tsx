@@ -32,7 +32,11 @@ export default function Account() {
             <option>Atlet</option>
           </select>
 
-          <button className="save-role-btn">Spara ändringar</button>
+          <ButtonPrimary
+            className="save-role-btn"
+            text={"Spara"}
+            onClick={"SAVE FUNCTION"}
+          ></ButtonPrimary>
         </div>
 
         <div className="heart-rate-zones-parent">
@@ -75,6 +79,7 @@ export default function Account() {
           <ButtonPrimary
             className={"save-zones-btn"}
             text={"Spara"}
+            onClick={""}
           ></ButtonPrimary>
         </div>
       </main>
