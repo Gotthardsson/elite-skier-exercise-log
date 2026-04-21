@@ -4,6 +4,7 @@ import Stats from "./pages/stats/Stats";
 import Templates from "./pages/templates/Templates";
 import NavigationMenu from "./components/Navigation/NavigtionMenu";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Account from "./pages/account/Account";
 
 //https://www.w3schools.com/react/react_router.asp
 
@@ -19,6 +20,7 @@ function App() {
             <Route path="/calendar" element={<Calender />} />
             <Route path="/stats" element={<Stats />} />
             <Route path="/templates" element={<Templates />} />
+            <Route path="/account" element={<Account />} />
           </Routes>
         </main>
       </div>

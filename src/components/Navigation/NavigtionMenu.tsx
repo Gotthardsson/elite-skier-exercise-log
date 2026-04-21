@@ -4,6 +4,10 @@ import { NavLink } from "react-router-dom";
 export default function NavigationMenu() {
   return (
     <nav className="navigation-bar">
+      <div className="nav-brand">ES Training</div>
+
+      <div className="nav-divider" />
+
       <div className="nav-items">
         <NavLink
           to="/calendar"
@@ -42,7 +46,7 @@ export default function NavigationMenu() {
         </NavLink>
       </div>
 
-      <div>&copy; Elit skier training log</div>
+      <div className="nav-footer">&copy; Elit skier training log</div>
     </nav>
   );
 }
