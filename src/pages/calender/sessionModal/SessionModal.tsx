@@ -6,7 +6,7 @@ import zones from "../../../localdata/zones";
 import ButtonPrimary from "../../../components/ButtonPrimary";
 
 export default function SessionModal(props) {
-  //Framtiden ta in bool ifrån vilken vy man ör i:
+  //Framtiden ta in bool ifrån vilken vy man är i:
   const [isLogSelected, setLogSelected] = useState(true);
   const [isPlanSelected, setPlanSelected] = useState(false);
   const [feelingValue, setFeelingValue] = useState(5);

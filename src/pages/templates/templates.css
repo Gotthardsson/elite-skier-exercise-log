@@ -4,7 +4,10 @@
 .header{
     padding: 10px;
     border-bottom: 2px solid black;
-    height:80px
+    height:80px;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
 }
 .title{
     margin-top: 0;
@@ -16,8 +19,16 @@
 .new-buttons{
     display: flex;
     padding: 10px;
+    align-self: flex-end;
+}
+h3{
+    margin: 0;
+    margin-top: 20px;
+    margin-left: 20px;
+    color: hsla(0, 0%, 0%, 0.7);
 }
 .new-template{
+    
     margin-right: 10px;
     padding: 5px;
     border-radius: 10px;
@@ -43,6 +54,35 @@
 .icons-in-text{
     margin-right: 5px;
 }
+.folders-container{
+    display: flex;
+    margin-top: 10px;
+    padding-bottom: 20px;
+    border-bottom: rgba(0, 0, 0, 0.301) solid 1px;
+}
+.no-folders{
+    margin: 20px;
+    color: hsla(0, 0%, 0%, 0.6);
+    display: none;
+}
+.folder-card{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px;
+    padding: 15px;
+    padding-bottom: 10px;
+    width: 300px;
+    border: 1px solid rgba(0, 0, 0, 0.473);
+    border-radius: 10px;
+    max-height: 120px;
+    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.219);
+}
+.folder-card:hover{
+    box-shadow: 4px 4px 8px 4px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
+
 .templates-container{
     display: flex;
 }
@@ -53,14 +93,33 @@
     padding: 15px;
     padding-bottom: 10px;
     max-width: 300px;
-    border: 1px solid rgba(0, 0, 0, 0.473);
+    border: 1px solid rgba(0, 0, 0, 0.3);
     border-radius: 10px;
     max-height: 120px;
     box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.219);
 }
+.template-card:hover{
+    box-shadow: 4px 4px 8px 4px rgba(0, 0, 0, 0.3);
+    cursor: grab;
+}
+.card-title-container{
+    display: flex;
+    justify-content: space-between;
+}
 .card-title{
     font-size: 1em;
     margin: 0;
+    align-self: center;
+}
+.icon-button{
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 5px;
+}
+.icon-button:hover{
+    opacity: 0.7;
 }
 .card-sport{
     margin: 2px 2px 0px 2px;
@@ -69,38 +128,188 @@
 }
 .card-comment{
     font-size: 0.8em;
-    margin: 5px 2px 0px 2px;
+    margin: 15px 2px 0px 2px;
     min-height: 30px;
 }
 .card-zone{
     margin: 0;
-}
-.new-template-container{
-    display: flex;
-    margin: auto;
-    flex-direction: column;
-    margin-top: 20px;
-    width: 450px;
-    border: 1px solid;
-    padding: 20px;
-    border-radius: 10px;
-}
-label{
-    display:block;
-}
-.zone-inputs{
-    display: flex;
-    
-    margin-top: 2px;
-    margin-bottom: 5px;
-    background-color: hsla(120, 92%, 44%, 0.6);
+    padding: 2px 5px;
     border-radius: 5px;
-    max-width: 40px;
-    text-align: center;
+    max-width: fit-content;
+    background-color: rgb(163 230 53 / 1);
+    margin-bottom: 3px;
+    color: white;
+    font-weight: bold;
 }
 .card-zone-line{
     height:8px;
     width: 300px;
     border-radius: 5px;
-    background-color: hsla(120, 92%, 44%, 0.6);
+    background-color: rgb(163 230 53 / 1);
+}
+.new-template-container{
+    display: none;
+    margin: auto;
+    flex-direction: column;
+    margin-top: 20px;
+    width: 450px;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
+}
+.new-template-title{
+    font-size: 1.5em;
+    margin: 0;
+    text-align: center;
+}
+.template-name-folder{
+    display: flex;
+    justify-content:space-between
+}
+.template-name{
+    display: flex;
+    flex-direction: column;
+    width: 48%;
+    
+}
+.template-folder{
+     display: flex;
+    flex-direction: column;
+    width: 48%;
+}
+input{
+    margin-top: 5px;
+    border-radius: 10px;
+    height: 24px;
+    border-color: rgba(0, 0, 0, 0.4);
+    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.4);
+}
+label{
+    margin-top: 10px;
+    font-size: 1.2em;
+    color: hsla(0, 0%, 0%, 0.6);
+}
+.select{
+    height: 30px;
+    border-radius: 10px;
+    margin-top: 5px;
+    color: hsla(0, 0%, 0%, 0.6);
+    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
+}
+#description-label{
+    margin-top: 15px;
+}
+#descriptionInput{
+    height: 60px;
+    margin-top: 5px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
+}
+
+.zone-inputs{
+    display: flex;
+    max-width: 100%;
+    justify-content: space-around;
+    margin-top: 2px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    
+    text-align: center;
+}
+.zone-container{
+    width: 40px;
+    display: flex;
+    flex-direction: column;
+     align-items: center;
+}
+
+.zone-inputs input{
+    width: 60px;
+    height: 20px;
+    border-radius: 8px;
+    border-color: rgba(0, 0, 0, 0.4);
+    text-align: center;
+    box-shadow: none;
+}
+.zone-inputs label{
+    color: rgb(255, 255, 255);
+    border-radius: 8px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+#a1-label{
+    background-color: rgb(52 211 153 / 1);
+    width: 68px;
+    padding: 3px 0px;
+}
+#a2-label{
+    background-color: rgb(163 230 53 / 1);
+    width: 68px;
+    padding: 3px 0px;
+}
+#a3-label{
+    background-color:rgb(250 204 21 / 1);
+    width: 68px;
+    padding: 3px 0px;
+}
+#a3minus-label{
+    background-color: rgb(251 146 60 / 1)
+;
+    width: 68px;
+    padding: 3px 0px;
+}
+#a3plus-label{
+    background-color:rgb(248 113 113 / 1)
+;
+    width: 68px;
+    padding: 3px 0px;
+}
+#comp-label{
+    background-color: rgb(185 28 28 / 1);
+    width: 68px;
+    padding: 3px 0px;
+}
+.interval-label{
+    margin-top: 10px;
+    font-size: 1.2em;
+    color: hsla(0, 0%, 0%, 0.6);
+    display: flex;
+    align-items: center;
+}
+.interval-label input{
+    margin-right: 5px;
+    width: 20px;
+    height: 20px;
+    border: none;
+}
+.new-template-buttons{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+.btn.btn-primary{
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: none;
+    font-weight: 500;
+    font-size: 1.1em;
+    background-color: rgb(0, 0, 0);
+    color: white;
+    cursor: pointer;
+}
+.btn btn-primary:hover{
+    background-color: rgb(0, 0, 0, 0.8);
+}
+.btn.btn-secondary{
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: rgba(128, 128, 128, 0.411) solid 1px;
+    background-color: rgb(255, 255, 255);
+    color: black;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1.1em;
+    margin-right: 10px;
 }
