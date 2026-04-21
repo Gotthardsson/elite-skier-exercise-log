@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { Calendar } from "primereact/calendar";
 import zones from "../../../localdata/zones";
+import ButtonPrimary from "../../../components/ButtonPrimary";
 
 export default function SessionModal(props) {
   //Framtiden ta in bool ifrån vilken vy man ör i:
@@ -18,12 +19,13 @@ export default function SessionModal(props) {
           isLogSelected ? "popup-inner log-mode" : "popup-inner plan-mode"
         }
       >
-        <button
+        <ButtonPrimary
           className="popup-close-btn"
+          text="Stäng"
           onClick={() => props.setTrigger(false)}
         >
           Stäng
-        </button>
+        </ButtonPrimary>
         {props.childreen}
         <h2>Lägg till pass</h2>
         <div className="log-type-div">
@@ -108,7 +110,7 @@ export default function SessionModal(props) {
           ></input>
         </div>
 
-        <button className="popup-save-btn">Spara</button>
+        <ButtonPrimary className="popup-save-btn" text="Spara"></ButtonPrimary>
       </div>
     </div>
   ) : (
