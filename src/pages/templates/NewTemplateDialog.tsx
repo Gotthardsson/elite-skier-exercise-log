@@ -2,10 +2,16 @@ import React from "react";
 import "./templates.css";
 
 function NewTemplate() {
+
+    function closeDialog(){
+        const dialog = document.querySelector(".new-template-container") as HTMLDivElement;
+        dialog.style.display = "none";
+    }
+
   return (
     <>
       <div className="new-template-container">
-        <h3 className="title">Ny Mall</h3>
+        <h3 className="new-template-title">Ny Mall</h3>
         <div className="template-name-folder">
             <div className="template-name">
           <label className="name-label" htmlFor="templateNameInput">
@@ -94,13 +100,16 @@ function NewTemplate() {
         </div>
 
         <label htmlFor="intervalCheckbox" className="interval-label">
-          Intervallpass:{" "}
+          <input type="checkbox" name="intervalCheckbox" /> Intervallpass{" "}
         </label>
-        <input type="checkbox" name="intervalCheckbox" />
+        
 
         <div className="new-template-buttons">
+          <button className="btn btn-secondary" onClick={closeDialog}>
+            Avbryt
+          </button>
           <button className="btn btn-primary">Skapa mall</button>
-          <button className="btn btn-secondary">Avbryt</button>
+          
         </div>
       </div>
     </>
