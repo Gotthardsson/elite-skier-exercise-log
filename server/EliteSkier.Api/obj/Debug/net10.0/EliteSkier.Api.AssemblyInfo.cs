@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("43181440-2da9-4015-b23d-3c75b0fbd16f")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("EliteSkier.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4f8edb6a017b324702caafeb72daf3505337f9d0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6444ec728507a297fabfe7c96bba609e9e60182b")]
 [assembly: System.Reflection.AssemblyProductAttribute("EliteSkier.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EliteSkier.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

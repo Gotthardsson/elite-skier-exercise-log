@@ -1,8 +1,18 @@
+using Microsoft.EntityFrameworkCore;
+using EliteSkier.Api.Data;
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // 1. LÄGG TILL DETTA: Registrera tjänster för Controllers
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString));
+
+// Dependency Injection
+builder.Services.AddScoped<IAthleteRepository, AthleteRepository>();
+builder.Services.AddScoped<IAthleteService, AthleteService>();
 
 var app = builder.Build();
 
@@ -14,10 +24,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// Kommentera bort denna tillfälligt för att underlätta för ngrok
-// app.UseHttpsRedirection();
 
-// Behåll väder-exemplet om du vill, men det behövs inte för Strava
-app.MapGet("/weatherforecast", () => { /* ... */ });
+app.UseHttpsRedirection();
+
+
+
 
 app.Run();

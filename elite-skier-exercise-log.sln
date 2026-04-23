@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{DAD03CFC-D5FA-AC94-41C7-9ABAB326F09E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EliteSkier.Api", "server\EliteSkier.Api\EliteSkier.Api.csproj", "{66032296-F948-63AB-F776-047DF7FDF553}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{66032296-F948-63AB-F776-047DF7FDF553}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66032296-F948-63AB-F776-047DF7FDF553}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66032296-F948-63AB-F776-047DF7FDF553}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66032296-F948-63AB-F776-047DF7FDF553}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{66032296-F948-63AB-F776-047DF7FDF553} = {DAD03CFC-D5FA-AC94-41C7-9ABAB326F09E}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {99F76011-F5CE-4CDE-A761-BA9D9FFDCD6B}
+	EndGlobalSection
+EndGlobal
