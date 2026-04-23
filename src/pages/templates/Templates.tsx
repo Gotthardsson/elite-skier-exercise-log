@@ -1,14 +1,19 @@
 import React, { useState } from "react";
 import "./templates.css";
 import TemplateCard from "./TemplateCard";
-import NewTemplate from "./NewTemplateDialog";
+import NewTemplateDialog from "./NewTemplateDialog";
 import Folder from "./Folder";
+import type { Template } from "../../types/TemplateType.ts";
 
 function Templates() {
+  const [templates, setTemplates] = useState<Template[]>([]);
+
+  const handleTemplateCreate = (newTemplate: Template) => {
+    setTemplates([...templates, newTemplate]);
+  };
+
   function openNewTemplateDialog() {
-    const dialog = document.querySelector(
-      ".new-template-container",
-    ) as HTMLDivElement;
+    const dialog = document.querySelector(".new-template-container") as HTMLDivElement;
     dialog.style.display = "flex";
   }
 
@@ -58,11 +63,11 @@ function Templates() {
       </div>
         <h3>Träningsmallar</h3>
       <div className="templates-container">
-        
-        <TemplateCard />
-        <TemplateCard />
+        {templates.map((template, index) => (
+          <TemplateCard key={index} template={template} />
+        ))}
       </div>
-      <NewTemplate />
+      <NewTemplateDialog onTemplateCreate={handleTemplateCreate} />
     </>
   );
 }

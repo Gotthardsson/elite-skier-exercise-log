@@ -1,4 +1,11 @@
-
+:root{
+  --clr-a1: rgb(52 211 153 / 1);
+  --clr-a2: rgb(163 230 53 / 1);
+  --clr-a3minus: rgb(251 146 60 / 1);
+  --clr-a3: rgb(250 204 21 / 1);
+  --clr-a3plus: rgb(248 113 113 / 1);
+  --clr-comp: rgb(185 28 28 / 1);
+}
 
 
 .header{
@@ -92,7 +99,7 @@ h3{
     margin: 10px;
     padding: 15px;
     padding-bottom: 10px;
-    max-width: 300px;
+    min-width: 300px;
     border: 1px solid rgba(0, 0, 0, 0.3);
     border-radius: 10px;
     max-height: 120px;
@@ -131,21 +138,39 @@ h3{
     margin: 15px 2px 0px 2px;
     min-height: 30px;
 }
+.card-zone-container{
+    display: flex;
+    flex-direction: column;
+    
+}
+.card-zone-texts-container{
+    display: flex;
+    width: 100%;
+    height: fit-content;
+}
+
 .card-zone{
+  display: block;
+}
+.card-zone-text{
     margin: 0;
     padding: 2px 5px;
     border-radius: 5px;
     max-width: fit-content;
     background-color: rgb(163 230 53 / 1);
     margin-bottom: 3px;
+    margin-right: 3px;
     color: white;
     font-weight: bold;
 }
+.card-zone-line-container{
+    display: flex;
+    width: 100%;
+}
 .card-zone-line{
     height:8px;
-    width: 300px;
+    max-width: 300px;
     border-radius: 5px;
-    background-color: rgb(163 230 53 / 1);
 }
 .new-template-container{
     display: none;
@@ -157,6 +182,11 @@ h3{
     padding: 20px;
     border-radius: 10px;
     box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    position: absolute;
+      left: 40%;
+      top: 20%;
+      z-index: 1000;
 }
 .new-template-title{
     font-size: 1.5em;
