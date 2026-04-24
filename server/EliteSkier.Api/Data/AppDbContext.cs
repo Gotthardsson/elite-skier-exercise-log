@@ -9,6 +9,7 @@ public class AppDbContext : DbContext
     {
     }
     public DbSet<Athlete> Athletes {get; set;}
+    public DbSet<WorkoutTemplate> WorkoutTemplates { get; set; }
 
 
     protected override void OnModelCreating (ModelBuilder modelBuilder)

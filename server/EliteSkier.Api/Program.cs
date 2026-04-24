@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using EliteSkier.Api.Data;
+using EliteSkier.Api.Repositories;
+using EliteSkier.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -10,9 +12,12 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Dependency Injection
-builder.Services.AddScoped<IAthleteRepository, AthleteRepository>();
+builder.Services.AddScoped<IWorkoutRepository, WorkoutRepository>();
+builder.Services.AddScoped<IWorkoutService, WorkoutService>();
 builder.Services.AddScoped<IAthleteService, AthleteService>();
+builder.Services.AddScoped<IAthleteRepository, AthleteRepository>();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -21,7 +26,8 @@ app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 

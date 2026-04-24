@@ -1,14 +1,25 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using EliteSkier.Api.Data;
+using EliteSkier.Api.Models;
+
+namespace EliteSkier.Api.Controllers;
+
 [ApiController]
 [Route("api/[controller]")]
 public class AthleteController : ControllerBase
 {
-    private readonly IAthleteService _athleteService;
+    private readonly AppDbContext _context;
 
-    public AthleteController(IAthleteService athleteService) => _athleteService = athleteService;
+    public AthleteController(AppDbContext context)
+    {
+        _context = context;
+    }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _athleteService.GetAllAthletesAsync());
-
-    [HttpPost]
-    public async Task<IActionResult> Create(AthleteDto dto) => Ok(await _athleteService.CreateAthleteAsync(dto));
+    public async Task<IActionResult> Get() 
+    {
+        var data = await _context.Athletes.ToListAsync();
+        return Ok(data);
+    }
 }
