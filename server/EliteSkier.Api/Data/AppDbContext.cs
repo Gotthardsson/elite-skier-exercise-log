@@ -8,8 +8,9 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
-    public DbSet<Athlete> Athletes {get; set;}
-    public DbSet<WorkoutTemplate> WorkoutTemplates { get; set; }
+
+    public DbSet <Activity> Activities {get; set;}
+
 
 
     protected override void OnModelCreating (ModelBuilder modelBuilder)

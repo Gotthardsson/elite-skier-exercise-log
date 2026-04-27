@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EliteSkier.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+408c56ced651672f320c8ef2306fb8e7d7380939")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a4e0985b8b374cac97a2d2d0da56c8dc8ec6f327")]
 [assembly: System.Reflection.AssemblyProductAttribute("EliteSkier.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EliteSkier.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
