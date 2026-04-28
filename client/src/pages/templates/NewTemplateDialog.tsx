@@ -2,12 +2,17 @@ import React from "react";
 import "./templates.css";
 import type { Template } from "../../types/TemplateType";
 import { saveTemplate } from "./templateService";
+import type { Activity } from "../../types/Activity";
 
 interface NewTemplateDialogProps {
   onTemplateCreate: (template: Template) => void;
+  activities: Activity[];
 }
 
-function NewTemplateDialog({ onTemplateCreate }: NewTemplateDialogProps) {
+function NewTemplateDialog({
+  onTemplateCreate,
+  activities,
+}: NewTemplateDialogProps) {
   function closeDialog() {
     const dialog = document.querySelector(
       ".new-template-container"
@@ -113,15 +118,12 @@ function NewTemplateDialog({ onTemplateCreate }: NewTemplateDialogProps) {
           value={sport}
           onChange={(e) => setSport(e.target.value)}
         >
-          <option value="default">Välj sport</option>
-          <option value="classic">Klassikt</option>
-          <option value="skate">Skate</option>
-          <option value="rollerski-classic">Rullskidor klassikt</option>
-          <option value="rollerski-skate">Rullskidor skate</option>
-          <option value="cycling">Cykling</option>
-          <option value="running">Löpning</option>
-          <option value="swimming">Simning</option>
-          <option value="strength">Styrka</option>
+          <option value="">Välj aktivitet</option>
+          {activities?.map((activity) => (
+            <option key={activity.id} value={activity.id}>
+              {activity.name}
+            </option>
+          ))}
         </select>
 
         <label htmlFor="descriptionInput" className="description-label">

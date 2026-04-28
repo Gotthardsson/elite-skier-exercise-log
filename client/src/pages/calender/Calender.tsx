@@ -4,10 +4,15 @@ import "./calender.css";
 import DailyTotals from "../../components/DailyTotals/DailyTotals";
 import SessionModal from "./sessionModal/SessionModal";
 import SwitchViewComponent from "./SwitchViewComponent";
+import type { Activity } from "../../types/Activity";
+
+interface CalenderProps {
+  activities: Activity[];
+}
 
 const timeSlots = ["Morgon", "Förmiddag", "Eftermiddag", "Kväll"];
 
-export default function Calendar() {
+export default function Calendar({ activities }: CalenderProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
 
   const [buttonPopup, setButtonPopup] = useState(false);
@@ -89,7 +94,11 @@ export default function Calendar() {
         ))}
         <DailyTotals />
       </div>
-      <SessionModal trigger={buttonPopup} setTrigger={setButtonPopup} />
+      <SessionModal
+        trigger={buttonPopup}
+        setTrigger={setButtonPopup}
+        activities={activities}
+      />
     </section>
   );
 }

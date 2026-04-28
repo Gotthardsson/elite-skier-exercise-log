@@ -5,7 +5,7 @@ import NewTemplateDialog from "./NewTemplateDialog.tsx";
 import Folder from "./Folder.tsx";
 import type { Template } from "../../types/TemplateType.ts";
 
-function Templates() {
+function Templates(props) {
   const [templates, setTemplates] = useState<Template[]>([]);
 
   const handleTemplateCreate = (newTemplate: Template) => {
@@ -68,7 +68,10 @@ function Templates() {
           <TemplateCard key={index} template={template} />
         ))}
       </div>
-      <NewTemplateDialog onTemplateCreate={handleTemplateCreate} />
+      <NewTemplateDialog
+        onTemplateCreate={handleTemplateCreate}
+        activities={props.activities}
+      />
     </>
   );
 }
