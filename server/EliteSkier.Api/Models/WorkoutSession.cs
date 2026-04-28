@@ -81,7 +81,7 @@ public class WorkoutSession
     [Column("external_id")]
     public string? ExternalId { get; set; }
 
-    [Column("strava_raw")]
+[Column("strava_raw", TypeName = "jsonb")]
     public string? StravaRaw { get; set; }
 
     [Column("created_at")]
