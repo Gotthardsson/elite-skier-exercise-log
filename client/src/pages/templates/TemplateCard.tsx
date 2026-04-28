@@ -5,7 +5,10 @@ function TemplateCard({ template }: { template: Template }) {
   const sport = template.sport;
   const comment = template.description;
   const heartRateZone = template.zones;
-  const totalTime = Object.values(heartRateZone).reduce((acc, time) => acc + time, 0);
+  const totalTime = Object.values(heartRateZone).reduce(
+    (acc, time) => acc + time,
+    0
+  );
   const length = totalTime > 0 ? totalTime : "0";
   console.log(length);
   return (
@@ -74,15 +77,31 @@ function TemplateCard({ template }: { template: Template }) {
       <p className="card-comment">{comment}</p>
       <div className="card-zone-container">
         <div className="card-zone-texts-container">
-        {Object.entries(heartRateZone).map(([zone, value]) => ( value > 0 ? (
-          <p key={zone} className="card-zone-text" style={{ backgroundColor: `var(--clr-${zone.toLowerCase()})` }}>
-            {zone.toUpperCase()}: {value} m
-          </p>
-        ) : null ))}</div>
+          {Object.entries(heartRateZone).map(([zone, value]) =>
+            value > 0 ? (
+              <p
+                key={zone}
+                className="card-zone-text"
+                style={{ backgroundColor: `var(--clr-${zone.toLowerCase()})` }}
+              >
+                {zone.toUpperCase()}: {value} m
+              </p>
+            ) : null
+          )}
+        </div>
         <div className="card-zone-line-container">
-        {Object.entries(heartRateZone).map(([zone, value]) => ( value > 0 ? (
-          <div key={zone} className="card-zone-line" style={{ backgroundColor: `var(--clr-${zone.toLowerCase()})`, width: `${(value / totalTime) * 100}%` }}></div>
-        ) : null ))}
+          {Object.entries(heartRateZone).map(([zone, value]) =>
+            value > 0 ? (
+              <div
+                key={zone}
+                className="card-zone-line"
+                style={{
+                  backgroundColor: `var(--clr-${zone.toLowerCase()})`,
+                  width: `${(value / totalTime) * 100}%`,
+                }}
+              ></div>
+            ) : null
+          )}
         </div>
       </div>
     </div>

@@ -1,6 +1,5 @@
 import "./sessionModal.css";
 import { useState } from "react";
-
 import { Calendar } from "primereact/calendar";
 import zones from "../../../localdata/zones";
 import ButtonPrimary from "../../../components/ButtonPrimary";
@@ -12,6 +11,7 @@ export default function SessionModal(props) {
   const [feelingValue, setFeelingValue] = useState(5);
   //Skicka in rätt datum sen genom kalender prop
   const [date, setDate] = useState(new Date());
+
   return props.trigger ? (
     <div className="session-popup">
       <div
@@ -74,9 +74,12 @@ export default function SessionModal(props) {
           <label className="label-popup">Aktivitet</label>
           {/* Hämta idrotterna och mappa sen*/}
           <select className="activity-select">
-            <option>Längdskidor Skate</option>
-            <option>Längdskidor Klassiskt</option>
-            <option>Löpning</option>
+            <option value="">Välj aktivitet</option>
+            {props.activities?.map((activity) => (
+              <option key={activity.id} value={activity.id}>
+                {activity.name}
+              </option>
+            ))}
           </select>
         </div>
         <div className="zones-times-div">
