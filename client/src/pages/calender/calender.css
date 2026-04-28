@@ -76,25 +76,6 @@
   color: #98a0ad;
 }
 
-.calendar-cell {
-  min-height: 84px;
-  width: 100%;
-  border: 2px dashed #d8dde5;
-  border-radius: 16px;
-  background: transparent;
-  display: grid;
-  place-items: center;
-  font-size: 2rem;
-  color: #c9cfd8;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.calendar-cell:hover {
-  background: rgba(0, 0, 0, 0.03);
-  border-color: #c2c9d3;
-}
-
 .nav-log-type-div {
   width: 30%;
   display: flex;
@@ -141,4 +122,97 @@
 .nav-plan-selected {
   background-color: #3b82f6;
   border: solid #3b82f6 1px;
+}
+
+.calendar-cell {
+  min-height: 96px;
+  width: 100%;
+  border: 2px dashed #d8dde5;
+  border-radius: 16px;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  overflow: hidden;
+}
+
+.calendar-cell:hover {
+  background: rgba(0, 0, 0, 0.025);
+  border-color: #c2c9d3;
+}
+
+.cell-plus {
+  align-self: flex-end;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #94a3b8;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.calendar-cell:hover .cell-plus {
+  background: #eef2f7;
+  color: #475569;
+}
+
+.session-cell-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.session-cell-card {
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  overflow: hidden;
+}
+
+.session-cell-card strong {
+  max-width: 100%;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-cell-card span {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.session-cell-card.logged {
+  background: #ecfdf5;
+  border: 1px solid #86efac;
+}
+
+.session-cell-card.logged strong,
+.session-cell-card.logged span {
+  color: #047857;
+}
+
+.session-cell-card.planned {
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+}
+
+.session-cell-card.planned strong,
+.session-cell-card.planned span {
+  color: #1d4ed8;
 }

@@ -26,6 +26,7 @@ public class WorkoutSessionService : IWorkoutSessionService
             Comment = dto.Comment,
             LoggedComment = dto.LoggedComment,
             PhysicalRpe = dto.PhysicalRpe,
+            MentalRpe =dto.MentalRpe,
             
             // Mappa planerade zoner
             TizA1Planned = dto.PlannedZones.A1,
@@ -51,19 +52,43 @@ public class WorkoutSessionService : IWorkoutSessionService
         dto.Id = createdSession.Id;
         return dto;
     }
+public async Task<IEnumerable<WorkoutSessionDto>> GetUserSessionsAsync(int userId)
+{
+    var sessions = await _repo.GetAllByUserIdAsync(userId);
 
-    public async Task<IEnumerable<WorkoutSessionDto>> GetUserSessionsAsync(int userId)
+    return sessions.Select(s => new WorkoutSessionDto
     {
-        var sessions = await _repo.GetAllByUserIdAsync(userId);
-        
-        // Mappa Model -> DTO för listan
-        return sessions.Select(s => new WorkoutSessionDto
+        Id = s.Id,
+        UserId = s.UserId,
+        ActivityId = s.ActivityId,
+        ScheduledDate = s.ScheduledDate,
+        TimeOfDay = s.TimeOfDay,
+        IsLogged = s.IsLogged,
+
+        Comment = s.Comment,
+        LoggedComment = s.LoggedComment,
+        PhysicalRpe = s.PhysicalRpe,
+        MentalRpe = s.MentalRpe,
+
+        PlannedZones = new ZoneDto
         {
-            Id = s.Id,
-            ScheduledDate = s.ScheduledDate,
-            IsLogged = s.IsLogged,
-            PlannedZones = new ZoneDto { A1 = s.TizA1Planned, A3 = s.TizA3Planned /* ...osv */ },
-            ActualZones = new ZoneDto { A1 = s.TizA1Actual, A3 = s.TizA3Actual /* ...osv */ }
-        });
-    }
+            A1 = s.TizA1Planned,
+            A2 = s.TizA2Planned,
+            A3Minus = s.TizA3MinusPlanned,
+            A3 = s.TizA3Planned,
+            A3Plus = s.TizA3PlusPlanned,
+            Comp = s.TizCompPlanned
+        },
+
+        ActualZones = new ZoneDto
+        {
+            A1 = s.TizA1Actual,
+            A2 = s.TizA2Actual,
+            A3Minus = s.TizA3MinusActual,
+            A3 = s.TizA3Actual,
+            A3Plus = s.TizA3PlusActual,
+            Comp = s.TizCompActual
+        }
+    });
+}
 }

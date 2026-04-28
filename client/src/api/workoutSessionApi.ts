@@ -9,6 +9,7 @@ export const workoutSessionApi = {
   // Skapa ett nytt pass
   create: (session: SessionType) => {
     // Här mappar vi om SessionType till exakt det format din C# DTO förväntar sig
+    console.log("session innan DTO:", session);
     const dto = {
       scheduledDate: session.date,
       timeOfDay: session.timeOfDay,
