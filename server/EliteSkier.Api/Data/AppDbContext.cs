@@ -10,7 +10,8 @@ public class AppDbContext : DbContext
     }
 
     public DbSet <Activity> Activities {get; set;}
-
+    public DbSet<WorkoutSession> WorkoutSessions { get; set; }
+  
 
 
     protected override void OnModelCreating (ModelBuilder modelBuilder)

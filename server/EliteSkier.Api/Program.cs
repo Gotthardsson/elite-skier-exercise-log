@@ -24,9 +24,12 @@ builder.Services.AddCors(options =>
 
 // Registrera Repository
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
+
 
 // Registrera Service
 builder.Services.AddScoped<IActivityService, ActivityService>();
+builder.Services.AddScoped<IWorkoutSessionService, WorkoutSessionService>();
 
 
 // 4. API & Swagger dokumentation
