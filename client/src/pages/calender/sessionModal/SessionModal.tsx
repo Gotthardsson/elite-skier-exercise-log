@@ -1,27 +1,38 @@
 import "./sessionModal.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Calendar } from "primereact/calendar";
 import ButtonPrimary from "../../../components/ButtonPrimary";
 import { workoutSessionApi } from "../../../api/workoutSessionApi";
 
 export default function SessionModal(props) {
-  //Framtiden ta in bool ifrån vilken vy man är i:
   const [isLogSelected, setLogSelected] = useState(true);
   const [isPlanSelected, setPlanSelected] = useState(false);
 
-  const [session, setSession] = useState({
-    userId: 1, // Hårdkoda för nu
+  const createInitialSession = (date, timeOfDay) => ({
+    userId: 1,
     activityId: 0,
-    date: new Date().toISOString(),
-    timeOfDay: "Förmiddag",
+    date,
+    timeOfDay,
     isLogged: true,
-    description: "", // Motsvarar "Comment" i planering
-    loggedComment: "", // Motsvarar "LoggedComment"
-    feeling: 5, // physicalRpe
+    description: "",
+    loggedComment: "",
+    feeling: 5,
     mentalRpe: 5,
     plannedZones: { a1: 0, a2: 0, a3Minus: 0, a3: 0, a3Plus: 0, comp: 0 },
     actualZones: { a1: 0, a2: 0, a3Minus: 0, a3: 0, a3Plus: 0, comp: 0 },
   });
+
+  const [session, setSession] = useState(() =>
+    createInitialSession(props.date, props.timeOfDay)
+  );
+
+  useEffect(() => {
+    if (!props.trigger) return;
+
+    setSession(createInitialSession(props.date, props.timeOfDay));
+    setLogSelected(true);
+    setPlanSelected(false);
+  }, [props.trigger, props.date, props.timeOfDay]);
 
   const handleZoneChange = (zoneKey, value) => {
     const numValue = Number(value) || 0;
@@ -38,13 +49,20 @@ export default function SessionModal(props) {
 
   const handleSave = async () => {
     try {
-      // Se till att isLogged i objektet matchar din valda flik
-      const finalSession = { ...session, isLogged: isLogSelected };
+      const finalSession = {
+        ...session,
+        date: session.date.toISOString(),
+        isLogged: isLogSelected,
+      };
 
       await workoutSessionApi.create(finalSession);
-
+      props.onSessionSaved();
       alert("Passet sparades!");
-      props.setTrigger(false); // Stäng modalen
+
+      setSession(createInitialSession(props.date, props.timeOfDay));
+      setLogSelected(true);
+      setPlanSelected(false);
+      props.setTrigger(false);
     } catch (error) {
       console.error("Fel vid sparning:", error);
       alert("Kunde inte spara passet.");
@@ -65,8 +83,9 @@ export default function SessionModal(props) {
         >
           Stäng
         </ButtonPrimary>
-        {props.childreen}
+
         <h2>Lägg till pass</h2>
+
         <div className="log-type-div">
           <button
             className={isLogSelected ? "log-selected" : "log-type-btn"}
@@ -77,6 +96,7 @@ export default function SessionModal(props) {
           >
             Logga
           </button>
+
           <button
             className={
               isPlanSelected ? "plan-type-btn plan-selected" : "plan-type-btn"
@@ -93,19 +113,28 @@ export default function SessionModal(props) {
         <div className="date-and-time-div">
           <Calendar
             className="date-selector"
-            value={new Date(session.date)} // Konvertera strängen i statet till ett Date-objekt
-            onChange={(e) =>
-              setSession({ ...session, date: e.value.toISOString() })
-            }
+            value={session.date}
+            onChange={(e) => {
+              if (!e.value) return;
+
+              setSession({
+                ...session,
+                date: e.value,
+              });
+            }}
             showIcon
           />
+
           <div className="time-of-day-div">
             <label className="label-popup">Tid på dagen</label>
             <select
               className="time-of-day-select"
               value={session.timeOfDay}
               onChange={(e) =>
-                setSession({ ...session, timeOfDay: e.target.value })
+                setSession({
+                  ...session,
+                  timeOfDay: e.target.value,
+                })
               }
             >
               <option value="Morgon">Morgon</option>
@@ -118,12 +147,14 @@ export default function SessionModal(props) {
 
         <div className="activity-div">
           <label className="label-popup">Aktivitet</label>
-          {/* Hämta idrotterna och mappa sen*/}
           <select
             className="activity-select"
             value={session.activityId}
             onChange={(e) =>
-              setSession({ ...session, activityId: Number(e.target.value) })
+              setSession({
+                ...session,
+                activityId: Number(e.target.value),
+              })
             }
           >
             <option value={0}>Välj aktivitet</option>
@@ -134,6 +165,7 @@ export default function SessionModal(props) {
             ))}
           </select>
         </div>
+
         <div className="zones-times-div">
           {Object.keys(session.plannedZones).map((zone) => (
             <div key={zone} className="zone-input-div">
@@ -153,6 +185,7 @@ export default function SessionModal(props) {
             </div>
           ))}
         </div>
+
         <div className="comment-div">
           <label className="label-popup">Kommentar</label>
           <textarea
@@ -174,9 +207,12 @@ export default function SessionModal(props) {
             type="range"
             min="1"
             max="10"
-            value={session.mentalRpe} // Använd session-statet
+            value={session.mentalRpe}
             onChange={(e) =>
-              setSession({ ...session, mentalRpe: Number(e.target.value) })
+              setSession({
+                ...session,
+                mentalRpe: Number(e.target.value),
+              })
             }
           />
 
@@ -187,9 +223,12 @@ export default function SessionModal(props) {
             type="range"
             min="1"
             max="10"
-            value={session.feeling} // Använd session-statet (physicalRpe)
+            value={session.feeling}
             onChange={(e) =>
-              setSession({ ...session, feeling: Number(e.target.value) })
+              setSession({
+                ...session,
+                feeling: Number(e.target.value),
+              })
             }
           />
         </div>
@@ -198,10 +237,8 @@ export default function SessionModal(props) {
           className="popup-save-btn"
           text="Spara"
           onClick={handleSave}
-        ></ButtonPrimary>
+        />
       </div>
     </div>
-  ) : (
-    ""
-  );
+  ) : null;
 }
