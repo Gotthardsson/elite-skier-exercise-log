@@ -18,6 +18,7 @@ export default function Calendar({ activities }: CalenderProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [buttonPopup, setButtonPopup] = useState(false);
   const [borderStyle, setBorderStyle] = useState("3px solid #2fd08f");
+  const [LogSelected, setLogSelected] = useState(true);
   const [dateOfCell, setDateOfCell] = useState<Date>(new Date());
   const [timeOfDay, setTimeOfDay] = useState("Morgon");
   const [sessions, setSessions] = useState<SessionType[]>([]);
@@ -120,6 +121,9 @@ export default function Calendar({ activities }: CalenderProps) {
             setBorderStyle(
               isLogSelected ? "3px solid #2fd08f" : "3px solid #3b82f6"
             );
+            setLogSelected(isLogSelected);
+
+            console.log(isLogSelected);
           }}
         />
       </div>
@@ -193,6 +197,7 @@ export default function Calendar({ activities }: CalenderProps) {
         date={dateOfCell}
         timeOfDay={timeOfDay}
         onSessionSaved={fetchSessions}
+        isLogSelected={LogSelected}
       />
     </section>
   );
