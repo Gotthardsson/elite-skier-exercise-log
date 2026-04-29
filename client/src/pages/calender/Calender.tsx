@@ -21,8 +21,30 @@ export default function Calendar({ activities }: CalenderProps) {
   const [dateOfCell, setDateOfCell] = useState<Date>(new Date());
   const [timeOfDay, setTimeOfDay] = useState("Morgon");
   const [sessions, setSessions] = useState<SessionType[]>([]);
-
   const days = useMemo(() => getWeekDays(currentDate), [currentDate]);
+  console.log(days);
+
+  function getDailyTotal(day: Date) {
+    const sessionsForDay = sessions.filter((session) =>
+      isSameDate(day, session.scheduledDate)
+    );
+
+    const totalMinutes = sessionsForDay.reduce((total, session) => {
+      const zones = session.actualZones;
+
+      const sessionTotal =
+        zones.a1 +
+        zones.a2 +
+        zones.a3Minus +
+        zones.a3 +
+        zones.a3Plus +
+        zones.comp;
+
+      return total + sessionTotal;
+    }, 0);
+
+    return totalMinutes;
+  }
 
   const fetchSessions = async () => {
     try {
@@ -161,7 +183,7 @@ export default function Calendar({ activities }: CalenderProps) {
           </Fragment>
         ))}
 
-        <DailyTotals />
+        <DailyTotals days={days} getDailyTotal={getDailyTotal} />
       </div>
 
       <SessionModal

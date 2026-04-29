@@ -1,27 +1,33 @@
 import "./dailyTotals.css";
 
-//Kolla totalen för varje dag en specik vecka. Summera totalen och skriv ut längst ned under varje dag i kalender.
-export default function DailyTotals() {
-  const totals = [
-    ["monday", 5],
-    ["tuesday", 0],
-    ["wednesday", 0],
-    ["thursday", 3],
-    ["friday", 0],
-    ["saturday", 0],
-    ["sunday", 0],
-  ];
-
+export default function DailyTotals(props) {
   return (
-    //Första daily-total-label tar upp den första platsen i griden på kalendern så resten hamnar rätt
     <>
       <div className="daily-total-label"></div>
 
-      {totals.map(([day, value]) => (
-        <div key={day} className="daily-total">
-          {value === 0 ? "-" : value}
-        </div>
-      ))}
+      {props.days.map((day) => {
+        const total = props.getDailyTotal(day.fullDate);
+
+        if (total > 60) {
+          const hours = Math.floor(total / 60);
+          const minutes = total % 60;
+          console.log(total);
+          console.log(hours);
+          console.log(minutes);
+
+          return (
+            <div key={day.key} className="daily-total">
+              {total > 0 ? `${hours}h  ${minutes}min` : "-"}
+            </div>
+          );
+        } else {
+          return (
+            <div key={day.key} className="daily-total">
+              {total > 0 ? `${total} min` : "-"}
+            </div>
+          );
+        }
+      })}
     </>
   );
 }
