@@ -5,7 +5,7 @@ import ButtonPrimary from "../../../components/ButtonPrimary";
 import { workoutSessionApi } from "../../../api/workoutSessionApi";
 
 export default function SessionModal(props) {
-  const [isLogSelected, setLogSelected] = useState(true);
+  const [isLogSelected, setLogSelected] = useState(props.isLogSelected);
   const [isPlanSelected, setPlanSelected] = useState(false);
 
   const createInitialSession = (date, timeOfDay) => ({
@@ -32,6 +32,8 @@ export default function SessionModal(props) {
     setSession(createInitialSession(props.date, props.timeOfDay));
     setLogSelected(true);
     setPlanSelected(false);
+    setLogSelected(props.isLogSelected);
+    setPlanSelected(!props.isLogSelected);
   }, [props.trigger, props.date, props.timeOfDay]);
 
   const handleZoneChange = (zoneKey, value) => {
