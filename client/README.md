@@ -45,4 +45,17 @@ cd <repo-namn>
 ## 📦 Extra Installation
 ```bash
 npm install primereact
+npm install axios
 ```
+## Start-up process:
+
+I terminalen, skriv följande:
+    cd client
+    npm run dev
+
+Öppna en ny terminal och skriv:
+    cd server
+    cd eliteskier.api
+    dotnet run
+
+
