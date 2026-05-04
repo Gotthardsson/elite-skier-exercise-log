@@ -1,7 +1,7 @@
 const API_URL = "http://localhost:5255/api";
 
 export const saveTemplate = async (templateData) => {
-  const response = await fetch(`${API_URL}/WorkoutTemplate`, {
+  const response = await fetch(`${API_URL}/sessionTemplate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(templateData),

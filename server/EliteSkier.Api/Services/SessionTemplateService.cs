@@ -36,10 +36,10 @@ public class SessionTemplateService : ISessionTemplateService
             Is_interval = dto.IsInterval,
             Tiz_a1_planned = dto.PlannedZones.A1,
             Tiz_a2_planned = dto.PlannedZones.A2,
-            Tiz_a3minus_planned = dto.PlannedZones.A3Minus,
+            Tiz_a3_minus_planned = dto.PlannedZones.A3Minus,
             Tiz_a3_planned = dto.PlannedZones.A3,
-            Tiz_a3plus_planned = dto.PlannedZones.A3Plus,
-            Tiz_comp_planned = dto.PlannedZones.Comp,
+            Tiz_a3_plus_planned = dto.PlannedZones.A3Plus,
+            Tiz_competition_planned = dto.PlannedZones.Comp,
             Creator_id = dto.CreatorId,
             Created_at = DateTime.UtcNow
         };
@@ -58,10 +58,10 @@ public class SessionTemplateService : ISessionTemplateService
             {
                 A1 = created.Tiz_a1_planned,
                 A2 = created.Tiz_a2_planned,
-                A3Minus = created.Tiz_a3minus_planned,
+                A3Minus = created.Tiz_a3_minus_planned,
                 A3 = created.Tiz_a3_planned,
-                A3Plus = created.Tiz_a3plus_planned,
-                Comp = created.Tiz_comp_planned
+                A3Plus = created.Tiz_a3_plus_planned,
+                Comp = created.Tiz_competition_planned
             }
         };
     }

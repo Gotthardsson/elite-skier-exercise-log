@@ -1,11 +1,12 @@
 import React from "react";
 import "./templates.css";
-import type { Template } from "../../types/TemplateType";
-import { saveTemplate } from "./templateService";
+import type { TemplateType } from "../../types/TemplateType";
+import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import type { Activity } from "../../types/Activity";
 
+
 interface NewTemplateDialogProps {
-  onTemplateCreate: (template: Template) => void;
+  onTemplateCreate: (template: TemplateType) => void;
   activities: Activity[];
 }
 
@@ -34,25 +35,29 @@ function NewTemplateDialog({
   async function createTemplate() {
     // Skapa objektet så det matchar C# (platt struktur)
     const newTemplateData = {
+      id: crypto.randomUUID(), // Generera ett unikt ID för mallen
       name: templateName,
       folder: folder,
       sport: sport,
       description: description,
-      minutesA1: a1,
-      minutesA2: a2,
-      minutesA3Minus: a3Minus,
-      minutesA3: a3,
-      minutesA3Plus: a3Plus,
-      minutesComp: comp,
+      creatorId:1, // Hårdkodad för nu, byt ut mot riktig userId när du har auth på plats
+      zones: {
+        a1,
+        a2,
+        a3Minus,
+        a3,
+        a3Plus,
+        comp
+      },
       isInterval: isInterval, // Lägg till state för denna om du vill ha den dynamisk
     };
 
     try {
-      // Använd din färdiga service!
-      const savedTemplate = await saveTemplate(newTemplateData);
+      
+      await sessionTemplateApi.create(newTemplateData);
 
       // Om allt gick bra (servicen kastar error om det skiter sig)
-      onTemplateCreate(savedTemplate);
+      onTemplateCreate(newTemplateData); // Uppdatera parent-komponenten
       closeDialog();
       resetForm();
     } catch (error) {
