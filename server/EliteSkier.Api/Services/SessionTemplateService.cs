@@ -20,8 +20,8 @@ public class SessionTemplateService : ISessionTemplateService
             Id = t.Id,
             Title = t.Title,
             Description = t.Description,
-            CreatedAt = t.Created_at,
-            CreatorId = t.Creator_id,
+            CreatedAt = t.CreatedAt,
+            CreatorId = t.CreatorId,
         });
     }
 
@@ -31,29 +31,29 @@ public class SessionTemplateService : ISessionTemplateService
         {
             Id = dto.Id,
             Title = dto.Title,
-            Activity_id = dto.ActivityId,
-            Folder_id = dto.FolderId,
+            ActivityId = dto.ActivityId,
+            FolderId = dto.FolderId,
             Description = dto.Description,
-            Is_interval = dto.IsInterval,
+            IsInterval = dto.IsInterval,
             Tiz_a1_planned = dto.PlannedZones.A1,
             Tiz_a2_planned = dto.PlannedZones.A2,
             Tiz_a3_minus_planned = dto.PlannedZones.A3Minus,
             Tiz_a3_planned = dto.PlannedZones.A3,
             Tiz_a3_plus_planned = dto.PlannedZones.A3Plus,
             Tiz_competition_planned = dto.PlannedZones.Comp,
-            Creator_id = dto.CreatorId,
-            Created_at = DateTime.UtcNow
+            CreatorId = dto.CreatorId,
+            CreatedAt = DateTime.UtcNow
         };
         var created = await _repository.AddAsync(template);
         return new SessionTemplateDto{
             Id = created.Id,
-            CreatorId = created.Creator_id,
+            CreatorId = created.CreatorId,
             Title = created.Title,
-            ActivityId = created.Activity_id,
-            FolderId = created.Folder_id,
+            ActivityId = created.ActivityId,
+            FolderId = created.FolderId,
             Description = created.Description,
-            CreatedAt = created.Created_at,
-            IsInterval = created.Is_interval,
+            CreatedAt = created.CreatedAt,
+            IsInterval = created.IsInterval,
             PlannedZones = new ZoneDto
             {
                 A1 = created.Tiz_a1_planned,
