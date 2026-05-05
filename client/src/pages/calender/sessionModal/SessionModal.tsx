@@ -23,7 +23,7 @@ export default function SessionModal(props) {
   });
 
   const [session, setSession] = useState(() =>
-    createInitialSession(props.date, props.timeOfDay)
+    createInitialSession(props.date, props.timeOfDay),
   );
 
   useEffect(() => {
@@ -78,54 +78,55 @@ export default function SessionModal(props) {
           isLogSelected ? "popup-inner log-mode" : "popup-inner plan-mode"
         }
       >
-        <ButtonPrimary
-          className="popup-close-btn"
-          text="Stäng"
-          onClick={() => props.setTrigger(false)}
-        >
-          Stäng
-        </ButtonPrimary>
+        <div className="header-container">
+          
+          <div className="log-type-div">
+            <button
+              className={isLogSelected ? "log-selected" : "log-type-btn"}
+              onClick={() => {
+                setLogSelected(true);
+                setPlanSelected(false);
+              }}
+            >
+              Logga
+            </button>
 
-        <h2>Lägg till pass</h2>
-
-        <div className="log-type-div">
-          <button
-            className={isLogSelected ? "log-selected" : "log-type-btn"}
-            onClick={() => {
-              setLogSelected(true);
-              setPlanSelected(false);
-            }}
+            <button
+              className={
+                isPlanSelected ? "plan-type-btn plan-selected" : "plan-type-btn"
+              }
+              onClick={() => {
+                setPlanSelected(true);
+                setLogSelected(false);
+              }}
+            >
+              Planera
+            </button>
+          </div>
+          <h2>Lägg till pass</h2>
+          <ButtonPrimary
+            className="popup-close-btn"
+            text="Stäng"
+            onClick={() => props.setTrigger(false)}
           >
-            Logga
-          </button>
-
-          <button
-            className={
-              isPlanSelected ? "plan-type-btn plan-selected" : "plan-type-btn"
-            }
-            onClick={() => {
-              setPlanSelected(true);
-              setLogSelected(false);
-            }}
-          >
-            Planera
-          </button>
+            Stäng
+          </ButtonPrimary>
         </div>
-
         <div className="date-and-time-div">
           <Calendar
             className="date-selector"
-            value={session.scheduledDate}
+            value={session.date}
             onChange={(e) => {
               if (!e.value) return;
 
-              setSession({
-                ...session,
-                date: e.value,
-              });
-            }}
-            showIcon
-          />
+                setSession({
+                  ...session,
+                  date: e.value,
+                });
+              }}
+              showIcon
+            />
+          </div>
 
           <div className="time-of-day-div">
             <label className="label-popup">Tid på dagen</label>
@@ -202,6 +203,7 @@ export default function SessionModal(props) {
         </div>
 
         <div className="ranges-div" id="feeling-range">
+          <div className="feeling-div">
           <label className="label-popup">
             Hur kändes det mentalt? (1-10): {session.mentalRpe}
           </label>
@@ -217,7 +219,8 @@ export default function SessionModal(props) {
               })
             }
           />
-
+          </div>
+          <div className="feeling-div">
           <label className="label-popup">
             Hur kändes det fysiskt? (1-10): {session.feeling}
           </label>
@@ -232,7 +235,7 @@ export default function SessionModal(props) {
                 feeling: Number(e.target.value),
               })
             }
-          />
+          /></div>
         </div>
 
         <ButtonPrimary

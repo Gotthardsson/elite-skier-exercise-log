@@ -1,8 +1,11 @@
-export interface Template {
-  name: string;
-  folder: string;
-  sport: string;
+export interface TemplateType {
+  id: number;
+  title: string;
+  folderId: number | null;
+  activityId: number;
   description: string;
+  isInterval: boolean;
+  creatorId: number;
   zones: {
     a1: number;
     a2: number;

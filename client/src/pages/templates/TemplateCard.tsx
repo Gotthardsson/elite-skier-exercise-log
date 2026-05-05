@@ -1,8 +1,13 @@
-import type { Template } from "../../types/TemplateType";
+import type { TemplateType } from "../../types/TemplateType";
 import "./templates.css";
-function TemplateCard({ template }: { template: Template }) {
-  const title = template.name;
-  const sport = template.sport;
+import { getActivities } from "../../api/activityApi";
+import type { Activity } from "../../types/Activity";
+
+const activities: Activity[] = getActivities(); // Hämta aktiviteterna en gång och använd dem i hela komponenten
+
+function TemplateCard({ template }: { template: TemplateType }) {
+  const title = template.title;
+  const sport = activities.find((a) => a.id === template.activityId)?.name || "Okänd sport";
   const comment = template.description;
   const heartRateZone = template.zones;
   const totalTime = Object.values(heartRateZone).reduce(

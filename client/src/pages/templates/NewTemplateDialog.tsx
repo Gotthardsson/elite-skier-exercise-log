@@ -1,11 +1,13 @@
 import React from "react";
 import "./templates.css";
-import type { Template } from "../../types/TemplateType";
-import { saveTemplate } from "./templateService";
+import type { TemplateType } from "../../types/TemplateType";
+import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import type { Activity } from "../../types/Activity";
+import templates from "./Templates.tsx";
+
 
 interface NewTemplateDialogProps {
-  onTemplateCreate: (template: Template) => void;
+  onTemplateCreate: (template: TemplateType) => void;
   activities: Activity[];
 }
 
@@ -20,8 +22,8 @@ function NewTemplateDialog({
     dialog.style.display = "none";
   }
   const [templateName, setTemplateName] = React.useState("");
-  const [folder, setFolder] = React.useState("default");
-  const [sport, setSport] = React.useState("default");
+  const [folderId, setFolderId] = React.useState(0);
+  const [sportId, setSportId] = React.useState(0);
   const [description, setDescription] = React.useState("");
   const [a1, setA1] = React.useState(0);
   const [a2, setA2] = React.useState(0);
@@ -34,25 +36,29 @@ function NewTemplateDialog({
   async function createTemplate() {
     // Skapa objektet så det matchar C# (platt struktur)
     const newTemplateData = {
-      name: templateName,
-      folder: folder,
-      sport: sport,
+      id: Number(templates.length) + 1, // Generera ett unikt ID för mallen
+      title: templateName,
+      folderId: folderId === 0 ? null : folderId, // Om ingen mapp är vald, sätt folderId till null
+      activityId: sportId,
       description: description,
-      minutesA1: a1,
-      minutesA2: a2,
-      minutesA3Minus: a3Minus,
-      minutesA3: a3,
-      minutesA3Plus: a3Plus,
-      minutesComp: comp,
+      creatorId:1, // Hårdkodad för nu, byt ut mot riktig userId när du har auth på plats
+      zones: {
+        a1,
+        a2,
+        a3Minus,
+        a3,
+        a3Plus,
+        comp
+      },
       isInterval: isInterval, // Lägg till state för denna om du vill ha den dynamisk
     };
 
     try {
-      // Använd din färdiga service!
-      const savedTemplate = await saveTemplate(newTemplateData);
+      
+      await sessionTemplateApi.create(newTemplateData);
 
       // Om allt gick bra (servicen kastar error om det skiter sig)
-      onTemplateCreate(savedTemplate);
+      onTemplateCreate(newTemplateData); // Uppdatera parent-komponenten
       closeDialog();
       resetForm();
     } catch (error) {
@@ -62,8 +68,8 @@ function NewTemplateDialog({
 
   function resetForm() {
     setTemplateName("");
-    setFolder("default");
-    setSport("default");
+    setFolderId(0);
+    setSportId(0);
     setDescription("");
     setA1(0);
     setA2(0);
@@ -97,13 +103,13 @@ function NewTemplateDialog({
               className="select"
               name="folderSelect"
               id="folderSelect"
-              value={folder}
-              onChange={(e) => setFolder(e.target.value)}
+              value={folderId}
+              onChange={(e) => setFolderId(Number(e.target.value))}
             >
-              <option value="default">Välj mapp</option>
-              <option value="folder1">Mapp 1</option>
-              <option value="folder2">Mapp 2</option>
-              <option value="folder3">Mapp 3</option>
+              <option value="0">Välj mapp</option>
+              <option value="1">Mapp 1</option>
+              <option value="2">Mapp 2</option>
+              <option value="3">Mapp 3</option>
             </select>
           </div>
         </div>
@@ -115,10 +121,10 @@ function NewTemplateDialog({
           className="select"
           name="sportSelect"
           id="sportSelect"
-          value={sport}
-          onChange={(e) => setSport(e.target.value)}
+          value={sportId}
+          onChange={(e) => setSportId(Number(e.target.value))}
         >
-          <option value="">Välj aktivitet</option>
+          <option value="0">Välj aktivitet</option>
           {activities?.map((activity) => (
             <option key={activity.id} value={activity.id}>
               {activity.name}
