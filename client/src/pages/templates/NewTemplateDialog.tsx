@@ -3,13 +3,15 @@ import "./templates.css";
 import type { TemplateType } from "../../types/TemplateType";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import type { Activity } from "../../types/Activity";
-import templates from "./Templates.tsx";
+
 
 
 interface NewTemplateDialogProps {
   onTemplateCreate: (template: TemplateType) => void;
   activities: Activity[];
 }
+const oldTemplates: TemplateType[] = await sessionTemplateApi.getByUserId(1); 
+const amountOfTemplates = oldTemplates.length; // Hämta antal mallar för att generera unikt ID, byt ut mot bättre lösning när du har backend på plats
 
 function NewTemplateDialog({
   onTemplateCreate,
@@ -36,7 +38,7 @@ function NewTemplateDialog({
   async function createTemplate() {
     // Skapa objektet så det matchar C# (platt struktur)
     const newTemplateData = {
-      id: Number(templates.length) + 1, // Generera ett unikt ID för mallen
+      id: Number(amountOfTemplates + 1), // Generera ett unikt ID för mallen
       title: templateName,
       folderId: folderId === 0 ? null : folderId, // Om ingen mapp är vald, sätt folderId till null
       activityId: sportId,
@@ -55,7 +57,7 @@ function NewTemplateDialog({
 
     try {
       
-      await sessionTemplateApi.create(newTemplateData);
+      sessionTemplateApi.create(newTemplateData);
 
       // Om allt gick bra (servicen kastar error om det skiter sig)
       onTemplateCreate(newTemplateData); // Uppdatera parent-komponenten

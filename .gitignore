@@ -66,3 +66,12 @@ secrets.json
 *.sqlite
 *.sqlite3
 server/EliteSkier.Api/bin/Debug/net10.0/EliteSkier.Api.dll
+server/EliteSkier.Api/bin/Debug/net10.0/EliteSkier.Api.dll
+server/EliteSkier.Api/bin/Debug/net10.0/EliteSkier.Api.pdb
+server/EliteSkier.Api/obj/Debug/net10.0/EliteSkier.Api.AssemblyInfoInputs.cache
+server/EliteSkier.Api/obj/Debug/net10.0/EliteSkier.Api.dll
+server/EliteSkier.Api/obj/Debug/net10.0/EliteSkier.Api.pdb
+server/EliteSkier.Api/obj/Debug/net10.0/ref/EliteSkier.Api.dll
+server/EliteSkier.Api/obj/Debug/net10.0/EliteSkier.Api.sourcelink.json
+server/EliteSkier.Api/obj/Debug/net10.0/rjsmcshtml.dswa.cache.json
+server/EliteSkier.Api/obj/Debug/net10.0/refint/EliteSkier.Api.dll
