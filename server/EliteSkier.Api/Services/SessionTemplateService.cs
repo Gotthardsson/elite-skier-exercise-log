@@ -29,6 +29,7 @@ public class SessionTemplateService : ISessionTemplateService
     {
         var template = new SessionTemplate
         {
+            Id = dto.Id,
             Title = dto.Title,
             Activity_id = dto.ActivityId,
             Folder_id = dto.FolderId,
@@ -44,8 +45,7 @@ public class SessionTemplateService : ISessionTemplateService
             Created_at = DateTime.UtcNow
         };
         var created = await _repository.AddAsync(template);
-        return new SessionTemplateDto
-        {
+        return new SessionTemplateDto{
             Id = created.Id,
             CreatorId = created.Creator_id,
             Title = created.Title,
@@ -64,5 +64,6 @@ public class SessionTemplateService : ISessionTemplateService
                 Comp = created.Tiz_competition_planned
             }
         };
+        
     }
 }

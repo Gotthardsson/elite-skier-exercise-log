@@ -3,8 +3,8 @@ public class SessionTemplateDto
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
-    public int ActivityId { get; set; }
-    public int? FolderId { get; set; }
+    public int Activity { get; set; }
+    public int? Folder { get; set; }
     public int CreatorId { get; set; }
     public bool IsInterval { get; set; }
     public DateTime CreatedAt { get; set; }

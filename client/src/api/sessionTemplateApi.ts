@@ -8,18 +8,21 @@ export const sessionTemplateApi = {
   // Skapa en ny mall
   create: (template: TemplateType) => {
     const dto = {
-      id: template.id,
-      name: template.name,
-      folder: template.folder,
-      sport: template.sport,
-      description: template.description,
-      creatorId: template.creatorId,
-      minutesA1: template.zones.a1,
-      minutesA2: template.zones.a2,
-      minutesA3Minus: template.zones.a3Minus,
-      minutesA3: template.zones.a3,
-      minutesA3Plus: template.zones.a3Plus,
-      isInterval: template.isInterval,
+      Id: template.id,
+      Title: template.title,
+      FolderId: template.folderId,
+      ActivityId: template.activityId,
+      Description: template.description,
+      CreatorId: template.creatorId,
+      PlannedZones: {
+         a1: template.zones.a1,
+         a2: template.zones.a2,
+         a3Minus: template.zones.a3Minus,
+         a3: template.zones.a3,
+         a3Plus: template.zones.a3Plus,
+         comp: template.zones.comp,
+      },
+      IsInterval: template.isInterval,
     };
     try {
       apiClient.post<TemplateType>("/sessiontemplate", dto);
@@ -29,11 +32,5 @@ export const sessionTemplateApi = {
     }
     return;
   },
-  // Uppdatera en mall
-  update: (
-    id: string,
-    template: Partial<Omit<TemplateType, "id" | "createdAt" | "updatedAt">>,
-  ) => apiClient.put<TemplateType>(`/sessiontemplate/${id}`, template),
-  // Ta bort en mall
-  delete: (id: string) => apiClient.delete(`/sessiontemplate/${id}`),
+      
 };

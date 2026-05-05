@@ -1,8 +1,8 @@
 export interface TemplateType {
-  id: string;
-  name: string;
-  folder: string;
-  sport: string;
+  id: number;
+  title: string;
+  folderId: number | null;
+  activityId: number;
   description: string;
   isInterval: boolean;
   creatorId: number;

@@ -11,13 +11,13 @@ public class SessionTemplate
     public int Id { get; set; }
 
     [Column("creator_id")]
-    public int Creator_id { get; set; }
+    public int CreatorId { get; set; }
 
     [Column("folder_id")]
-    public int? Folder_id { get; set; } // Nullable eftersom en mall inte måste ligga i en mapp
+    public int? FolderId { get; set; } // Nullable eftersom en mall inte måste ligga i en mapp
 
     [Column("activity_id")]
-    public int Activity_id { get; set; }
+    public int ActivityId  { get; set; }
 
     [Column("title")]
     public string Title { get; set; } = null!;
@@ -26,7 +26,7 @@ public class SessionTemplate
     public string? Description { get; set; }
 
     [Column("is_interval")]
-    public bool Is_interval { get; set; }
+    public bool IsInterval { get; set; }
 
     // Pulszoner - Planerad tid i sekunder
     [Column("tiz_a1_planned")]

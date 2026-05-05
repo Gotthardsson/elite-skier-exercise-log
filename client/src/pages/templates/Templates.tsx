@@ -3,12 +3,13 @@ import "./templates.css";
 import TemplateCard from "./TemplateCard.tsx";
 import NewTemplateDialog from "./NewTemplateDialog.tsx";
 import Folder from "./Folder.tsx";
-import type { Template } from "../../types/TemplateType.ts";
+import { sessionTemplateApi } from "../../api/sessionTemplateApi.ts";
+import type { TemplateType } from "../../types/TemplateType.ts";
 
 function Templates(props) {
-  const [templates, setTemplates] = useState<Template[]>([]);
+  const [templates, setTemplates] = useState<TemplateType[]>([]);
 
-  const handleTemplateCreate = (newTemplate: Template) => {
+  const handleTemplateCreate = (newTemplate: TemplateType) => {
     setTemplates([...templates, newTemplate]);
   };
 

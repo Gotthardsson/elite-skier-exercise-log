@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ht83kDCLPm8=",
+  "dgSpecHash": "r9/m4X2dSow=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Anton\\Documents\\Plugg\\VS Code\\B-arbete\\elite-skier-exercise-log\\server\\eliteskier.api\\EliteSkier.Api.csproj",
+  "projectFilePath": "C:\\Users\\Anton\\Repos\\SkiPlan\\elite-skier-exercise-log\\server\\eliteskier.api\\EliteSkier.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Anton\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Anton\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.3\\microsoft.aspnetcore.openapi.10.0.3.nupkg.sha512",
