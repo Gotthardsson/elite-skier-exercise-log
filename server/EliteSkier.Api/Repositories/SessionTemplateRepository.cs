@@ -17,8 +17,8 @@ public class SessionTemplateRepository : ISessionTemplateRepository
 
     public async Task<IEnumerable<SessionTemplate>> GetAllByUserIdAsync(int userId) =>
         await _context.SessionTemplates
-            .Where(t => t.Creator_id == userId)
-            .OrderByDescending(t => t.Created_at)
+            .Where(t => t.CreatorId == userId)
+            .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
 
     public async Task<SessionTemplate> AddAsync(SessionTemplate template)
