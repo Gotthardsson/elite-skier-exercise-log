@@ -5,7 +5,7 @@ export interface SessionType {
   templateId?: number;
 
   // Datum och tid
-  date: string; // Mappar mot 'scheduled_date'
+  scheduledDate: string; // Mappar mot 'scheduled_date'
   timeOfDay?: string; // t.ex. "Förmiddag", "Eftermiddag"
 
   // Status
