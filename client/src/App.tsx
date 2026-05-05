@@ -29,7 +29,7 @@ function App() {
               path="/calendar"
               element={<Calender activities={activities} />}
             />
-            <Route path="/stats" element={<Stats />} />
+            <Route path="/stats" element={<Stats activities={activities} />} />
             <Route
               path="/templates"
               element={<Templates activities={activities} />}

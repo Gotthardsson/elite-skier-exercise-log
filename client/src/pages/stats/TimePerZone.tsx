@@ -11,7 +11,7 @@ type TimePerZoneProps = {
 function TimePerZone({ totalMinutes, data }: TimePerZoneProps) {
   return (
     <div className="time-per-item-content">
-      <h3>Tid per zone</h3>
+      <h3>Tid per zon</h3>
 
       {data.map((item) => {
         const hours = Math.floor(item.minutes / 60);

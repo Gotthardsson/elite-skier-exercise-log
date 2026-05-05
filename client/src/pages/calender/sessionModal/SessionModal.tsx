@@ -11,7 +11,7 @@ export default function SessionModal(props) {
   const createInitialSession = (date, timeOfDay) => ({
     userId: 1,
     activityId: 0,
-    date,
+    scheduledDate: date,
     timeOfDay,
     isLogged: true,
     description: "",
@@ -53,7 +53,7 @@ export default function SessionModal(props) {
     try {
       const finalSession = {
         ...session,
-        date: session.date.toISOString(),
+        scheduledDate: session.scheduledDate.toISOString(),
         isLogged: isLogSelected,
       };
 
@@ -115,7 +115,7 @@ export default function SessionModal(props) {
         <div className="date-and-time-div">
           <Calendar
             className="date-selector"
-            value={session.date}
+            value={session.scheduledDate}
             onChange={(e) => {
               if (!e.value) return;
 
