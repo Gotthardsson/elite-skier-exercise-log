@@ -1,46 +1,36 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./stats.css";
 import SelectField from "./SelectField";
 import TimePerSport from "./TimePerSport";
 import TimePerZone from "./TimePerZone";
+import {
+  getStatsForSeason,
+  getStatsForPeriod,
+  getStatsForWeekInPeriod,
+  getAllTimeStats,
+} from "./workoutStatsService.ts";
+import { workoutSessionApi } from "../../api/workoutSessionApi.ts";
+import type { SessionType } from "../../types/SessionType.ts";
 
-function Stats() {
-  const totalLoggedMinutes = 36000;
-  const totalPlannedMinutes = 40000;
-  const hoursLogged = Math.floor(totalLoggedMinutes / 60);
-  const minutesLogged = totalLoggedMinutes % 60;
-  const timePerSportData = [
-    { sport: "Längdskidor", minutes: 18000 }, // 50%
-    { sport: "Rullskidor", minutes: 8000 }, // 22%
-    { sport: "Löpning", minutes: 5000 }, // 14%
-    { sport: "Styrka", minutes: 3000 }, // 8%
-    { sport: "Cykel", minutes: 2000 }, // 6%
-  ];
+//KVAR ATT FIXA:
+// SJUKDAGAR OCH SKADEDAGAR,
+// VISA "PERIOD DATA" FÖR SÄSONG I STAPLAR
 
-  const timePerZoneData = [
-    { zone: "A1", minutes: 20000 }, // ~56%
-    { zone: "A2", minutes: 12000 }, // ~33%
-
-    { zone: "A3-", minutes: 1500 }, // ~4%
-    { zone: "A3", minutes: 1200 }, // ~3%
-    { zone: "A3+", minutes: 800 }, // ~2%
-    { zone: "Tävling", minutes: 500 }, // ~1%
-  ];
-
-  const hoursPlanned = Math.floor(totalPlannedMinutes / 60);
-  const minutesPlanned = totalPlannedMinutes % 60;
-  const [timeSpan, setTimeSpan] = useState("Hel säsong");
-  const [season, setSeason] = useState("25/26");
-  const [period, setPeriod] = useState("Period 1");
+function Stats(props) {
+  const [sessions, setSessions] = useState<SessionType[]>([]);
+  const [timeSpan, setTimeSpan] = useState("Säsong");
+  const [season, setSeason] = useState("26/27");
+  const [period, setPeriod] = useState("Alla perioder");
   const [periodView, setPeriodView] = useState("Hela perioden");
-  const [week, setWeek] = useState("Vecka 41");
+  const [week, setWeek] = useState("Vecka 1");
 
-  const sickDays = 14;
-  const injuryDays = 40;
-  const timeSpanOptions = ["Hel säsong", "Period", "Vecka"];
-  const periodOptions = ["Period 1", "Period 2", "Period 3", "Period 4"];
-  const weekOptions = ["Vecka 41", "Vecka 42", "Vecka 43", "Vecka 44"];
+  // Options
+  const timeSpanOptions = ["Säsong", "Total statistik"];
   const seasonOptions = ["26/27", "25/26", "24/25"];
+  const periodOptions = [
+    "Alla perioder",
+    ...Array.from({ length: 13 }, (_, i) => `Period ${i + 1}`),
+  ];
   const periodViewOptions = [
     "Hela perioden",
     "Vecka 1",
@@ -48,6 +38,57 @@ function Stats() {
     "Vecka 3",
     "Vecka 4",
   ];
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const response = await workoutSessionApi.getByUserId(1);
+        setSessions(response.data);
+      } catch (error) {
+        console.error("Kunde inte hämta pass:", error);
+      }
+    };
+    fetchSessions();
+  }, []);
+
+  // Beräkna data
+  const activeStats = useMemo(() => {
+    if (!sessions.length || !props.activities.length) return null;
+
+    if (timeSpan === "Säsong") {
+      if (period === "Alla perioder") {
+        return getStatsForSeason(sessions, props.activities, season);
+      }
+
+      const periodNumber = parseInt(period.replace("Period ", ""));
+
+      if (periodView !== "Hela perioden") {
+        const weekInPeriodNumber = parseInt(periodView.replace("Vecka ", ""));
+        return getStatsForWeekInPeriod(
+          sessions,
+          props.activities,
+          periodNumber,
+          weekInPeriodNumber,
+          season
+        );
+      }
+
+      return getStatsForPeriod(
+        sessions,
+        props.activities,
+        periodNumber,
+        season
+      );
+    } else if (timeSpan === "Total statistik") {
+      return getAllTimeStats(sessions, props.activities);
+    }
+
+    // Fallback för globala Vecka 1-52 om det behövs senare
+    return getStatsForSeason(sessions, props.activities, season);
+  }, [timeSpan, period, periodView, season, sessions, props.activities]);
+
+  const sickDays = 14;
+  const injuryDays = 40;
 
   return (
     <main>
@@ -60,75 +101,67 @@ function Stats() {
           className="dropdown-timeSpan dropdown-stats"
         />
 
-        {timeSpan === "Hel säsong" && (
-          <SelectField
-            label="Säsong"
-            value={season}
-            onChange={setSeason}
-            options={seasonOptions}
-            className="dropdown-season dropdown-stats"
-          />
-        )}
-
-        {timeSpan === "Period" && (
+        {timeSpan === "Säsong" && (
           <>
             <SelectField
-              label="Period"
+              label="Säsong"
+              value={season}
+              onChange={setSeason}
+              options={seasonOptions}
+              className="dropdown-season dropdown-stats"
+            />
+            <SelectField
+              label="Urval"
               value={period}
-              onChange={setPeriod}
+              onChange={(val) => {
+                setPeriod(val);
+                setPeriodView("Hela perioden");
+              }}
               options={periodOptions}
               className="dropdown-period dropdown-stats"
             />
 
-            <SelectField
-              label="Tidspann"
-              value={periodView}
-              onChange={setPeriodView}
-              options={periodViewOptions}
-              className="dropdown-period-view dropdown-stats"
-            />
+            {period !== "Alla perioder" && (
+              <SelectField
+                label="Tidspann"
+                value={periodView}
+                onChange={setPeriodView}
+                options={periodViewOptions}
+                className="dropdown-period-view dropdown-stats"
+              />
+            )}
           </>
-        )}
-
-        {timeSpan === "Vecka" && (
-          <SelectField
-            label="Vecka"
-            value={week}
-            onChange={setWeek}
-            options={weekOptions}
-            className="dropdown-week dropdown-stats"
-          />
         )}
       </div>
 
       <div className="stats-div">
-        <div className="stats-item total-time-logged dropdown-stas">
+        <div className="stats-item">
           <label>Loggad tid</label>
           <br />
-          {hoursLogged}h {minutesLogged}min
+          {activeStats?.total?.logged?.formatted || "0h 0m"}
         </div>
-
-        <div className="stats-item total-time-planned dropdown-stas">
+        <div className="stats-item">
           <label>Planerad tid</label>
           <br />
-          {hoursPlanned}h {minutesPlanned}min
+          {activeStats?.total?.planned?.formatted || "0h 0m"}
         </div>
-
-        <div className="stats-item sickdays-injurydays dropdown-stas">
+        <div className="stats-item">
           <label>Sjuk/Skadad</label>
           <br />
           {sickDays}/{injuryDays}
         </div>
       </div>
 
-      <div className="logged-time-per-zon distribution-diagrams">
-        <TimePerZone totalMinutes={totalLoggedMinutes} data={timePerZoneData} />
+      <div className="distribution-diagrams">
+        <TimePerZone
+          totalMinutes={activeStats?.total?.logged?.totalMinutes || 0}
+          data={activeStats?.tiz || []}
+        />
       </div>
-      <div className="time-per-sport distribution-diagrams">
-        {" "}
+      <div className="distribution-diagrams">
         <TimePerSport
-          totalMinutes={totalLoggedMinutes}
-          data={timePerSportData}
+          totalMinutes={activeStats?.total?.logged?.totalMinutes || 0}
+          data={activeStats?.sports || []}
         />
       </div>
     </main>

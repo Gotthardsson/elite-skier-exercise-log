@@ -11,7 +11,7 @@ export const workoutSessionApi = {
     // Här mappar vi om SessionType till exakt det format din C# DTO förväntar sig
     console.log("session innan DTO:", session);
     const dto = {
-      scheduledDate: session.date,
+      scheduledDate: session.scheduledDate,
       timeOfDay: session.timeOfDay,
       activityId: session.activityId,
       userId: session.userId,
