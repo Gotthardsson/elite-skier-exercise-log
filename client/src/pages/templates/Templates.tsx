@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./templates.css";
 import TemplateCard from "./TemplateCard.tsx";
 import NewTemplateDialog from "./NewTemplateDialog.tsx";
@@ -8,6 +8,23 @@ import type { TemplateType } from "../../types/TemplateType.ts";
 
 function Templates(props) {
   const [templates, setTemplates] = useState<TemplateType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulera en API-anrop
+    const fetchTemplates = async () => {
+      try {
+        const response = await sessionTemplateApi.getByUserId(1); // Hårdkodad userId för demo
+        setTemplates(response.data);
+      } catch (error) {
+        console.error("Error fetching templates:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTemplates();
+  }, []);
 
   const handleTemplateCreate = (newTemplate: TemplateType) => {
     setTemplates([...templates, newTemplate]);
@@ -15,7 +32,7 @@ function Templates(props) {
 
   function openNewTemplateDialog() {
     const dialog = document.querySelector(
-      ".new-template-container"
+      ".new-template-container",
     ) as HTMLDivElement;
     dialog.style.display = "flex";
   }
@@ -65,6 +82,11 @@ function Templates(props) {
       </div>
       <h3>Träningsmallar</h3>
       <div className="templates-container">
+        {isLoading ? (
+          <p>Laddar mallar...</p>
+        ) : templates.length === 0 ? (
+          <p>Inga mallar skapade</p>
+        ) : null}
         {templates.map((template, index) => (
           <TemplateCard key={index} template={template} />
         ))}

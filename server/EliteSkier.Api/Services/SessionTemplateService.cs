@@ -22,6 +22,18 @@ public class SessionTemplateService : ISessionTemplateService
             Description = t.Description,
             CreatedAt = t.CreatedAt,
             CreatorId = t.CreatorId,
+            ActivityId = t.ActivityId,
+            FolderId = t.FolderId,
+            IsInterval = t.IsInterval,
+            PlannedZones = new ZoneDto
+            {
+                A1 = t.Tiz_a1_planned,
+                A2 = t.Tiz_a2_planned,
+                A3Minus = t.Tiz_a3_minus_planned,
+                A3 = t.Tiz_a3_planned,
+                A3Plus = t.Tiz_a3_plus_planned,
+                Comp = t.Tiz_competition_planned
+            }
         });
     }
 

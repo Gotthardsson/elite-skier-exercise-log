@@ -2,17 +2,23 @@ import type { TemplateType } from "../../types/TemplateType";
 import "./templates.css";
 import { getActivities } from "../../api/activityApi";
 import type { Activity } from "../../types/Activity";
-
-const activities: Activity[] = getActivities(); // Hämta aktiviteterna en gång och använd dem i hela komponenten
+import { useState, useEffect } from "react";
 
 function TemplateCard({ template }: { template: TemplateType }) {
+  const [activities, setActivities] = useState<Activity[]>([]);
+
+  useEffect(() => {
+    getActivities().then(setActivities);
+  }, []);
+
   const title = template.title;
-  const sport = activities.find((a) => a.id === template.activityId)?.name || "Okänd sport";
+  const sport =
+    activities.find((a) => a.id === template.activityId)?.name || "Okänd sport";
   const comment = template.description;
-  const heartRateZone = template.zones;
+  const heartRateZone = Object.values(template.plannedZones).filter(value => value != null);
   const totalTime = Object.values(heartRateZone).reduce(
     (acc, time) => acc + time,
-    0
+    0,
   );
   const length = totalTime > 0 ? totalTime : "0";
   console.log(length);
@@ -91,7 +97,7 @@ function TemplateCard({ template }: { template: TemplateType }) {
               >
                 {zone.toUpperCase()}: {value} m
               </p>
-            ) : null
+            ) : null,
           )}
         </div>
         <div className="card-zone-line-container">
@@ -105,7 +111,7 @@ function TemplateCard({ template }: { template: TemplateType }) {
                   width: `${(value / totalTime) * 100}%`,
                 }}
               ></div>
-            ) : null
+            ) : null,
           )}
         </div>
       </div>
