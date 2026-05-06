@@ -6,7 +6,7 @@ export interface TemplateType {
   description: string;
   isInterval: boolean;
   creatorId: number;
-  zones: {
+  plannedZones: {
     a1: number;
     a2: number;
     a3Minus: number;
