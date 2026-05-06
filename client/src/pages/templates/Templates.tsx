@@ -11,7 +11,6 @@ function Templates(props) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulera en API-anrop
     const fetchTemplates = async () => {
       try {
         const response = await sessionTemplateApi.getByUserId(1); // Hårdkodad userId för demo
@@ -94,6 +93,7 @@ function Templates(props) {
       <NewTemplateDialog
         onTemplateCreate={handleTemplateCreate}
         activities={props.activities}
+          currentTemplateCount={templates.length}
       />
     </>
   );

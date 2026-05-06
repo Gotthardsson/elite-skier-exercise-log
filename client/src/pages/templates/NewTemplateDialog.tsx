@@ -3,24 +3,20 @@ import "./templates.css";
 import type { TemplateType } from "../../types/TemplateType";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import type { Activity } from "../../types/Activity";
-import templates from "./Templates.tsx";
 
 
 interface NewTemplateDialogProps {
   onTemplateCreate: (template: TemplateType) => void;
   activities: Activity[];
+  currentTemplateCount: number;
 }
 
 function NewTemplateDialog({
   onTemplateCreate,
   activities,
+  currentTemplateCount,
 }: NewTemplateDialogProps) {
-  function closeDialog() {
-    const dialog = document.querySelector(
-      ".new-template-container"
-    ) as HTMLDivElement;
-    dialog.style.display = "none";
-  }
+
   const [templateName, setTemplateName] = React.useState("");
   const [folderId, setFolderId] = React.useState(0);
   const [sportId, setSportId] = React.useState(0);
@@ -33,36 +29,42 @@ function NewTemplateDialog({
   const [comp, setComp] = React.useState(0);
   const [isInterval, setIsInterval] = React.useState(false);
 
+function closeDialog() {
+    const dialog = document.querySelector(
+      ".new-template-container"
+    ) as HTMLDivElement;
+    dialog.style.display = "none";
+  }
   async function createTemplate() {
     // Skapa objektet så det matchar C# (platt struktur)
-    const newTemplateData = {
-      id: Number(templates.length) + 1, // Generera ett unikt ID för mallen
+    const newTemplateData: TemplateType = {
+      id: currentTemplateCount + 1, // Generera ett unikt ID för mallen
       title: templateName,
       folderId: folderId === 0 ? null : folderId, // Om ingen mapp är vald, sätt folderId till null
       activityId: sportId,
       description: description,
       creatorId:1, // Hårdkodad för nu, byt ut mot riktig userId när du har auth på plats
-      zones: {
-        a1,
-        a2,
-        a3Minus,
-        a3,
-        a3Plus,
-        comp
+      plannedZones: {
+        a1: a1 || 0,
+        a2: a2 || 0,
+        a3Minus: a3Minus || 0,
+        a3: a3 || 0,
+        a3Plus: a3Plus || 0,
+        comp: comp || 0,
       },
       isInterval: isInterval, // Lägg till state för denna om du vill ha den dynamisk
     };
 
     try {
       
-      await sessionTemplateApi.create(newTemplateData);
+    const createdTemplate = await sessionTemplateApi.create(newTemplateData).then(response => response.data);
 
-      // Om allt gick bra (servicen kastar error om det skiter sig)
-      onTemplateCreate(newTemplateData); // Uppdatera parent-komponenten
+    
+      onTemplateCreate(createdTemplate || newTemplateData); // Uppdatera parent-komponenten
       closeDialog();
       resetForm();
     } catch (error) {
-      alert("Kunde inte spara: " + error);
+      console.log("Kunde inte spara: " + error);
     }
   }
 
@@ -156,7 +158,8 @@ function NewTemplateDialog({
               type="number"
               name="a1Input"
               value={a1}
-              onChange={(e) => setA1(e.target.valueAsNumber)}
+              onChange={(e) => setA1(e.target.valueAsNumber||0)}
+              
             />
           </div>
           <div className="zone-container">
@@ -167,7 +170,8 @@ function NewTemplateDialog({
               type="number"
               name="a2Input"
               value={a2}
-              onChange={(e) => setA2(e.target.valueAsNumber)}
+              onChange={(e) => setA2(e.target.valueAsNumber||0)}
+              
             />
           </div>
           <div className="zone-container">
@@ -182,7 +186,8 @@ function NewTemplateDialog({
               type="number"
               name="a3-Input"
               value={a3Minus}
-              onChange={(e) => setA3Minus(e.target.valueAsNumber)}
+              onChange={(e) => setA3Minus(e.target.valueAsNumber||0)}
+              
             />
           </div>
           <div className="zone-container">
@@ -197,7 +202,8 @@ function NewTemplateDialog({
               type="number"
               name="a3Input"
               value={a3}
-              onChange={(e) => setA3(e.target.valueAsNumber)}
+              onChange={(e) => setA3(e.target.valueAsNumber||0)}
+              
             />
           </div>
           <div className="zone-container">
@@ -212,7 +218,8 @@ function NewTemplateDialog({
               type="number"
               name="a3+Input"
               value={a3Plus}
-              onChange={(e) => setA3Plus(e.target.valueAsNumber)}
+              onChange={(e) => setA3Plus(e.target.valueAsNumber||0)}
+             
             />
           </div>
           <div className="zone-container">
@@ -227,7 +234,8 @@ function NewTemplateDialog({
               type="number"
               name="compInput"
               value={comp}
-              onChange={(e) => setComp(e.target.valueAsNumber)}
+              onChange={(e) => setComp(e.target.valueAsNumber||0)}
+              
             />
           </div>
         </div>

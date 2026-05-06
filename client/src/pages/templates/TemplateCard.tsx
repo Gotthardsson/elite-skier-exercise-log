@@ -1,11 +1,17 @@
 import type { TemplateType } from "../../types/TemplateType";
 import "./templates.css";
+import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import { getActivities } from "../../api/activityApi";
 import type { Activity } from "../../types/Activity";
 import { useState, useEffect } from "react";
 
 function TemplateCard({ template }: { template: TemplateType }) {
   const [activities, setActivities] = useState<Activity[]>([]);
+  function handleDelete() {
+    sessionTemplateApi.delete(template.id);
+    // Här kan du lägga till logik för att radera mallen, t.ex. genom att anropa en API-endpoint
+    console.log(`Radera mall med id: ${template.id}`);
+  }
 
   useEffect(() => {
     getActivities().then(setActivities);
@@ -15,7 +21,7 @@ function TemplateCard({ template }: { template: TemplateType }) {
   const sport =
     activities.find((a) => a.id === template.activityId)?.name || "Okänd sport";
   const comment = template.description;
-  const heartRateZone = Object.values(template.plannedZones).filter(value => value != null);
+  const heartRateZone = template.plannedZones;
   const totalTime = Object.values(heartRateZone).reduce(
     (acc, time) => acc + time,
     0,
@@ -60,7 +66,10 @@ function TemplateCard({ template }: { template: TemplateType }) {
               <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
             </svg>
           </button>
-          <button className="icon-button">
+          <button className="icon-button"
+            onClick={handleDelete}
+          >
+
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -89,15 +98,16 @@ function TemplateCard({ template }: { template: TemplateType }) {
       <div className="card-zone-container">
         <div className="card-zone-texts-container">
           {Object.entries(heartRateZone).map(([zone, value]) =>
-            value > 0 ? (
+            value > 0 
+             ? (
               <p
                 key={zone}
                 className="card-zone-text"
                 style={{ backgroundColor: `var(--clr-${zone.toLowerCase()})` }}
               >
-                {zone.toUpperCase()}: {value} m
+                {(zone === "a3Minus" ? "A3-" : zone === "a3Plus" ? "A3+" : zone.toUpperCase())} :{value} m
               </p>
-            ) : null,
+            ) : (null),
           )}
         </div>
         <div className="card-zone-line-container">

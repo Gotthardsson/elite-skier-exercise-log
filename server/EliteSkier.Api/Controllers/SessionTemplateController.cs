@@ -49,4 +49,44 @@ public class SessionTemplateController : ControllerBase
             return StatusCode(500, "An error occurred while creating the template. " + ex.Message);
         }
     }
+    
+     // DELETE: api/sessiontemplate/5
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteTemplate(int id)
+    {
+        var template = await _service.GetTemplateByIdAsync(id);
+        if (template == null)
+        {
+            return NotFound();
+        }
+
+        await _service.DeleteTemplateAsync(id);
+        return NoContent();
+    }
+
+    // PUT: api/sessiontemplate/5
+    [HttpPut("{id}")]
+    public async Task<ActionResult> UpdateTemplate(int id, [FromBody] SessionTemplateDto dto)
+    {
+        if (dto == null)
+        {
+            return BadRequest("Template data is missing.");
+        }
+
+        try
+        {
+            await _service.UpdateTemplateAsync(dto);
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "An error occurred while updating the template. " + ex.Message);
+        }
+    }
+
+    
 }
