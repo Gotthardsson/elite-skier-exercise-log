@@ -5,8 +5,6 @@ import ButtonPrimary from "../../../components/ButtonPrimary";
 import { workoutSessionApi } from "../../../api/workoutSessionApi";
 
 export default function SessionModal(props) {
-  const [isLogSelected, setLogSelected] = useState(props.isLogSelected);
-
   const createInitialSession = (date, timeOfDay) => ({
     userId: 1,
     activityId: 0,
@@ -21,15 +19,36 @@ export default function SessionModal(props) {
     actualZones: { a1: 0, a2: 0, a3Minus: 0, a3: 0, a3Plus: 0, comp: 0 },
   });
 
+  const [isLogSelected, setLogSelected] = useState(props.isLogSelected);
   const [session, setSession] = useState(() =>
     createInitialSession(props.date, props.timeOfDay)
   );
 
   useEffect(() => {
     if (!props.trigger) return;
-    setSession(createInitialSession(props.date, props.timeOfDay));
-    setLogSelected(props.isLogSelected);
-  }, [props.trigger, props.date, props.timeOfDay, props.isLogSelected]);
+
+    if (props.plannedSessionClicked && props.session) {
+      setSession({
+        ...props.session,
+        id: undefined, // Viktigt för att skapa ett NYTT loggat pass
+        isLogged: true,
+        scheduledDate: new Date(props.session.scheduledDate),
+        actualZones: { ...props.session.plannedZones },
+        loggedComment: "",
+      });
+      setLogSelected(true);
+    } else {
+      setSession(createInitialSession(props.date, props.timeOfDay));
+      setLogSelected(props.isLogSelected);
+    }
+  }, [
+    props.trigger,
+    props.plannedSessionClicked,
+    props.session,
+    props.date,
+    props.timeOfDay,
+    props.isLogSelected,
+  ]);
 
   const handleZoneChange = (zoneKey, value) => {
     const numValue = Number(value) || 0;
@@ -68,7 +87,6 @@ export default function SessionModal(props) {
           >
             Stäng
           </button>
-
           <div className="sm-type-toggle">
             <button
               className={`sm-toggle-btn left ${
@@ -103,7 +121,6 @@ export default function SessionModal(props) {
               appendTo="self"
             />
           </div>
-
           <div className="sm-field">
             <label className="sm-label">Tid på dagen</label>
             <select
@@ -121,7 +138,7 @@ export default function SessionModal(props) {
           </div>
         </div>
 
-        <div className="sm-field" style={{ marginBottom: "20px" }}>
+        <div className="sm-field" style={{ marginBottom: "15px" }}>
           <label className="sm-label">Aktivitet</label>
           <select
             className="sm-select"
@@ -139,7 +156,7 @@ export default function SessionModal(props) {
           </select>
         </div>
 
-        <div className="sm-zones-section">
+        <div className="sm-zones-box">
           <label className="sm-label">Tid i zoner (minuter)</label>
           <div className="sm-zone-grid">
             {Object.keys(session.plannedZones).map((zone) => (
@@ -185,11 +202,9 @@ export default function SessionModal(props) {
         </div>
 
         <div className="sm-footer">
-          <ButtonPrimary
-            className="sm-save-btn"
-            text="Spara pass"
-            onClick={handleSave}
-          />
+          <button className="sm-save-btn" onClick={handleSave}>
+            Spara pass
+          </button>
         </div>
       </div>
     </div>
