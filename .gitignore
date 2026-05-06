@@ -1,68 +1,57 @@
-# -------------------
-# Logs
-# -------------------
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# ==========================================
+# .NET / C# (Server)
+# ==========================================
+**/bin/
+**/obj/
+**/*.user
+**/*.userosscache
+**/*.sln.docstates
+**/*.suo
+**/*.rsuser
 
-# -------------------
-# Node
-# -------------------
-node_modules/
-dist/
-dist-ssr/
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*~
+
+# ==========================================
+# Node / Frontend (Client)
+# ==========================================
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/build/
+**/out/
+**/coverage/
+.npm
 *.local
 .env
 .env.*
 
-# -------------------
-# Build / Output
-# -------------------
-build/
-out/
-coverage/
-
-# -------------------
-# .NET / C#
-# -------------------
-bin/
-obj/
-*.user
-*.rsuser
-*.suo
-*.userosscache
-*.sln.docstates
-
-# Rider / VS / VSCode
-.vs/
-.vscode/*
-!.vscode/extensions.json
-.idea/
-
-# -------------------
-# OS files
-# -------------------
+# ==========================================
+# OS Specifika filer (Viktigt för Mac/Win mix)
+# ==========================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# -------------------
-# Secrets / Config
-# -------------------
-appsettings.Development.json
-appsettings.Local.json
-secrets.json
-
-# user-secrets (extra safety)
+# ==========================================
+# Secrets & Config (Säkerhet)
+# ==========================================
+**/appsettings.Development.json
+**/appsettings.Local.json
 **/secrets.json
 
-# -------------------
-# Database / misc
-# -------------------
+# ==========================================
+# Databaser
+# ==========================================
 *.db
 *.sqlite
 *.sqlite3
-server/EliteSkier.Api/bin/Debug/net10.0/EliteSkier.Api.dll
