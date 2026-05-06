@@ -1,310 +1,331 @@
-.session-popup {
+/* --- OVERLAY & CONTENT --- */
+.sm-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.18);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(4px);
 }
 
-.popup-inner {
+.sm-content {
   position: relative;
-  width: min(70vw, 900px);
-  max-height: 80vh;
-  
-  padding: 20px;
+  width: min(90vw, 850px);
+  max-width: 60%;
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 40px;
   background: #fff;
-  border: 3px solid #11b981;
-  border-radius: 20px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+  border-radius: 28px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  align-items: stretch;
 }
 
-.log-mode {
-  border-color: #11b981;
+.sm-content.log-mode {
+  border: 4px solid #11b981;
+}
+.sm-content.plan-mode {
+  border: 4px solid #3b82f6;
 }
 
-.plan-mode {
-  border-color: #3b82f6;
-}
-.header-container{
-  display: flex;
-  justify-content: space-between;
-  
-}
-
-.popup-inner h2 {
-  margin: 0 0 26px;
-  text-align: center;
-  position:relative;
-  left: -105px;
-  font-size: 2rem;
-  font-weight: 800;
-  color: #555;
-}
-
-
-.popup-inner .popup-close-btn {
-  
-  min-width: 92px;
-  height: 44px;
-  border-radius: 8px;
-  background: #111827;
-  color: #fff;
-  font-size: 1.1rem;
-  font-weight: 800;
-}
-
-.log-type-div {
+/* --- HEADER & CLOSE BUTTON --- */
+.sm-header {
   display: flex;
   justify-content: center;
-  margin-bottom: 30px;
+  align-items: center;
+  margin-bottom: 15px;
+  position: relative;
 }
 
-.log-type-btn,
-.plan-type-btn,
-.log-selected,
-.plan-selected {
-  width: 160px;
-  height: 46px;
-  border: 1px solid #777;
+.sm-close-btn {
+  position: absolute !important;
+  top: -20px;
+  right: -20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 35px;
+  padding: 0 1.25rem;
+  border: none;
+  border-radius: 16px;
+  background: #0f172a;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
+}
+
+.sm-close-btn:hover {
+  background: #ef4444 !important;
+}
+
+/* --- TOGGLE LOG/PLAN --- */
+.sm-type-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.sm-toggle-btn {
+  width: 200px;
+  height: 40px;
+  border: 1px solid #ddd;
   background: white;
-  font-size: 1.1rem;
   font-weight: 800;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
-.log-type-btn,
-.log-selected {
-  border-radius: 8px 0 0 8px;
+.sm-toggle-btn.left {
+  border-radius: 12px 0 0 12px;
+}
+.sm-toggle-btn.right {
+  border-radius: 0 12px 12px 0;
 }
 
-.plan-type-btn,
-.plan-selected {
-  border-radius: 0 8px 8px 0;
-}
-
-.log-selected {
+.sm-toggle-btn.active.log {
   background: #11b981;
   color: white;
   border-color: #11b981;
 }
-
-.plan-selected {
+.sm-toggle-btn.active.plan {
   background: #3b82f6;
   color: white;
   border-color: #3b82f6;
 }
 
-.date-and-time-div {
+/* --- FORM FIELDS --- */
+.sm-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 42px;
-  margin-bottom: 28px;
-  align-items: end;
+  gap: 50px;
+  margin-bottom: 10px;
 }
 
-.time-of-day-div,
-.date-div,
-.activity-div,
-.comment-div,
-.ranges-div {
+.sm-field {
   display: flex;
   flex-direction: column;
+  gap: 3px;
 }
-
-.label-popup {
-  margin-bottom: 10px;
-  font-size: 1.5rem;
+.sm-label {
+  font-size: 1.1rem;
   font-weight: 700;
-  color: #666;
+  color: #444;
 }
 
-.date-selector.p-calendar {
+.sm-select {
   width: 100%;
-  display: flex;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.date-selector.p-calendar .p-inputtext {
-  flex: 1;
-  width: 100%;
-  height: 50px;
-  border-radius: 14px 0 0 14px;
-  border: 1px solid #888;
-  padding: 0 16px;
-  font-size: 1.15rem;
-  color: #333;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
-  margin-top: 0;
+/* --- KALENDER INPUT (PILLER-FORM) --- */
+.sm-calendar-input {
+  width: 100% !important;
+  display: flex !important;
+  height: 50px !important;
+  flex-direction: row;
+  align-items: center;
 }
 
-.date-selector.p-calendar .p-button,
-.date-selector.p-calendar .p-datepicker-trigger {
-  flex: 0 0 54px;
-  width: 54px;
-  height: 50px;
-  border-radius: 0 14px 14px 0;
-  border: 1px solid #888;
-  border-left: none;
-  background: #111827;
-  color: white;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
-  cursor: pointer;
+/* Tvinga textfältet att bli vitt och pillerformat */
+.sm-calendar-input .p-inputtext {
+  flex: 1 !important;
+  height: 50px !important;
+  background: #ffffff !important;
+  border: 1px solid #ddd !important;
+  border-right: none !important;
+  border-radius: 25px 0 0 25px !important;
+  padding: 0 20px !important;
+  font-size: 1.1rem !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+  color: #333 !important;
+  margin-bottom: 4px;
 }
 
-.date-selector.p-calendar .p-button:hover,
-.date-selector.p-calendar .p-datepicker-trigger:hover {
-  background: #020617;
+/* Styla knappen så den stänger pillret till höger */
+.sm-calendar-input .p-datepicker-trigger {
+  width: 55px !important;
+  height: 50px !important;
+  background: #111827 !important;
+  border: 1px solid #111827 !important;
+  border-radius: 0 25px 25px 0 !important;
+  color: white !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  cursor: pointer !important;
 }
 
-.time-of-day-select,
-.activity-select,
-.comment-input {
-  width: 100%;
-  min-height: 40px;
-  padding: 8px 14px;
-  border: 1px solid #888;
-  border-radius: 14px;
-  background: white;
-  font-size: 1.15rem;
-  color: #333;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
+/* --- SJÄLVA KALENDER-PANELEN (POPUP-RUTAN) --- */
+/* Vi använder en mycket specifik selektor för att nollställa piller-arvet */
+body .p-datepicker.p-component {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px !important; /* Rektangulär med mjuka hörn */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+  padding: 15px !important;
+  min-width: 280px !important;
+  height: auto !important;
+  transform: translateY(10px); /* Lite luft under inputfältet */
 }
 
-.activity-div {
-  margin-bottom: 10px;
+/* Snygga till tabellen inuti rutan */
+.p-datepicker table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin-top: 10px !important;
 }
 
-.zones-times-div {
+.p-datepicker table td > span {
+  width: 35px !important;
+  height: 35px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.9rem !important;
+  transition: background 0.2s !important;
+}
+
+/* Markera valt datum */
+.p-datepicker table td > span.p-highlight {
+  background: #11b981 !important;
+  color: white !important;
+}
+
+/* Dölj dagar från andra månader (din tidigare fix) */
+.p-datepicker-other-month,
+td[data-p-other-month="true"] {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* --- ZONES --- */
+.sm-zones-section {
+  margin: 0px 0 0px;
+  padding: 25px;
+  background: #f8fafc;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.sm-zone-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: 15px;
-  margin-bottom: 15px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0px;
+  margin-top: 4px;
 }
 
-.zone-input-div {
+.sm-zone-item {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
-
-.zone-input-div label {
-  height: 42px;
-  border-radius: 12px 12px 0 0;
-  width: 85%;
-  display: grid;
-  align-self: center;
-  place-items: center;
+.sm-zone-item label {
+  width: 80%;
+  text-align: center;
+  padding: 6px 0;
+  border-radius: 10px 10px 0 0;
   color: white;
-  font-size: 1.35rem;
   font-weight: 900;
+  font-size: 0.85rem;
 }
 
-.zone-input-div:nth-child(1) label {
+.sm-zone-input {
+  width: 79%;
+  height: 30px;
+  text-align: center;
+  border: 1px solid #cbd5e1;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.sm-z-a1 {
   background: #34d399;
 }
-
-.zone-input-div:nth-child(2) label {
+.sm-z-a2 {
   background: #a3e635;
 }
-
-.zone-input-div:nth-child(3) label {
+.sm-z-a3minus {
   background: #fb923c;
 }
-
-.zone-input-div:nth-child(4) label {
-  background: #fb923c;
+.sm-z-a3 {
+  background: #f97316;
 }
-
-.zone-input-div:nth-child(5) label {
+.sm-z-a3plus {
   background: #f87171;
 }
-
-.zone-input-div:nth-child(6) label {
+.sm-z-comp {
   background: #c81e1e;
 }
 
-.zone-input {
-  width: 80%;
-  height: 30px;
-  margin-top: 0;
-  border: 1px solid #999;
-  border-top: none;
-  border-radius: 0 0 12px 12px;
-  text-align: center;
-  font-size: 1.35rem;
-  background: #f9fafb;
-}
-
-.comment-div {
-  margin-top: 6px;
-}
-
-.comment-input {
-  min-height: 80px;
-  resize: vertical;
-  max-width: 96%;
-}
-
-.ranges-div {
-  margin-top: 28px;
-  gap: 14px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-.feeling-div {
-  display: flex;
-  flex-direction: column;
-  width: 48%;
-  align-items: center;
-}
-.ranges-div input[type="range"] {
-  width: 80%;
-  padding: 5px;
-}
-
-.popup-save-btn {
-  align-self: flex-end;
-  margin-top: 34px;
-  min-width: 170px;
-  height: 56px;
+/* --- TEXTAREA & TYPOGRAPHY --- */
+.sm-textarea {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #ddd;
   border-radius: 16px;
-  background: #111827;
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 800;
+  background: #fff;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 25px;
 }
 
-@media (max-width: 780px) {
-  .popup-inner {
-    width: 94vw;
-    padding: 34px 24px;
-  }
+/* --- FOOTER & CENTRERAD KNAPP --- */
+.sm-footer {
+  display: flex;
+  justify-content: center;
+}
 
-  .popup-inner h2 {
-    font-size: 2rem;
-  }
+.sm-save-btn {
+  background: #111827 !important;
+  color: white !important;
+  padding: 16px 70px !important;
+  font-size: 1.2rem !important;
+  font-weight: 800 !important;
+  border-radius: 35px !important;
+  border: none !important;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+  margin-top: 20px;
+}
 
-  .date-and-time-div {
+@media (max-width: 800px) {
+  .sm-toggle-btn {
+    width: 110px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sm-row {
     grid-template-columns: 1fr;
-    gap: 22px;
   }
-
-  .zones-times-div {
+  .sm-zone-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .label-popup {
-    font-size: 1.3rem;
+  .sm-header {
+    margin-bottom: 40px;
   }
 
-  .popup-inner .popup-close-btn {
-    position: static;
-    align-self: flex-end;
-    margin-bottom: 12px;
+  .sm-toggle-btn {
+    width: 110px;
+    margin-top: 20px;
+    margin-bottom: -40px;
   }
 }

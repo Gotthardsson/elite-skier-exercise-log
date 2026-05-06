@@ -5,7 +5,6 @@ import ButtonPrimary from "../../../components/ButtonPrimary";
 import { workoutSessionApi } from "../../../api/workoutSessionApi";
 
 export default function SessionModal(props) {
-  // Använd isLogSelected som huvudkälla för läge (Logga vs Planera)
   const [isLogSelected, setLogSelected] = useState(props.isLogSelected);
 
   const createInitialSession = (date, timeOfDay) => ({
@@ -26,10 +25,8 @@ export default function SessionModal(props) {
     createInitialSession(props.date, props.timeOfDay)
   );
 
-  // Synka modalen när den öppnas
   useEffect(() => {
     if (!props.trigger) return;
-
     setSession(createInitialSession(props.date, props.timeOfDay));
     setLogSelected(props.isLogSelected);
   }, [props.trigger, props.date, props.timeOfDay, props.isLogSelected]);
@@ -40,83 +37,77 @@ export default function SessionModal(props) {
 
     setSession((prev) => ({
       ...prev,
-      [targetZoneGroup]: {
-        ...prev[targetZoneGroup],
-        [zoneKey]: numValue,
-      },
+      [targetZoneGroup]: { ...prev[targetZoneGroup], [zoneKey]: numValue },
     }));
   };
 
   const handleSave = async () => {
     try {
-      // Formatera datumet till ISO-sträng för API:et
       const finalSession = {
         ...session,
         scheduledDate: session.scheduledDate.toISOString(),
         isLogged: isLogSelected,
       };
-
       await workoutSessionApi.create(finalSession);
-      props.onSessionSaved(); // Refreshar listan i bakgrunden
-      alert("Passet sparades!");
-
-      props.setTrigger(false); // Stäng modalen
+      props.onSessionSaved();
+      props.setTrigger(false);
     } catch (error) {
       console.error("Fel vid sparning:", error);
-      alert("Kunde inte spara passet.");
     }
   };
 
   if (!props.trigger) return null;
 
   return (
-    <div className="session-popup">
-      <div
-        className={`popup-inner ${isLogSelected ? "log-mode" : "plan-mode"}`}
-      >
-        <ButtonPrimary
-          className="popup-close-btn"
-          text="Stäng"
-          onClick={() => props.setTrigger(false)}
-        />
-
-        <h2>{isLogSelected ? "Logga utfört pass" : "Planera nytt pass"}</h2>
-
-        <div className="log-type-div">
+    <div className="sm-overlay">
+      <div className={`sm-content ${isLogSelected ? "log-mode" : "plan-mode"}`}>
+        <div className="sm-header">
           <button
-            className={isLogSelected ? "log-selected" : "log-type-btn"}
-            onClick={() => setLogSelected(true)}
+            className="sm-close-btn"
+            onClick={() => props.setTrigger(false)}
           >
-            Logga
+            Stäng
           </button>
-          <button
-            className={!isLogSelected ? "plan-selected" : "plan-type-btn"}
-            onClick={() => setLogSelected(false)}
-          >
-            Planera
-          </button>
+
+          <div className="sm-type-toggle">
+            <button
+              className={`sm-toggle-btn left ${
+                isLogSelected ? "active log" : ""
+              }`}
+              onClick={() => setLogSelected(true)}
+            >
+              Logga
+            </button>
+            <button
+              className={`sm-toggle-btn right ${
+                !isLogSelected ? "active plan" : ""
+              }`}
+              onClick={() => setLogSelected(false)}
+            >
+              Planera
+            </button>
+          </div>
         </div>
 
-        <div className="date-and-time-div">
-          <div className="date-selector-wrapper">
-            <label className="label-popup">Datum</label>
+        <div className="sm-row">
+          <div className="sm-field">
+            <label className="sm-label">Datum</label>
             <Calendar
-              className="date-selector"
+              className="sm-calendar-input"
               value={session.scheduledDate}
-              onChange={(e) => {
-                if (e.value) {
-                  setSession({ ...session, scheduledDate: e.value });
-                }
-              }}
+              onChange={(e) =>
+                e.value && setSession({ ...session, scheduledDate: e.value })
+              }
               showIcon
               dateFormat="yy-mm-dd"
+              appendTo="self"
             />
           </div>
 
-          <div className="time-of-day-div">
-            <label className="label-popup">Tid på dagen</label>
+          <div className="sm-field">
+            <label className="sm-label">Tid på dagen</label>
             <select
-              className="time-of-day-select"
+              className="sm-select"
               value={session.timeOfDay}
               onChange={(e) =>
                 setSession({ ...session, timeOfDay: e.target.value })
@@ -130,30 +121,30 @@ export default function SessionModal(props) {
           </div>
         </div>
 
-        <div className="activity-div">
-          <label className="label-popup">Aktivitet</label>
+        <div className="sm-field" style={{ marginBottom: "20px" }}>
+          <label className="sm-label">Aktivitet</label>
           <select
-            className="activity-select"
+            className="sm-select"
             value={session.activityId}
             onChange={(e) =>
               setSession({ ...session, activityId: Number(e.target.value) })
             }
           >
             <option value={0}>Välj aktivitet</option>
-            {props.activities?.map((activity) => (
-              <option key={activity.id} value={activity.id}>
-                {activity.name}
+            {props.activities?.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}
               </option>
             ))}
           </select>
         </div>
 
-        <div className="zones-times-div">
-          <label className="zone-header">Tid i zoner (minuter)</label>
-          <div className="zone-grid">
+        <div className="sm-zones-section">
+          <label className="sm-label">Tid i zoner (minuter)</label>
+          <div className="sm-zone-grid">
             {Object.keys(session.plannedZones).map((zone) => (
-              <div key={zone} className="zone-input-div">
-                <label>
+              <div key={zone} className="sm-zone-item">
+                <label className={`sm-z-${zone.toLowerCase()}`}>
                   {zone
                     .replace("Minus", "-")
                     .replace("Plus", "+")
@@ -161,26 +152,26 @@ export default function SessionModal(props) {
                 </label>
                 <input
                   type="number"
-                  className={`zone-input ${zone}`}
+                  className="sm-zone-input"
                   value={
                     isLogSelected
                       ? session.actualZones[zone]
                       : session.plannedZones[zone]
                   }
                   onChange={(e) => handleZoneChange(zone, e.target.value)}
-                  onFocus={(e) => e.target.select()} // Underlättar inmatning
+                  onFocus={(e) => e.target.select()}
                 />
               </div>
             ))}
           </div>
         </div>
 
-        <div className="comment-div">
-          <label className="label-popup">
+        <div className="sm-field">
+          <label className="sm-label">
             {isLogSelected ? "Kommentar om passet" : "Beskrivning av plan"}
           </label>
           <textarea
-            className="comment-input"
+            className="sm-textarea"
             value={isLogSelected ? session.loggedComment : session.description}
             onChange={(e) =>
               setSession({
@@ -193,44 +184,10 @@ export default function SessionModal(props) {
           />
         </div>
 
-        {isLogSelected && (
-          <div className="ranges-div">
-            <div className="range-item">
-              <label className="label-popup">
-                Mentalt fokus (1-10): <strong>{session.mentalRpe}</strong>
-              </label>
-              <input
-                type="range"
-                min="1"
-                max="10"
-                value={session.mentalRpe}
-                onChange={(e) =>
-                  setSession({ ...session, mentalRpe: Number(e.target.value) })
-                }
-              />
-            </div>
-
-            <div className="range-item">
-              <label className="label-popup">
-                Fysisk känsla (1-10): <strong>{session.feeling}</strong>
-              </label>
-              <input
-                type="range"
-                min="1"
-                max="10"
-                value={session.feeling}
-                onChange={(e) =>
-                  setSession({ ...session, feeling: Number(e.target.value) })
-                }
-              />
-            </div>
-          </div>
-        )}
-
-        <div className="popup-actions">
+        <div className="sm-footer">
           <ButtonPrimary
-            className="popup-save-btn"
-            text={isLogSelected ? "Spara logg" : "Spara planering"}
+            className="sm-save-btn"
+            text="Spara pass"
             onClick={handleSave}
           />
         </div>
