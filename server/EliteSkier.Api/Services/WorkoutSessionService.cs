@@ -1,6 +1,7 @@
 using EliteSkier.Api.Dtos;
 using EliteSkier.Api.Models;
 using EliteSkier.Api.Repositories;
+using Microsoft.Extensions.ObjectPool;
 
 namespace EliteSkier.Api.Services;
 
@@ -90,5 +91,13 @@ public async Task<IEnumerable<WorkoutSessionDto>> GetUserSessionsAsync(int userI
             Comp = s.TizCompActual
         }
     });
+}
+
+public async Task<bool> DeleteSessionAsync(int id)
+{
+    // Här kan du lägga till logik senare, t.ex. kolla om användaren 
+    // faktiskt äger passet innan det raderas.
+    var result = await _repo.DeleteAsync(id);
+    return result;
 }
 }

@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using EliteSkier.Api.Dtos;
 using EliteSkier.Api.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -47,5 +48,33 @@ public class WorkoutSessionsController : ControllerBase
             // Logga felet (man kan injicera en ILogger om man vill)
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
+
+      
     }
+
+
+    // DELETE: api/WorkoutSession/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteSession(int id)
+    {
+        try
+        {
+         bool result = await _workoutSessionService.DeleteSessionAsync(id);
+         return Ok(new{ message = "Passet har raderats"});
+
+        }
+        catch (Exception ex)
+        {
+            
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
+
+  
+
+
+
+
+
 }
