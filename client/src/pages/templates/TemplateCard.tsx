@@ -5,13 +5,34 @@ import { getActivities } from "../../api/activityApi";
 import type { Activity } from "../../types/Activity";
 import { useState, useEffect } from "react";
 
-function TemplateCard({ template }: { template: TemplateType }) {
+function TemplateCard({
+  template,
+  onTemplateDelete,
+  onTemplateUpdate,
+  setEditingTemplate,
+}: {
+  template: TemplateType;
+  onTemplateDelete: (deletedTemplate: TemplateType) => void;
+  onTemplateUpdate: (updatedTemplate: TemplateType) => void;
+  setEditingTemplate: (template: TemplateType | null) => void;
+}) {
   const [activities, setActivities] = useState<Activity[]>([]);
   function handleDelete() {
     sessionTemplateApi.delete(template.id);
+    onTemplateDelete(template);
     // Här kan du lägga till logik för att radera mallen, t.ex. genom att anropa en API-endpoint
     console.log(`Radera mall med id: ${template.id}`);
   }
+  function handleEdit() {
+    onTemplateUpdate(template);
+    setEditingTemplate(template); // Sätt den mall som ska redigeras
+    // Här kan du lägga till logik för att öppna redigeringsdialogen, t.ex. genom att ändra state i en överordnad komponent
+    console.log(`Redigera mall med id: ${template.id}`);
+  }
+
+  useEffect(() => {
+    getActivities().then(setActivities);
+  }, []);
 
   useEffect(() => {
     getActivities().then(setActivities);
@@ -45,6 +66,7 @@ function TemplateCard({ template }: { template: TemplateType }) {
               stroke-linecap="round"
               stroke-linejoin="round"
               className="lucide lucide-pen"
+              onClick={handleEdit}
             >
               <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path>
             </svg>
@@ -66,10 +88,7 @@ function TemplateCard({ template }: { template: TemplateType }) {
               <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
             </svg>
           </button>
-          <button className="icon-button"
-            onClick={handleDelete}
-          >
-
+          <button className="icon-button" onClick={handleDelete}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -98,16 +117,20 @@ function TemplateCard({ template }: { template: TemplateType }) {
       <div className="card-zone-container">
         <div className="card-zone-texts-container">
           {Object.entries(heartRateZone).map(([zone, value]) =>
-            value > 0 
-             ? (
+            value > 0 ? (
               <p
                 key={zone}
                 className="card-zone-text"
                 style={{ backgroundColor: `var(--clr-${zone.toLowerCase()})` }}
               >
-                {(zone === "a3Minus" ? "A3-" : zone === "a3Plus" ? "A3+" : zone.toUpperCase())} :{value} m
+                {zone === "a3Minus"
+                  ? "A3-"
+                  : zone === "a3Plus"
+                    ? "A3+"
+                    : zone.toUpperCase()}{" "}
+                :{value} m
               </p>
-            ) : (null),
+            ) : null,
           )}
         </div>
         <div className="card-zone-line-container">

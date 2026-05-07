@@ -172,7 +172,8 @@ h3{
     max-width: 300px;
     border-radius: 5px;
 }
-.new-template-container{
+.new-template-container,
+.edit-template-container{
     display: none;
     margin: auto;
     flex-direction: column;
@@ -188,7 +189,8 @@ h3{
       top: 20%;
       z-index: 1000;
 }
-.new-template-title{
+.new-template-title,
+.edit-template-title{
     font-size: 1.5em;
     margin: 0;
     text-align: center;

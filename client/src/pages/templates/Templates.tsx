@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "./templates.css";
 import TemplateCard from "./TemplateCard.tsx";
 import NewTemplateDialog from "./NewTemplateDialog.tsx";
+import EditTemplateDialog from "./EditTemplateDialog.tsx";
 import Folder from "./Folder.tsx";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi.ts";
 import type { TemplateType } from "../../types/TemplateType.ts";
@@ -29,12 +30,29 @@ function Templates(props) {
     setTemplates([...templates, newTemplate]);
   };
 
+  const handleTemplateUpdate = (updatedTemplate: TemplateType) => {
+    setTemplates((prev) =>
+      prev.map((t) => (t.id === updatedTemplate.id ? updatedTemplate : t)),
+    );
+    setEditingTemplate(null);
+  };
+
+  const handleTemplateDelete = (deletedTemplate: TemplateType) => {
+    setTemplates((prev) => prev.filter((t) => t.id !== deletedTemplate.id));
+  };
+
   function openNewTemplateDialog() {
     const dialog = document.querySelector(
       ".new-template-container",
     ) as HTMLDivElement;
     dialog.style.display = "flex";
   }
+  // 1. Add state for the template being edited
+  const [editingTemplate, setEditingTemplate] = useState<TemplateType | null>(
+    null,
+  );
+
+  // 2. Pass setEditingTemplate to TemplateCard and call it in handleEdit
 
   return (
     <>
@@ -87,14 +105,27 @@ function Templates(props) {
           <p>Inga mallar skapade</p>
         ) : null}
         {templates.map((template, index) => (
-          <TemplateCard key={index} template={template} />
+          <TemplateCard
+            key={index}
+            template={template}
+            onTemplateUpdate={handleTemplateUpdate}
+            setEditingTemplate={setEditingTemplate}
+            onTemplateDelete={handleTemplateDelete}
+          />
         ))}
       </div>
       <NewTemplateDialog
         onTemplateCreate={handleTemplateCreate}
         activities={props.activities}
-          currentTemplateCount={templates.length}
+        currentTemplateCount={templates.length}
       />
+      {editingTemplate && (
+        <EditTemplateDialog
+          onTemplateUpdate={handleTemplateUpdate}
+          activities={props.activities}
+          template={editingTemplate}
+        />
+      )}
     </>
   );
 }
