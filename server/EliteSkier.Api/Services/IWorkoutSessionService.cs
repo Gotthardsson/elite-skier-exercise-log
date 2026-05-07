@@ -7,4 +7,5 @@ public interface IWorkoutSessionService
     Task<IEnumerable<WorkoutSessionDto>> GetUserSessionsAsync(int userId);
     Task<WorkoutSessionDto> CreateSessionAsync(WorkoutSessionDto dto);
     // Vi kan lägga till Update och Delete här sen
+    Task<bool> DeleteSessionAsync(int id);
 }

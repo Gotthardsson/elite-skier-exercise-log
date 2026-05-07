@@ -8,5 +8,5 @@ public interface IWorkoutSessionRepository
     Task<IEnumerable<WorkoutSession>> GetAllByUserIdAsync(int userId);
     Task<WorkoutSession> AddAsync(WorkoutSession session);
     Task UpdateAsync(WorkoutSession session);
-    Task DeleteAsync(int id);
+    Task <bool> DeleteAsync(int id);
 }

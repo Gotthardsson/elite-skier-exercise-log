@@ -6,6 +6,7 @@ import SwitchViewComponent from "./SwitchViewComponent";
 import type { Activity } from "../../types/Activity";
 import { workoutSessionApi } from "../../api/workoutSessionApi";
 import type { SessionType } from "../../types/SessionType";
+import Swal from "sweetalert2";
 
 interface CalenderProps {
   activities: Activity[];
@@ -71,6 +72,40 @@ export default function Calendar({ activities }: CalenderProps) {
     setButtonPopup(true);
   }
 
+  const handleDeleteSession = async (e, sessionId) => {
+    e.stopPropagation();
+
+    // Ersätt window.confirm med SweetAlert
+    const result = await Swal.fire({
+      title: "Vill du radera passet?",
+      text: "Du kan inte ångra detta",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#11b981", // Din gröna färg
+      cancelButtonColor: "#ef4444", // Röd
+      confirmButtonText: "Ja, ta bort!",
+      cancelButtonText: "Avbryt",
+      background: "#fff",
+      borderRadius: "15px",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await workoutSessionApi.delete(sessionId);
+        await fetchSessions();
+
+        // En liten "success" toast efteråt
+        Swal.fire({
+          title: "Raderad!",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        Swal.fire("Fel!", "Kunde inte radera passet: " + { error });
+      }
+    }
+  };
   return (
     <section className="calendar">
       <div className="calendar-nav">
@@ -125,7 +160,7 @@ export default function Calendar({ activities }: CalenderProps) {
               );
 
               return (
-                <button
+                <div
                   key={`${slot}-${day.key}`}
                   className="calendar-cell"
                   onClick={() => {
@@ -186,6 +221,9 @@ export default function Calendar({ activities }: CalenderProps) {
                                   ? "sm-edit-btn logged delete"
                                   : "sm-edit-btn planned delete "
                               }
+                              onClick={(e) => {
+                                handleDeleteSession(e, s.id);
+                              }}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -231,7 +269,7 @@ export default function Calendar({ activities }: CalenderProps) {
                       </div>
                     ))}
                   </div>
-                </button>
+                </div>
               );
             })}
           </Fragment>

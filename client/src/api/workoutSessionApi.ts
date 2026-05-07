@@ -42,4 +42,8 @@ export const workoutSessionApi = {
 
     return apiClient.post<SessionType>("/WorkoutSessions", dto);
   },
+
+  delete: (id: number) => {
+    return apiClient.delete(`/WorkoutSessions/${id}`);
+  },
 };
