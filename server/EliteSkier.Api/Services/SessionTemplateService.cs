@@ -78,4 +78,56 @@ public class SessionTemplateService : ISessionTemplateService
         };
         
     }
+
+    public async Task<SessionTemplateDto> GetTemplateByIdAsync(int id)
+    {
+        var template = await _repository.GetByIdAsync(id);
+        if (template == null) return null;
+
+        return new SessionTemplateDto
+        {
+            Id = template.Id,
+            Title = template.Title,
+            Description = template.Description,
+            CreatedAt = template.CreatedAt,
+            CreatorId = template.CreatorId,
+            ActivityId = template.ActivityId,
+            FolderId = template.FolderId,
+            IsInterval = template.IsInterval,
+            PlannedZones = new ZoneDto
+            {
+                A1 = template.Tiz_a1_planned,
+                A2 = template.Tiz_a2_planned,
+                A3Minus = template.Tiz_a3_minus_planned,
+                A3 = template.Tiz_a3_planned,
+                A3Plus = template.Tiz_a3_plus_planned,
+                Comp = template.Tiz_competition_planned
+            }
+        };
+    }
+
+    public async Task DeleteTemplateAsync(int id)
+    {
+        await _repository.DeleteAsync(id);
+    }
+
+    public async Task UpdateTemplateAsync(SessionTemplateDto dto)
+    {
+        var template = await _repository.GetByIdAsync(dto.Id);
+        if (template == null) throw new InvalidOperationException("Template not found");
+
+        template.Title = dto.Title;
+        template.Description = dto.Description;
+        template.ActivityId = dto.ActivityId;
+        template.FolderId = dto.FolderId;
+        template.IsInterval = dto.IsInterval;
+        template.Tiz_a1_planned = dto.PlannedZones.A1;
+        template.Tiz_a2_planned = dto.PlannedZones.A2;
+        template.Tiz_a3_minus_planned = dto.PlannedZones.A3Minus;
+        template.Tiz_a3_planned = dto.PlannedZones.A3;
+        template.Tiz_a3_plus_planned = dto.PlannedZones.A3Plus;
+        template.Tiz_competition_planned = dto.PlannedZones.Comp;
+
+        await _repository.UpdateAsync(template);
+    }
 }

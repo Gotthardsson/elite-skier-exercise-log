@@ -1,90 +1,64 @@
-import React from "react";
+import {useState, useEffect} from "react";
 import "./templates.css";
 import type { TemplateType } from "../../types/TemplateType";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import type { Activity } from "../../types/Activity";
 
-
-interface NewTemplateDialogProps {
-  onTemplateCreate: (template: TemplateType) => void;
+interface EditTemplateDialogProps {
+  template: TemplateType;
+  onTemplateUpdate: (updatedTemplate: TemplateType) => void;
   activities: Activity[];
-  currentTemplateCount: number;
 }
 
-function NewTemplateDialog({
-  onTemplateCreate,
+function EditTemplateDialog({
+  template,
+  onTemplateUpdate,
   activities,
-  currentTemplateCount,
-}: NewTemplateDialogProps) {
+}: EditTemplateDialogProps) {
+    const [templateName, setTemplateName] = useState(template.title);
+    const [folderId, setFolderId] = useState(template.folderId || 0);
+    const [sportId, setSportId] = useState(template.activityId);
+    const [description, setDescription] = useState(template.description);
+    const [a1, setA1] = useState(template.plannedZones.a1);
+    const [a2, setA2] = useState(template.plannedZones.a2);
+    const [a3Minus, setA3Minus] = useState(template.plannedZones.a3Minus);
+    const [a3, setA3] = useState(template.plannedZones.a3);
+    const [a3Plus, setA3Plus] = useState(template.plannedZones.a3Plus);
+    const [comp, setComp] = useState(template.plannedZones.comp);
+    const [isInterval, setIsInterval] = useState(template.isInterval);
 
-  const [templateName, setTemplateName] = React.useState("");
-  const [folderId, setFolderId] = React.useState(0);
-  const [sportId, setSportId] = React.useState(0);
-  const [description, setDescription] = React.useState("");
-  const [a1, setA1] = React.useState(0);
-  const [a2, setA2] = React.useState(0);
-  const [a3Minus, setA3Minus] = React.useState(0);
-  const [a3, setA3] = React.useState(0);
-  const [a3Plus, setA3Plus] = React.useState(0);
-  const [comp, setComp] = React.useState(0);
-  const [isInterval, setIsInterval] = React.useState(false);
-
-function closeDialog() {
-    const dialog = document.querySelector(
-      ".new-template-container"
-    ) as HTMLDivElement;
-    dialog.style.display = "none";
-  }
-  async function createTemplate() {
-    // Skapa objektet så det matchar C# (platt struktur)
-    const newTemplateData: TemplateType = {
-      id: currentTemplateCount + 1, // Generera ett unikt ID för mallen
-      title: templateName,
-      folderId: folderId === 0 ? null : folderId, // Om ingen mapp är vald, sätt folderId till null
-      activityId: sportId,
-      description: description,
-      creatorId:1, // Hårdkodad för nu, byt ut mot riktig userId när du har auth på plats
-      plannedZones: {
-        a1: a1 || 0,
-        a2: a2 || 0,
-        a3Minus: a3Minus || 0,
-        a3: a3 || 0,
-        a3Plus: a3Plus || 0,
-        comp: comp || 0,
-      },
-      isInterval: isInterval, // Lägg till state för denna om du vill ha den dynamisk
-    };
-
-    try {
-      
-    const createdTemplate = await sessionTemplateApi.create(newTemplateData).then(response => response.data);
-
-    
-      onTemplateCreate(createdTemplate || newTemplateData); // Uppdatera parent-komponenten
-      closeDialog();
-      resetForm();
-    } catch (error) {
-      console.log("Kunde inte spara: " + error);
+    function closeDialog() {
+        const dialog = document.querySelector(".edit-template-dialog") as HTMLDivElement;
+        if (dialog) {
+            dialog.style.display = "none";
+        }
     }
-  }
+    function updateTemplate() {
+        const updatedTemplate: TemplateType = {
+            ...template,
+            title: templateName,
+            folderId: folderId,
+            activityId: sportId,
+            description: description,
+            plannedZones: {
+                a1: a1,
+                a2: a2,
+                a3Minus: a3Minus,
+                a3: a3,
+                a3Plus: a3Plus,
+                comp: comp
+            },
+            isInterval: isInterval
+        };
+        sessionTemplateApi.update(updatedTemplate)
+        onTemplateUpdate(updatedTemplate);
+        closeDialog();
+    }
 
-  function resetForm() {
-    setTemplateName("");
-    setFolderId(0);
-    setSportId(0);
-    setDescription("");
-    setA1(0);
-    setA2(0);
-    setA3Minus(0);
-    setA3(0);
-    setA3Plus(0);
-    setComp(0);
-  }
-
-  return (
+    return (
     <>
-      <div className="new-template-container">
-        <h3 className="new-template-title">Ny Mall</h3>
+      <div className="edit-template-container">
+        <h3 className="edit-template-title">Uppdatera Mall</h3>
         <div className="template-name-folder">
           <div className="template-name">
             <label className="name-label" htmlFor="templateNameInput">
@@ -255,13 +229,13 @@ function closeDialog() {
           <button className="btn btn-secondary" onClick={closeDialog}>
             Avbryt
           </button>
-          <button className="btn btn-primary" onClick={createTemplate}>
-            Skapa mall
+          <button className="btn btn-primary" onClick={updateTemplate}>
+            Uppdatera mall
           </button>
         </div>
       </div>
     </>
   );
-}
+};
 
-export default NewTemplateDialog;
+export default EditTemplateDialog;

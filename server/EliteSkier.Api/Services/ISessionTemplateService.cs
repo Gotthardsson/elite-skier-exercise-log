@@ -5,4 +5,8 @@ public interface ISessionTemplateService
     Task<IEnumerable<SessionTemplateDto>> GetUserTemplatesAsync(int userId);
     Task<SessionTemplateDto> CreateTemplateAsync(SessionTemplateDto dto);
     // Vi kan lägga till Update och Delete här sen
+    Task<SessionTemplateDto> GetTemplateByIdAsync(int id);
+    Task DeleteTemplateAsync(int id);
+
+    Task UpdateTemplateAsync(SessionTemplateDto dto);
 }
