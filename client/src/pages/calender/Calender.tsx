@@ -146,15 +146,88 @@ export default function Calendar({ activities }: CalenderProps) {
                           s.isLogged ? "logged" : "planned"
                         }`}
                         onClick={(e) => {
-                          if (!s.isLogged) {
-                            logPlannedSession(e, s);
-                          } else {
-                            e.stopPropagation(); // Hindrar klick även på loggade pass
-                          }
+                          e.stopPropagation(); // Hindrar klick även på loggade pass
                         }}
                       >
-                        <strong>{getActivityName(s.activityId)}</strong>
-                        <span>{getTotalTime(s)}min</span>
+                        <div
+                          className={
+                            s.isLogged
+                              ? "session-cell-header logged"
+                              : "session-cell-header planned"
+                          }
+                        >
+                          <strong>{getActivityName(s.activityId)}</strong>
+                          <div className="sm-edit-btns-container">
+                            <button
+                              className={
+                                s.isLogged
+                                  ? "sm-edit-btn logged"
+                                  : "sm-edit-btn planned"
+                              }
+                              title="Redigera"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path>
+                              </svg>
+                            </button>
+                            <button
+                              className={
+                                s.isLogged
+                                  ? "sm-edit-btn logged delete"
+                                  : "sm-edit-btn planned delete "
+                              }
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                className="lucide lucide-trash2"
+                              >
+                                <path d="M3 6h18"></path>
+                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                <line x1="10" x2="10" y1="11" y2="17"></line>
+                                <line x1="14" x2="14" y1="11" y2="17"></line>
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                        <div className="session-cell-card-content">
+                          <span>{getTotalTime(s)}min</span>
+                        </div>
+
+                        <div>
+                          <button
+                            className={`session-cell-log-btn ${
+                              s.isLogged ? "logged" : "planned"
+                            }`}
+                            onClick={(e) => {
+                              if (!s.isLogged) {
+                                logPlannedSession(e, s);
+                              } else {
+                                e.stopPropagation(); // Hindrar klick även på loggade pass
+                              }
+                            }}
+                          >
+                            {!s.isLogged ? "Logga" : ""}
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
