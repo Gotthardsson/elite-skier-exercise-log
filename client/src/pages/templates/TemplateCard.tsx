@@ -1,11 +1,42 @@
 import type { TemplateType } from "../../types/TemplateType";
 import "./templates.css";
+import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import { getActivities } from "../../api/activityApi";
 import type { Activity } from "../../types/Activity";
 import { useState, useEffect } from "react";
 
-function TemplateCard({ template }: { template: TemplateType }) {
+function TemplateCard({
+  template,
+  onTemplateDelete,
+  onTemplateUpdate,
+  setEditingTemplate,
+}: {
+  template: TemplateType;
+  onTemplateDelete: (deletedTemplate: TemplateType) => void;
+  onTemplateUpdate: (updatedTemplate: TemplateType) => void;
+  setEditingTemplate: (template: TemplateType | null) => void;
+}) {
   const [activities, setActivities] = useState<Activity[]>([]);
+  function handleDelete() {
+    sessionTemplateApi.delete(template.id);
+    onTemplateDelete(template);
+    // Här kan du lägga till logik för att radera mallen, t.ex. genom att anropa en API-endpoint
+    console.log(`Radera mall med id: ${template.id}`);
+  }
+  function handleEdit() {
+    onTemplateUpdate(template);
+    setEditingTemplate(template); // Sätt den mall som ska redigeras
+    const dialog = document.querySelector(
+      ".edit-template-container",
+    ) as HTMLDivElement;
+    dialog.style.display = "flex";
+    // Här kan du lägga till logik för att öppna redigeringsdialogen, t.ex. genom att ändra state i en överordnad komponent
+    console.log(`Redigera mall med id: ${template.id}`);
+  }
+
+  useEffect(() => {
+    getActivities().then(setActivities);
+  }, []);
 
   useEffect(() => {
     getActivities().then(setActivities);
@@ -15,7 +46,7 @@ function TemplateCard({ template }: { template: TemplateType }) {
   const sport =
     activities.find((a) => a.id === template.activityId)?.name || "Okänd sport";
   const comment = template.description;
-  const heartRateZone = Object.values(template.plannedZones).filter(value => value != null);
+  const heartRateZone = template.plannedZones;
   const totalTime = Object.values(heartRateZone).reduce(
     (acc, time) => acc + time,
     0,
@@ -35,10 +66,11 @@ function TemplateCard({ template }: { template: TemplateType }) {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               className="lucide lucide-pen"
+              onClick={handleEdit}
             >
               <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path>
             </svg>
@@ -51,16 +83,16 @@ function TemplateCard({ template }: { template: TemplateType }) {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               className="lucide lucide-copy"
             >
               <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
               <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
             </svg>
           </button>
-          <button className="icon-button">
+          <button className="icon-button" onClick={handleDelete}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -68,9 +100,9 @@ function TemplateCard({ template }: { template: TemplateType }) {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               className="lucide lucide-trash2"
             >
               <path d="M3 6h18"></path>
@@ -95,7 +127,12 @@ function TemplateCard({ template }: { template: TemplateType }) {
                 className="card-zone-text"
                 style={{ backgroundColor: `var(--clr-${zone.toLowerCase()})` }}
               >
-                {zone.toUpperCase()}: {value} m
+                {zone === "a3Minus"
+                  ? "A3-"
+                  : zone === "a3Plus"
+                    ? "A3+"
+                    : zone.toUpperCase()}{" "}
+                :{value} m
               </p>
             ) : null,
           )}
