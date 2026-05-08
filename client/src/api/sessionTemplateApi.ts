@@ -10,7 +10,7 @@ export const sessionTemplateApi = {
     const dto = {
       Id: template.id,
       Title: template.title,
-      FolderId: template.folderId,
+      FolderId: template.folderId ? template.folderId : null,
       ActivityId: template.activityId,
       Description: template.description,
       CreatorId: template.creatorId,
@@ -39,7 +39,7 @@ export const sessionTemplateApi = {
     const dto = {
       Id: template.id,
       Title: template.title,
-      FolderId: template.folderId,
+      FolderId: template.folderId ? template.folderId : null,
       ActivityId: template.activityId,
       Description: template.description,
       CreatorId: template.creatorId,
