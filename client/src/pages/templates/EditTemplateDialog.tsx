@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import { useState } from "react";
 import "./templates.css";
 import type { TemplateType } from "../../types/TemplateType";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
@@ -15,47 +15,49 @@ function EditTemplateDialog({
   onTemplateUpdate,
   activities,
 }: EditTemplateDialogProps) {
-    const [templateName, setTemplateName] = useState(template.title);
-    const [folderId, setFolderId] = useState(template.folderId || 0);
-    const [sportId, setSportId] = useState(template.activityId);
-    const [description, setDescription] = useState(template.description);
-    const [a1, setA1] = useState(template.plannedZones.a1);
-    const [a2, setA2] = useState(template.plannedZones.a2);
-    const [a3Minus, setA3Minus] = useState(template.plannedZones.a3Minus);
-    const [a3, setA3] = useState(template.plannedZones.a3);
-    const [a3Plus, setA3Plus] = useState(template.plannedZones.a3Plus);
-    const [comp, setComp] = useState(template.plannedZones.comp);
-    const [isInterval, setIsInterval] = useState(template.isInterval);
+  const [templateName, setTemplateName] = useState(template.title);
+  const [folderId, setFolderId] = useState(template.folderId || 0);
+  const [sportId, setSportId] = useState(template.activityId);
+  const [description, setDescription] = useState(template.description);
+  const [a1, setA1] = useState(template.plannedZones.a1);
+  const [a2, setA2] = useState(template.plannedZones.a2);
+  const [a3Minus, setA3Minus] = useState(template.plannedZones.a3Minus);
+  const [a3, setA3] = useState(template.plannedZones.a3);
+  const [a3Plus, setA3Plus] = useState(template.plannedZones.a3Plus);
+  const [comp, setComp] = useState(template.plannedZones.comp);
+  const [isInterval, setIsInterval] = useState(template.isInterval);
 
-    function closeDialog() {
-        const dialog = document.querySelector(".edit-template-dialog") as HTMLDivElement;
-        if (dialog) {
-            dialog.style.display = "none";
-        }
+  function closeDialog() {
+    const dialog = document.querySelector(
+      ".edit-template-dialog",
+    ) as HTMLDivElement;
+    if (dialog) {
+      dialog.style.display = "none";
     }
-    function updateTemplate() {
-        const updatedTemplate: TemplateType = {
-            ...template,
-            title: templateName,
-            folderId: folderId,
-            activityId: sportId,
-            description: description,
-            plannedZones: {
-                a1: a1,
-                a2: a2,
-                a3Minus: a3Minus,
-                a3: a3,
-                a3Plus: a3Plus,
-                comp: comp
-            },
-            isInterval: isInterval
-        };
-        sessionTemplateApi.update(updatedTemplate)
-        onTemplateUpdate(updatedTemplate);
-        closeDialog();
-    }
+  }
+  function updateTemplate() {
+    const updatedTemplate: TemplateType = {
+      ...template,
+      title: templateName,
+      folderId: folderId,
+      activityId: sportId,
+      description: description,
+      plannedZones: {
+        a1: a1,
+        a2: a2,
+        a3Minus: a3Minus,
+        a3: a3,
+        a3Plus: a3Plus,
+        comp: comp,
+      },
+      isInterval: isInterval,
+    };
+    sessionTemplateApi.update(updatedTemplate);
+    onTemplateUpdate(updatedTemplate);
+    closeDialog();
+  }
 
-    return (
+  return (
     <>
       <div className="edit-template-container">
         <h3 className="edit-template-title">Uppdatera Mall</h3>
@@ -132,8 +134,7 @@ function EditTemplateDialog({
               type="number"
               name="a1Input"
               value={a1}
-              onChange={(e) => setA1(e.target.valueAsNumber||0)}
-              
+              onChange={(e) => setA1(e.target.valueAsNumber || 0)}
             />
           </div>
           <div className="zone-container">
@@ -144,8 +145,7 @@ function EditTemplateDialog({
               type="number"
               name="a2Input"
               value={a2}
-              onChange={(e) => setA2(e.target.valueAsNumber||0)}
-              
+              onChange={(e) => setA2(e.target.valueAsNumber || 0)}
             />
           </div>
           <div className="zone-container">
@@ -160,8 +160,7 @@ function EditTemplateDialog({
               type="number"
               name="a3-Input"
               value={a3Minus}
-              onChange={(e) => setA3Minus(e.target.valueAsNumber||0)}
-              
+              onChange={(e) => setA3Minus(e.target.valueAsNumber || 0)}
             />
           </div>
           <div className="zone-container">
@@ -176,8 +175,7 @@ function EditTemplateDialog({
               type="number"
               name="a3Input"
               value={a3}
-              onChange={(e) => setA3(e.target.valueAsNumber||0)}
-              
+              onChange={(e) => setA3(e.target.valueAsNumber || 0)}
             />
           </div>
           <div className="zone-container">
@@ -192,8 +190,7 @@ function EditTemplateDialog({
               type="number"
               name="a3+Input"
               value={a3Plus}
-              onChange={(e) => setA3Plus(e.target.valueAsNumber||0)}
-             
+              onChange={(e) => setA3Plus(e.target.valueAsNumber || 0)}
             />
           </div>
           <div className="zone-container">
@@ -208,8 +205,7 @@ function EditTemplateDialog({
               type="number"
               name="compInput"
               value={comp}
-              onChange={(e) => setComp(e.target.valueAsNumber||0)}
-              
+              onChange={(e) => setComp(e.target.valueAsNumber || 0)}
             />
           </div>
         </div>
@@ -236,6 +232,6 @@ function EditTemplateDialog({
       </div>
     </>
   );
-};
+}
 
 export default EditTemplateDialog;
