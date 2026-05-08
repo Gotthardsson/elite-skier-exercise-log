@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Calendar } from "primereact/calendar";
 import ButtonPrimary from "../../../components/ButtonPrimary";
 import { workoutSessionApi } from "../../../api/workoutSessionApi";
+import Swal from "sweetalert2";
 
 export default function SessionModal(props) {
   const createInitialSession = (date, timeOfDay) => ({
@@ -15,6 +16,7 @@ export default function SessionModal(props) {
     loggedComment: "",
     feeling: 5,
     mentalRpe: 5,
+    avgHeartRate: 0,
     plannedZones: { a1: 0, a2: 0, a3Minus: 0, a3: 0, a3Plus: 0, comp: 0 },
     actualZones: { a1: 0, a2: 0, a3Minus: 0, a3: 0, a3Plus: 0, comp: 0 },
   });
@@ -70,6 +72,12 @@ export default function SessionModal(props) {
       await workoutSessionApi.create(finalSession);
       props.onSessionSaved();
       props.setTrigger(false);
+      Swal.fire({
+        title: "Sparat!",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (error) {
       console.error("Fel vid sparning:", error);
     }
@@ -201,6 +209,54 @@ export default function SessionModal(props) {
           />
         </div>
 
+        <div className="sm-slider-row">
+          <div className="sm-slider-field">
+            <div className="sm-slider-header">
+              <label className="sm-label">Känsla i kroppen</label>
+              <span className="sm-slider-value">{session.feeling}/10</span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              className="sm-range-input"
+              value={session.feeling}
+              onChange={(e) =>
+                setSession({ ...session, feeling: Number(e.target.value) })
+              }
+            />
+          </div>
+
+          <div className="sm-slider-field">
+            <div className="sm-slider-header">
+              <label className="sm-label">Mental Känsla</label>
+              <span className="sm-slider-value">{session.mentalRpe}/10</span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              className="sm-range-input"
+              value={session.mentalRpe}
+              onChange={(e) =>
+                setSession({ ...session, mentalRpe: Number(e.target.value) })
+              }
+            />
+          </div>
+        </div>
+        <div className="heart-rate-input">
+          <label className="sm-label">Medelpuls</label>
+          <input
+            type="number"
+            className="sm-pulse-input"
+            placeholder="BPM"
+            value={session.avgHeartRate}
+            onFocus={(e) => e.target.select()} // Markera allt när man klickar
+            onChange={(e) =>
+              setSession({ ...session, avgHeartRate: Number(e.target.value) })
+            }
+          />
+        </div>
         <div className="sm-footer">
           <button className="sm-save-btn" onClick={handleSave}>
             Spara pass

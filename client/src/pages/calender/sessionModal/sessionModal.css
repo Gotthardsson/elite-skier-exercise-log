@@ -304,7 +304,68 @@ td[data-p-other-month="true"] {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
   margin-top: 20px;
 }
+/* --- RPE & FEELING SLIDERS --- */
+.sm-slider-row {
+  display: grid;
+  /* Ändrad till 3 kolumner */
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  align-items: center; /* Gör att puls-inputen linjerar med botten på sliders */
+  margin-bottom: 15px;
+  margin-top: 20px;
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #edf2f7;
+}
 
+/* Puls-specifik styling */
+.sm-pulse-input {
+  width: 25%;
+  height: 30px;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  color: #c81e1e; /* En röd nyans för att symbolisera puls */
+}
+
+.sm-slider-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sm-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sm-slider-value {
+  font-weight: 800;
+  color: #111827;
+  background: #fff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 0.85rem;
+}
+
+/* Styla själva "dragaren" */
+.sm-range-input {
+  width: 100%;
+  cursor: pointer;
+  accent-color: #111827; /* Gör cirkeln mörk för att matcha temat */
+  height: 6px;
+}
+
+.heart-rate-input {
+  display: flex;
+  flex-direction: column;
+}
 @media (max-width: 800px) {
   .sm-toggle-btn {
     width: 110px;

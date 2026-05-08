@@ -21,6 +21,7 @@ public class WorkoutSessionDto
     // Här använder vi objektet ZoneDto för att slippa 12 olika fält i frontenden
     public ZoneDto PlannedZones { get; set; } = new();
     public ZoneDto ActualZones { get; set; } = new();
+    public int? AvgHeartRate { get; set; }
 }
 
 public class ZoneDto

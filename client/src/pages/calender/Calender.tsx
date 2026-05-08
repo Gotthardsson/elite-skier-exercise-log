@@ -63,13 +63,27 @@ export default function Calendar({ activities }: CalenderProps) {
     return activities.find((a) => a.id === activityId)?.name ?? "Pass";
   }
 
-  function logPlannedSession(e: React.MouseEvent, plannedSession: SessionType) {
+  function logOrEditSession(
+    e: React.MouseEvent,
+    session: SessionType,
+    isLogged,
+    editClicked
+  ) {
     e.stopPropagation(); // Hindrar cell-klicket
-    setDateOfCell(new Date(plannedSession.scheduledDate));
-    setTimeOfDay(plannedSession.timeOfDay || "Morgon");
-    setSelectedSession(plannedSession);
-    setPlannedSessionClicked(true);
-    setButtonPopup(true);
+    if (!isLogged && !editClicked) {
+      setDateOfCell(new Date(session.scheduledDate));
+      setTimeOfDay(session.timeOfDay || "Morgon");
+      setSelectedSession(session);
+      setPlannedSessionClicked(true);
+      setButtonPopup(true);
+    } else {
+      //Fixa så att alla data fylls i rätt
+      setDateOfCell(new Date(session.scheduledDate));
+      setTimeOfDay(session.timeOfDay || "Morgon");
+      setSelectedSession(session);
+      setPlannedSessionClicked(true);
+      setButtonPopup(true);
+    }
   }
 
   const handleDeleteSession = async (e, sessionId) => {
@@ -106,6 +120,7 @@ export default function Calendar({ activities }: CalenderProps) {
       }
     }
   };
+
   return (
     <section className="calendar">
       <div className="calendar-nav">
@@ -200,6 +215,10 @@ export default function Calendar({ activities }: CalenderProps) {
                                   : "sm-edit-btn planned"
                               }
                               title="Redigera"
+                              onClick={(e) => {
+                                const editClicked = true;
+                                logOrEditSession(e, s, s.isLogged, editClicked);
+                              }}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -222,7 +241,7 @@ export default function Calendar({ activities }: CalenderProps) {
                                   : "sm-edit-btn planned delete "
                               }
                               onClick={(e) => {
-                                handleDeleteSession(e, s.id);
+                                handleDeleteSession(e, s);
                               }}
                             >
                               <svg
@@ -257,7 +276,8 @@ export default function Calendar({ activities }: CalenderProps) {
                             }`}
                             onClick={(e) => {
                               if (!s.isLogged) {
-                                logPlannedSession(e, s);
+                                const editClicked = false;
+                                logOrEditSession(e, s, s.isLogged, editClicked);
                               } else {
                                 e.stopPropagation(); // Hindrar klick även på loggade pass
                               }

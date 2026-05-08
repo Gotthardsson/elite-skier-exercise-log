@@ -20,6 +20,7 @@ export const workoutSessionApi = {
       loggedComment: session.loggedComment, // Faktisk kommentar
       physicalRpe: session.feeling,
       mentalRpe: session.mentalRpe,
+      avgHeartRate: session.avgHeartRate,
 
       // Nu mappar vi de två separata objekten
       plannedZones: {

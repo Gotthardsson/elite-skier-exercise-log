@@ -18,6 +18,7 @@ export interface SessionType {
   // Feedback/Känsla
   feeling?: number; // Mappar mot 'physical_rpe' (1-10)
   mentalRpe?: number; // Mappar mot 'mental_rpe'
+  avgHeartRate: number;
 
   // Zoner - Vi speglar DTO:ns struktur här för att göra mappningen enkel
   plannedZones: ZoneType;

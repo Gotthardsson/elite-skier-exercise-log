@@ -28,6 +28,7 @@ public class WorkoutSessionService : IWorkoutSessionService
             LoggedComment = dto.LoggedComment,
             PhysicalRpe = dto.PhysicalRpe,
             MentalRpe =dto.MentalRpe,
+            AvgHeartRate=dto.AvgHeartRate,
             
             // Mappa planerade zoner
             TizA1Planned = dto.PlannedZones.A1,
@@ -70,6 +71,7 @@ public async Task<IEnumerable<WorkoutSessionDto>> GetUserSessionsAsync(int userI
         LoggedComment = s.LoggedComment,
         PhysicalRpe = s.PhysicalRpe,
         MentalRpe = s.MentalRpe,
+        AvgHeartRate = s.AvgHeartRate,
 
         PlannedZones = new ZoneDto
         {
