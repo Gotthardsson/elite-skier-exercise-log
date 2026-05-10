@@ -92,7 +92,7 @@ function Stats(props: { activities: any[] }) {
     return null;
   }, [timeSpan, period, periodView, season, sessions, props.activities]);
 
-  // Just nu hårdkodat enligt din kommentar "KVAR ATT FIXA"
+  // Just nu hårdkodat
   const sickDays = 14;
   const injuryDays = 40;
 

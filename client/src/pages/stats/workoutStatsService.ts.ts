@@ -3,9 +3,9 @@ import type { Activity } from "../../types/Activity";
 
 // 1. Inställningar för säsongsstarter
 const SEASON_MAP: Record<string, string> = {
-  "26/27": "2026-04-20",
-  "25/26": "2025-04-21",
-  "24/25": "2024-04-22",
+  "26/27": "2026-05-01",
+  "25/26": "2025-05-01",
+  "24/25": "2024-05-01",
 };
 
 const getSeasonStart = (seasonString: string): Date => {
