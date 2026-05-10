@@ -26,6 +26,7 @@ export default function Calendar({ activities }: CalenderProps) {
   const [selectedSession, setSelectedSession] = useState<SessionType | null>(
     null
   );
+  const [editClicked, setEditClicked] = useState(false);
 
   const days = useMemo(() => getWeekDays(currentDate), [currentDate]);
 
@@ -63,13 +64,28 @@ export default function Calendar({ activities }: CalenderProps) {
     return activities.find((a) => a.id === activityId)?.name ?? "Pass";
   }
 
-  function logPlannedSession(e: React.MouseEvent, plannedSession: SessionType) {
+  function logOrEditSession(
+    e: React.MouseEvent,
+    session: SessionType,
+    isLogged: boolean,
+    editClicked: boolean
+  ) {
     e.stopPropagation(); // Hindrar cell-klicket
-    setDateOfCell(new Date(plannedSession.scheduledDate));
-    setTimeOfDay(plannedSession.timeOfDay || "Morgon");
-    setSelectedSession(plannedSession);
-    setPlannedSessionClicked(true);
-    setButtonPopup(true);
+
+    //För att logga planerade:
+    if (!isLogged && !editClicked) {
+      setDateOfCell(new Date(session.scheduledDate));
+      setTimeOfDay(session.timeOfDay || "Morgon");
+      setSelectedSession(session);
+      setPlannedSessionClicked(true);
+      setButtonPopup(true);
+    } else if (editClicked) {
+      //För att ändra pass logga/planerade:
+      setDateOfCell(new Date(session.scheduledDate));
+      setTimeOfDay(session.timeOfDay || "Morgon");
+      setSelectedSession(session);
+      setButtonPopup(true);
+    }
   }
 
   const handleDeleteSession = async (e, sessionId) => {
@@ -106,6 +122,13 @@ export default function Calendar({ activities }: CalenderProps) {
       }
     }
   };
+
+  const getDayTotal = (dayDate: Date) => {
+    return sessions
+      .filter((s) => isSameDate(dayDate, s.scheduledDate))
+      .reduce((sum, s) => sum + getTotalTime(s), 0);
+  };
+
   return (
     <section className="calendar">
       <div className="calendar-nav">
@@ -128,12 +151,6 @@ export default function Calendar({ activities }: CalenderProps) {
         >
           →
         </button>
-        <SwitchViewComponent
-          onChange={(isLog) => {
-            setBorderStyle(isLog ? "3px solid #2fd08f" : "3px solid #3b82f6");
-            setLogSelected(isLog);
-          }}
-        />
       </div>
 
       <div className="calendar-grid" style={{ border: borderStyle }}>
@@ -146,6 +163,9 @@ export default function Calendar({ activities }: CalenderProps) {
             >
               {day.dateNumber}
             </span>
+            <div className="calendar-day-total">
+              {getDayTotal(day.fullDate)} min
+            </div>
           </div>
         ))}
 
@@ -164,12 +184,39 @@ export default function Calendar({ activities }: CalenderProps) {
                   key={`${slot}-${day.key}`}
                   className="calendar-cell"
                   onClick={() => {
-                    // Skapa NYTT pass
-                    setDateOfCell(day.fullDate);
-                    setTimeOfDay(slot);
-                    setSelectedSession(null);
-                    setPlannedSessionClicked(false);
-                    setButtonPopup(true);
+                    // 1. Skapa ett datum-objekt för klockslaget/dagen du klickat på
+                    const clickedDate = new Date(day.fullDate);
+
+                    // 2. Skapa ett datum-objekt för "just nu"
+                    const now = new Date();
+
+                    // Om du vill att "idag" alltid ska öppna loggningsvyn:
+                    const today = new Date(
+                      now.getFullYear(),
+                      now.getMonth(),
+                      now.getDate()
+                    );
+                    const clickedDay = new Date(
+                      clickedDate.getFullYear(),
+                      clickedDate.getMonth(),
+                      clickedDate.getDate()
+                    );
+
+                    if (clickedDay > today) {
+                      // FRAMTIDEN
+                      setDateOfCell(day.fullDate);
+                      setTimeOfDay(slot);
+                      setLogSelected(false); // Öppna "Planera"
+                      setPlannedSessionClicked(false);
+                      setButtonPopup(true);
+                    } else {
+                      // DÅTID ELLER IDAG
+                      setDateOfCell(day.fullDate);
+                      setTimeOfDay(slot);
+                      setLogSelected(true); // Öppna "Logga"
+                      setPlannedSessionClicked(false);
+                      setButtonPopup(true);
+                    }
                   }}
                 >
                   <span className="cell-plus">+</span>
@@ -181,7 +228,8 @@ export default function Calendar({ activities }: CalenderProps) {
                           s.isLogged ? "logged" : "planned"
                         }`}
                         onClick={(e) => {
-                          e.stopPropagation(); // Hindrar klick även på loggade pass
+                          logOrEditSession(e, s, s.isLogged, true);
+                          e.stopPropagation();
                         }}
                       >
                         <div
@@ -200,6 +248,10 @@ export default function Calendar({ activities }: CalenderProps) {
                                   : "sm-edit-btn planned"
                               }
                               title="Redigera"
+                              onClick={(e) => {
+                                setEditClicked(true);
+                                logOrEditSession(e, s, s.isLogged, editClicked);
+                              }}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -257,7 +309,8 @@ export default function Calendar({ activities }: CalenderProps) {
                             }`}
                             onClick={(e) => {
                               if (!s.isLogged) {
-                                logPlannedSession(e, s);
+                                const editClicked = false;
+                                logOrEditSession(e, s, s.isLogged, editClicked);
                               } else {
                                 e.stopPropagation(); // Hindrar klick även på loggade pass
                               }
@@ -292,6 +345,7 @@ export default function Calendar({ activities }: CalenderProps) {
         isLogSelected={logSelected}
         plannedSessionClicked={plannedSessionClicked}
         session={selectedSession}
+        editClicked={editClicked}
       />
     </section>
   );

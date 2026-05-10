@@ -12,12 +12,13 @@ export interface SessionType {
   isLogged: boolean; // Mappar mot 'is_logged' (ersätter isCompleted)
 
   // Kommentarer (Vi har nu två olika i DB)
-  description?: string; // Mappar mot 'comment' (planeringen)
+  comment?: string; // Mappar mot 'comment' (planeringen)
   loggedComment?: string; // Mappar mot 'logged_comment' (efter passet)
 
   // Feedback/Känsla
   feeling?: number; // Mappar mot 'physical_rpe' (1-10)
   mentalRpe?: number; // Mappar mot 'mental_rpe'
+  avgHeartRate: number;
 
   // Zoner - Vi speglar DTO:ns struktur här för att göra mappningen enkel
   plannedZones: ZoneType;
