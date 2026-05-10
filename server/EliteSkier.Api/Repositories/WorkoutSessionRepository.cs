@@ -31,8 +31,8 @@ public class WorkoutSessionRepository : IWorkoutSessionRepository
 
     public async Task UpdateAsync(WorkoutSession session)
     {
-        _context.Entry(session).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
+       _context.WorkoutSessions.Update(session); 
+       await _context.SaveChangesAsync();
     }
 
     public async Task<bool> DeleteAsync(int id)
@@ -46,4 +46,6 @@ public class WorkoutSessionRepository : IWorkoutSessionRepository
         }
         return false;
     }
+
+
 }

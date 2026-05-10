@@ -68,7 +68,36 @@ public class WorkoutSessionsController : ControllerBase
             
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
+
     }
+
+    [HttpPut("{id}")]
+    public async Task <IActionResult> UpdateSession(int id, [FromBody] WorkoutSessionDto dto)
+    {
+        if (dto == null)
+        {
+            return BadRequest("Template data is missing.");
+        }
+
+        if(id != dto.Id)
+        {
+            return BadRequest("ID i URL matchar inte ID i bodyn.");
+        }
+
+        try
+        {
+           await _workoutSessionService.UpdateSessionAsync(dto);
+           return Ok(new{ message = "Passet har ändrats"});
+        }
+        catch(Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+        
+    }
+
+     
+
 
 
   

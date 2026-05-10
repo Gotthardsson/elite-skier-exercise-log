@@ -62,7 +62,8 @@
 }
 
 .sm-close-btn:hover {
-  background: #ef4444 !important;
+  background: #ef4444;
+  transform: translateY(-2px);
 }
 
 /* --- TOGGLE LOG/PLAN --- */
@@ -304,6 +305,11 @@ td[data-p-other-month="true"] {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
   margin-top: 20px;
 }
+
+.sm-save-btn:hover {
+  transform: translateY(-2px);
+  background-color: #34d399 !important;
+}
 /* --- RPE & FEELING SLIDERS --- */
 .sm-slider-row {
   display: grid;
@@ -317,6 +323,10 @@ td[data-p-other-month="true"] {
   padding: 15px;
   border-radius: 12px;
   border: 1px solid #edf2f7;
+}
+
+.sm-slider-row.planmode {
+  display: none;
 }
 
 /* Puls-specifik styling */
@@ -365,6 +375,10 @@ td[data-p-other-month="true"] {
 .heart-rate-input {
   display: flex;
   flex-direction: column;
+}
+
+.heart-rate-input.planmode {
+  display: none;
 }
 @media (max-width: 800px) {
   .sm-toggle-btn {

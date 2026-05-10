@@ -1,18 +1,19 @@
 import "./sessionModal.css";
 import { useEffect, useState } from "react";
 import { Calendar } from "primereact/calendar";
-import ButtonPrimary from "../../../components/ButtonPrimary";
 import { workoutSessionApi } from "../../../api/workoutSessionApi";
 import Swal from "sweetalert2";
+import type { SessionType } from "../../../types/SessionType";
 
 export default function SessionModal(props) {
   const createInitialSession = (date, timeOfDay) => ({
+    id: undefined,
     userId: 1,
     activityId: 0,
     scheduledDate: date || new Date(),
     timeOfDay: timeOfDay || "Morgon",
     isLogged: true,
-    description: "",
+    comment: "",
     loggedComment: "",
     feeling: 5,
     mentalRpe: 5,
@@ -22,25 +23,76 @@ export default function SessionModal(props) {
   });
 
   const [isLogSelected, setLogSelected] = useState(props.isLogSelected);
-  const [session, setSession] = useState(() =>
+  const [session, setSession] = useState<SessionType>(() =>
     createInitialSession(props.date, props.timeOfDay)
   );
 
   useEffect(() => {
     if (!props.trigger) return;
-
+    console.log("Effekt körs med session:", props.session);
+    //Klickat logga planerat pass
     if (props.plannedSessionClicked && props.session) {
       setSession({
         ...props.session,
         id: undefined, // Viktigt för att skapa ett NYTT loggat pass
         isLogged: true,
         scheduledDate: new Date(props.session.scheduledDate),
-        actualZones: { ...props.session.plannedZones },
-        loggedComment: "",
+        actualZones: {
+          a1: props.session.plannedZones?.a1 ?? 0,
+          a2: props.session.plannedZones?.a2 ?? 0,
+          a3Minus: props.session.plannedZones?.a3Minus ?? 0,
+          a3: props.session.plannedZones?.a3 ?? 0,
+          a3Plus: props.session.plannedZones?.a3Plus ?? 0,
+          comp: props.session.plannedZones?.comp ?? 0,
+        },
+        plannedZones: { ...(props.session.plannedZones || {}) },
+        loggedComment: props.session.comment,
+        comment: props.session.comment,
+        mentalRpe: 5,
+        feeling: 5,
       });
+
       setLogSelected(true);
+
+      //Klicka Redigera
+    } else if (props.editClicked && props.session) {
+      setSession({
+        ...props.session,
+        id: props.session?.id,
+        isLogged: props.isLogged,
+        scheduledDate: new Date(props.session.scheduledDate),
+        actualZones: {
+          ...(props.session.actualZones || {
+            a1: 0,
+            a2: 0,
+            a3Minus: 0,
+            a3: 0,
+            a3Plus: 0,
+            comp: 0,
+          }),
+        },
+        plannedZones: {
+          ...(props.session.plannedZones || {
+            a1: 0,
+            a2: 0,
+            a3Minus: 0,
+            a3: 0,
+            a3Plus: 0,
+            comp: 0,
+          }),
+        },
+        loggedComment: props.session.loggedComment,
+        comment: props.session.comment,
+        mentalRpe: props.session.mentalRpe,
+        feeling: props.session.feeling,
+        avgHeartRate: props.session.avgHeartRate,
+      });
+      setLogSelected(props.session.isLogged);
+      console.log(props.session.feeling);
     } else {
-      setSession(createInitialSession(props.date, props.timeOfDay));
+      //Helt nytt tomt pass
+      const newSession = createInitialSession(props.date, props.timeOfDay);
+      setSession(newSession);
       setLogSelected(props.isLogSelected);
     }
   }, [
@@ -50,6 +102,8 @@ export default function SessionModal(props) {
     props.date,
     props.timeOfDay,
     props.isLogSelected,
+    props.editClicked,
+    props.isLogged,
   ]);
 
   const handleZoneChange = (zoneKey, value) => {
@@ -62,14 +116,23 @@ export default function SessionModal(props) {
     }));
   };
 
-  const handleSave = async () => {
+  const handleEdit = async (currentSession: SessionType) => {
+    if (!currentSession.id) return;
+
     try {
-      const finalSession = {
-        ...session,
-        scheduledDate: session.scheduledDate.toISOString(),
+      const sessionToUpdate = {
+        ...currentSession,
         isLogged: isLogSelected,
+        scheduledDate: new Date(currentSession.scheduledDate).toISOString(),
+
+        // FIXA KOMMENTARERNA HÄR:
+        // Se till att 'description' (från state) mappar till vad din API-klient förväntar sig
+        comment: currentSession.comment,
+        loggedComment: currentSession.loggedComment,
       };
-      await workoutSessionApi.create(finalSession);
+
+      await workoutSessionApi.update(currentSession.id, sessionToUpdate);
+
       props.onSessionSaved();
       props.setTrigger(false);
       Swal.fire({
@@ -79,15 +142,58 @@ export default function SessionModal(props) {
         showConfirmButton: false,
       });
     } catch (error) {
-      console.error("Fel vid sparning:", error);
+      console.error("Fel vid PUT-anrop:", error);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      // 1. Fixa datumet - oavsett om det är Date eller String från kalendern
+      const dateObj = new Date(session.scheduledDate);
+
+      // 2. Skapa det objekt som ska skickas
+      const finalSession = {
+        ...session,
+        // Vi tvingar in isLogged från modalens flik-val (true/false)
+        isLogged: isLogSelected,
+        // Vi skickar datumet som en ISO-sträng för backend
+        scheduledDate: dateObj.toISOString(),
+      };
+
+      // 3. Skicka till API
+      await workoutSessionApi.create(finalSession);
+
+      // 4. Städa upp och hälsa användaren
+      props.onSessionSaved();
+      props.setTrigger(false);
+
+      Swal.fire({
+        title: "Sparat!",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Fel vid Post-anrop:", error);
+      Swal.fire("Fel", "Kunde inte spara passet.", "error");
     }
   };
 
   if (!props.trigger) return null;
 
   return (
-    <div className="sm-overlay">
-      <div className={`sm-content ${isLogSelected ? "log-mode" : "plan-mode"}`}>
+    <div
+      className="sm-overlay"
+      onClick={() => {
+        props.setTrigger(false);
+      }}
+    >
+      <div
+        className={`sm-content ${isLogSelected ? "log-mode" : "plan-mode"}`}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         <div className="sm-header">
           <button
             className="sm-close-btn"
@@ -193,7 +299,7 @@ export default function SessionModal(props) {
 
         <div className="sm-field">
           <label className="sm-label">
-            {isLogSelected ? "Kommentar om passet" : "Beskrivning av plan"}
+            {isLogSelected ? "Kommentar" : "Kommentar"}
           </label>
           <textarea
             className="sm-textarea"
@@ -209,7 +315,9 @@ export default function SessionModal(props) {
           />
         </div>
 
-        <div className="sm-slider-row">
+        <div
+          className={isLogSelected ? "sm-slider-row" : "sm-slider-row planmode"}
+        >
           <div className="sm-slider-field">
             <div className="sm-slider-header">
               <label className="sm-label">Känsla i kroppen</label>
@@ -220,7 +328,7 @@ export default function SessionModal(props) {
               min="1"
               max="10"
               className="sm-range-input"
-              value={session.feeling}
+              value={session.feeling ?? 5}
               onChange={(e) =>
                 setSession({ ...session, feeling: Number(e.target.value) })
               }
@@ -237,20 +345,24 @@ export default function SessionModal(props) {
               min="1"
               max="10"
               className="sm-range-input"
-              value={session.mentalRpe}
+              value={session.mentalRpe ?? 5}
               onChange={(e) =>
                 setSession({ ...session, mentalRpe: Number(e.target.value) })
               }
             />
           </div>
         </div>
-        <div className="heart-rate-input">
+        <div
+          className={
+            isLogSelected ? "heart-rate-input" : "heart-rate-input planmode"
+          }
+        >
           <label className="sm-label">Medelpuls</label>
           <input
             type="number"
             className="sm-pulse-input"
             placeholder="BPM"
-            value={session.avgHeartRate}
+            value={session.avgHeartRate ?? 0}
             onFocus={(e) => e.target.select()} // Markera allt när man klickar
             onChange={(e) =>
               setSession({ ...session, avgHeartRate: Number(e.target.value) })
@@ -258,8 +370,19 @@ export default function SessionModal(props) {
           />
         </div>
         <div className="sm-footer">
-          <button className="sm-save-btn" onClick={handleSave}>
-            Spara pass
+          <button
+            className="sm-save-btn"
+            onClick={() => {
+              console.log("Klickade spara. Session ID är:", session.id);
+              if (!props.editClicked) {
+                handleSave();
+              } else if (props.editClicked) {
+                console.log(session.isLogged);
+                handleEdit(session);
+              }
+            }}
+          >
+            {!props.editClicked ? "Spara pass" : "Spara ändringar"}
           </button>
         </div>
       </div>
