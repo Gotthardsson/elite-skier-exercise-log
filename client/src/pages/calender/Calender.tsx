@@ -2,7 +2,7 @@ import { useEffect, Fragment, useMemo, useState } from "react";
 import { getWeekDays } from "../../utils/date/dateHelper";
 import "./calender.css";
 import SessionModal from "./sessionModal/SessionModal";
-import SwitchViewComponent from "./SwitchViewComponent";
+import CalendarNav from "./CalenderNav";
 import type { Activity } from "../../types/Activity";
 import { workoutSessionApi } from "../../api/workoutSessionApi";
 import type { SessionType } from "../../types/SessionType";
@@ -131,30 +131,12 @@ export default function Calendar({ activities }: CalenderProps) {
 
   return (
     <section className="calendar">
-      <div className="calendar-nav">
-        <button
-          onClick={() => {
-            const prev = new Date(currentDate);
-            prev.setDate(prev.getDate() - 7);
-            setCurrentDate(prev);
-          }}
-        >
-          ←
-        </button>
-        <button onClick={() => setCurrentDate(new Date())}>Idag</button>
-        <button
-          onClick={() => {
-            const next = new Date(currentDate);
-            next.setDate(next.getDate() + 7);
-            setCurrentDate(next);
-          }}
-        >
-          →
-        </button>
-      </div>
+      <CalendarNav currentDate={currentDate} setCurrentDate={setCurrentDate} />
 
       <div className="calendar-grid" style={{ border: borderStyle }}>
-        <div className="calendar-corner" />
+        <div className="calendar-corner">
+          {currentDate.toLocaleString("sv-SE", { month: "long" })}
+        </div>
         {days.map((day) => (
           <div key={day.key} className="calendar-day">
             <span className="calendar-day-short">{day.short}</span>
