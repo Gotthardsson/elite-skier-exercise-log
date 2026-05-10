@@ -1,0 +1,70 @@
+/* Huvudrubrik och text */
+h1 {
+  color: #0f172a;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+p {
+  color: #64748b;
+  margin-bottom: 2rem;
+}
+
+/* App-kortet */
+.ig-app-container {
+  background-color: white;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08); /* Lite mjukare skugga */
+  border-radius: 20px; /* Matcha kalenderns runda hörn */
+  width: 100%;
+  max-width: 500px; /* Lagom bredd för ett kort */
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem; /* Skapar jämnt avstånd mellan logga, text och knapp */
+  transition: transform 0.2s ease;
+}
+
+.ig-app-container:hover {
+  transform: translateY(-2px);
+}
+
+/* Loggan */
+.strava-logo-svg {
+  width: 50px; /* Fast storlek är ofta bättre än % för loggor */
+  height: 50px;
+  object-fit: contain;
+}
+
+/* Textinnehållet */
+.ig-txt-content {
+  flex-grow: 1; /* Låter texten ta upp allt ledigt utrymme */
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ig-txt-content h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ig-txt-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+/* Knappen */
+.connect-btn {
+  display: flex;
+  align-items: center;
+}
+
+/* Speciell stil om den är kopplad (valfritt) */
+.ig-connect-btn.connected {
+  background: #f1f5f9;
+  color: #0f172a;
+}

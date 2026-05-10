@@ -37,6 +37,15 @@ export default function NavigationMenu() {
         </NavLink>
 
         <NavLink
+          to="/integrations"
+          className={({ isActive }) =>
+            isActive ? "nav-item selected" : "nav-item"
+          }
+        >
+          Integrationer
+        </NavLink>
+
+        <NavLink
           to="/account"
           className={({ isActive }) =>
             isActive ? "nav-item selected" : "nav-item"
