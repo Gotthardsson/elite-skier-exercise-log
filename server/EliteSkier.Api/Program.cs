@@ -22,16 +22,20 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddHttpClient();
+
 // Registrera Repository
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
 builder.Services.AddScoped<ISessionTemplateRepository, SessionTemplateRepository>();
+builder.Services.AddScoped<IStravaRepository, StravaRepository>();
 
 
 // Registrera Service
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IWorkoutSessionService, WorkoutSessionService>();
 builder.Services.AddScoped<ISessionTemplateService, SessionTemplateService>();
+builder.Services.AddScoped<IStravaService, StravaService>();
 
 
 // 4. API & Swagger dokumentation

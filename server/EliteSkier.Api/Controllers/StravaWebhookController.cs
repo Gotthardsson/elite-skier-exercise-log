@@ -60,3 +60,4 @@ public class StravaWebhookEvent
     [JsonPropertyName("owner_id")]
     public long OwnerId { get; set; }
 }
+
