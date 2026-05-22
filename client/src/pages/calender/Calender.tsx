@@ -336,6 +336,7 @@ export default function Calendar({ activities }: CalenderProps) {
           setButtonPopup(val);
           if (!val) {
             setPlannedSessionClicked(false);
+            setEditClicked(false); // FIXAT: Nollställ edit-läget när modalen stängs
             setSelectedSession(null);
           }
         }}
