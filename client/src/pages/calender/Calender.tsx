@@ -83,6 +83,37 @@ export default function Calendar({ activities }: CalenderProps) {
     return activities.find((a) => a.id === activityId)?.name ?? "Pass";
   }
 
+  function getActivityCode(activityId: number) {
+    switch (activityId) {
+      case 1:
+        return "SK"; // Skate
+      case 2:
+        return "KL"; // Klassiskt
+      case 3:
+        return "RSK"; // Rullskidor Skate
+      case 4:
+        return "RKL"; // Rullskidor Klassiskt
+      case 5:
+        return "MTB"; // MTB
+      case 6:
+        return "LVG"; // Landsvägscykel
+      case 7:
+        return "LÖP"; // Löpning
+      case 8:
+        return "STV"; // Stavgång
+      case 9:
+        return "SIM"; // Simning
+      case 10:
+        return "STK"; // Styrka
+      case 11:
+        return "ERG"; // Skierg
+      case 12:
+        return "ÖVR"; // Övrigt
+      default:
+        return "PASS";
+    }
+  }
+
   function logOrEditSession(
     e: React.MouseEvent,
     session: SessionType,
@@ -240,7 +271,54 @@ export default function Calendar({ activities }: CalenderProps) {
                               : "session-cell-header planned"
                           }
                         >
-                          <strong>{getActivityName(s.activityId)}</strong>
+                          <div className="sm-text-content-container">
+                            <strong>{getActivityCode(s.activityId)}</strong>
+                            <div className="session-cell-card-content">
+                              <span>{getTotalTime(s)} min</span>
+
+                              {/* FIX: Trimmar till max 5 ord och förhindrar text-overflow */}
+                              {(() => {
+                                const rawText = s.isLogged
+                                  ? s.loggedComment
+                                  : s.comment;
+                                if (!rawText) return null;
+
+                                const words = rawText.trim().split(/\s+/);
+                                const shortText = words.slice(0, 3).join(" ");
+                                const hasMore = words.length > 3;
+
+                                return (
+                                  <p className="session-cell-comment-preview">
+                                    {shortText}
+                                    {hasMore ? "..." : ""}
+                                  </p>
+                                );
+                              })()}
+                            </div>
+
+                            <div>
+                              <button
+                                className={`session-cell-log-btn ${
+                                  s.isLogged ? "logged" : "planned"
+                                }`}
+                                onClick={(e) => {
+                                  if (!s.isLogged) {
+                                    const editClicked = false;
+                                    logOrEditSession(
+                                      e,
+                                      s,
+                                      s.isLogged,
+                                      editClicked
+                                    );
+                                  } else {
+                                    e.stopPropagation(); // Hindrar klick även på loggade pass
+                                  }
+                                }}
+                              >
+                                {!s.isLogged ? "Logga" : ""}
+                              </button>
+                            </div>
+                          </div>
                           <div className="sm-edit-btns-container">
                             <button
                               className={
@@ -298,27 +376,6 @@ export default function Calendar({ activities }: CalenderProps) {
                               </svg>
                             </button>
                           </div>
-                        </div>
-                        <div className="session-cell-card-content">
-                          <span>{getTotalTime(s)}min</span>
-                        </div>
-
-                        <div>
-                          <button
-                            className={`session-cell-log-btn ${
-                              s.isLogged ? "logged" : "planned"
-                            }`}
-                            onClick={(e) => {
-                              if (!s.isLogged) {
-                                const editClicked = false;
-                                logOrEditSession(e, s, s.isLogged, editClicked);
-                              } else {
-                                e.stopPropagation(); // Hindrar klick även på loggade pass
-                              }
-                            }}
-                          >
-                            {!s.isLogged ? "Logga" : ""}
-                          </button>
                         </div>
                       </div>
                     ))}

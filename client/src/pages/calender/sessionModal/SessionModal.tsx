@@ -39,62 +39,12 @@ export default function SessionModal(props) {
     if (!props.trigger) return;
     console.log("Effekt körs med session:", props.session);
 
-    // Klickat logga planerat pass (ej Strava)
-    if (
-      props.plannedSessionClicked &&
-      props.session &&
-      !props.session.stravaRaw
-    ) {
-      setSession({
-        ...props.session,
-        id: props.session.id, // FIX: Behåll ID om vi vill ändra det befintliga planerade passet till loggat!
-        isLogged: true,
-        scheduledDate: new Date(props.session.scheduledDate),
-        actualZones: {
-          a1: props.session.plannedZones?.a1 ?? 0,
-          a2: props.session.plannedZones?.a2 ?? 0,
-          a3Minus: props.session.plannedZones?.a3Minus ?? 0,
-          a3: props.session.plannedZones?.a3 ?? 0,
-          a3Plus: props.session.plannedZones?.a3Plus ?? 0,
-          comp: props.session.plannedZones?.comp ?? 0,
-        },
-        plannedZones: { ...(props.session.plannedZones || {}) },
-        loggedComment: props.session.comment,
-        comment: props.session.comment,
-        mentalRpe: 5,
-        feeling: 5,
-      });
-
-      setLogSelected(true);
-    } else if (props.session && props.session.stravaRaw) {
-      setSession({
-        ...props.session,
-        id: props.session.id, // FIXAT: Behåll ID så att det uppdateras istället för att skapa en dubblett
-        isLogged: true,
-        scheduledDate: new Date(props.session.scheduledDate),
-        actualZones: {
-          a1: props.session.actualZones?.a1 ?? 0,
-          a2: props.session.actualZones?.a2 ?? 0,
-          a3Minus: props.session.actualZones?.a3Minus ?? 0,
-          a3: props.session.actualZones?.a3 ?? 0,
-          a3Plus: props.session.actualZones?.a3Plus ?? 0,
-          comp: props.session.actualZones?.comp ?? 0,
-        },
-        plannedZones: { ...(props.session.plannedZones || {}) },
-        loggedComment: props.session.comment || props.session.loggedComment,
-        comment: props.session.comment,
-        mentalRpe: props.session.mentalRpe || 5,
-        feeling: props.session.feeling || 5,
-      });
-
-      setLogSelected(true);
-
-      // Klicka Redigera
-    } else if (props.editClicked && props.session) {
+    // FIX 2: Lägg Klicka Redigera HÖGST UPP så inte "Logga planerat pass" stjäl klicket!
+    if (props.editClicked && props.session) {
       setSession({
         ...props.session,
         id: props.session?.id,
-        isLogged: props.isLogged,
+        isLogged: props.session.isLogged, // FIX: använd direkt från objektet
         scheduledDate: new Date(props.session.scheduledDate),
         actualZones: {
           ...(props.session.actualZones || {
@@ -116,13 +66,66 @@ export default function SessionModal(props) {
             comp: 0,
           }),
         },
-        loggedComment: props.session.loggedComment,
-        comment: props.session.comment,
+        loggedComment: props.session.loggedComment || "",
+        comment: props.session.comment || "", // FIX: Se till att comment hänger med
         mentalRpe: props.session.mentalRpe,
         feeling: props.session.feeling,
         avgHeartRate: props.session.avgHeartRate,
       });
       setLogSelected(props.session.isLogged);
+
+      // Klickat logga planerat pass (ej Strava)
+    } else if (
+      props.plannedSessionClicked &&
+      props.session &&
+      !props.session.stravaRaw
+    ) {
+      setSession({
+        ...props.session,
+        id: props.session.id,
+        isLogged: true,
+        scheduledDate: new Date(props.session.scheduledDate),
+        actualZones: {
+          a1: props.session.plannedZones?.a1 ?? 0,
+          a2: props.session.plannedZones?.a2 ?? 0,
+          a3Minus: props.session.plannedZones?.a3Minus ?? 0,
+          a3: props.session.plannedZones?.a3 ?? 0,
+          a3Plus: props.session.plannedZones?.a3Plus ?? 0,
+          comp: props.session.plannedZones?.comp ?? 0,
+        },
+        plannedZones: { ...(props.session.plannedZones || {}) },
+        loggedComment: props.session.comment || "",
+        comment: props.session.comment || "",
+        mentalRpe: 5,
+        feeling: 5,
+      });
+
+      setLogSelected(true);
+
+      // Strava-pass
+    } else if (props.session && props.session.stravaRaw) {
+      setSession({
+        ...props.session,
+        id: props.session.id,
+        isLogged: true,
+        scheduledDate: new Date(props.session.scheduledDate),
+        actualZones: {
+          a1: props.session.actualZones?.a1 ?? 0,
+          a2: props.session.actualZones?.a2 ?? 0,
+          a3Minus: props.session.actualZones?.a3Minus ?? 0,
+          a3: props.session.actualZones?.a3 ?? 0,
+          a3Plus: props.session.actualZones?.a3Plus ?? 0,
+          comp: props.session.actualZones?.comp ?? 0,
+        },
+        plannedZones: { ...(props.session.plannedZones || {}) },
+        loggedComment:
+          props.session.comment || props.session.loggedComment || "",
+        comment: props.session.comment || "",
+        mentalRpe: props.session.mentalRpe || 5,
+        feeling: props.session.feeling || 5,
+      });
+
+      setLogSelected(true);
     } else {
       // Helt nytt tomt pass
       const newSession = createInitialSession(props.date, props.timeOfDay);
@@ -317,12 +320,11 @@ export default function SessionModal(props) {
           <label className="sm-label">Kommentar</label>
           <textarea
             className="sm-textarea"
-            value={isLogSelected ? session.loggedComment : session.description}
+            value={isLogSelected ? session.loggedComment : session.comment}
             onChange={(e) =>
               setSession({
                 ...session,
-                [isLogSelected ? "loggedComment" : "description"]:
-                  e.target.value,
+                [isLogSelected ? "loggedComment" : "comment"]: e.target.value,
               })
             }
             placeholder={isLogSelected ? "Hur kändes det?" : "Vad ska du köra?"}
