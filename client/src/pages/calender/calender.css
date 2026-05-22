@@ -1,3 +1,4 @@
+/* --- OVERALL CALENDAR LAYOUT --- */
 .calendar {
   max-width: 80vw;
   min-width: 60vw;
@@ -7,28 +8,33 @@
 .calendar-grid {
   display: grid;
   grid-template-columns: 120px repeat(7, minmax(0, 1fr));
-  grid-auto-rows: 1fr;
+
+  /* FIX 1: Istället för 1fr låter vi raden bli så hög som passen kräver, men minst t.ex. 100px */
+  grid-auto-rows: minmax(100px, auto);
+
   gap: 12px;
   padding: 18px;
   border: 3px solid #2fd08f;
   border-radius: 24px;
   background: #f8f8f8;
   align-items: stretch;
-  height: 70vh;
+
+  /* FIX 2: Ändra height till min-height så griddet får expandera nedåt vid behov */
+  min-height: 70vh;
 }
 
 .calendar-corner {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Stil-matchning med resten av appen */
-  color: #0f172a; /* Samma mörka färg som knapparna */
-  font-size: 2rem; /* Gör texten rejält stor */
-  font-weight: 800; /* Extra tjock för en modern "header"-känsla */
-  letter-spacing: -0.02em; /* Tajtare bokstäver för premium-look */
+  color: #0f172a;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   text-transform: capitalize;
 }
 
+/* --- DAY HEADERS --- */
 .calendar-day {
   min-height: 70px;
   display: flex;
@@ -69,54 +75,7 @@
   color: #98a0ad;
 }
 
-.nav-log-type-div {
-  width: 30%;
-  display: flex;
-  align-items: center;
-}
-
-.nav-log-type-btn {
-  width: 25%;
-  height: 50px;
-  border: none;
-  border-bottom-left-radius: 5px;
-  border-top-left-radius: 5px;
-  border: solid #3b82f6 1px;
-  background-color: white;
-}
-
-.nav-plan-type-btn {
-  width: 25%;
-  height: 50px;
-  border: none;
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
-  border: solid #11b981 1px;
-  background-color: white;
-}
-
-.nav-plan-type-btn:hover {
-  cursor: pointer;
-}
-
-.nav-log-type-btn:hover {
-  cursor: pointer;
-}
-
-.nav-log-selected {
-  background-color: #11b981;
-  height: 50px;
-  width: 25%;
-  border: none;
-  border-bottom-left-radius: 5px;
-  border-top-left-radius: 5px;
-}
-
-.nav-plan-selected {
-  background-color: #3b82f6;
-  border: solid #3b82f6 1px;
-}
-
+/* --- CALENDAR CELLS --- */
 .calendar-cell {
   min-height: 100%;
   width: 100%;
@@ -127,16 +86,26 @@
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-
+  padding: 8px; /* Lite mer andningsutrymme inuti */
+  box-sizing: border-box;
   cursor: pointer;
-  transition: 0.2s ease;
-  overflow: hidden;
+  position: relative;
+
+  /* Mjuk övergång när hela cellen växer */
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease,
+    border-color 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1;
 }
 
 .calendar-cell:hover {
-  background: rgba(0, 0, 0, 0.025);
-  border-color: #c2c9d3;
-  transform: translateY(-2px);
+  background: #ffffff; /* Ger cellen en solid vit bakgrund vid hover så den täcker bakomvarande linjer */
+  border-color: #cbd5e1;
+  transform: scale(
+    1.04
+  ); /* Skalar upp cellen 4% – precis lagom för att ge plats */
+  box-shadow: 0 12px 20px -8px rgba(15, 23, 42, 0.15),
+    0 4px 12px -2px rgba(15, 23, 42, 0.05);
+  z-index: 10; /* Lägger sig garanterat ovanpå grann-cellerna */
 }
 
 .cell-plus {
@@ -164,171 +133,250 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  /* Ingen absolut-positionering här, låt flexbox sköta bredden automatiskt */
 }
 
+/* --- TRÄNINGSKORT (SESSION BUBBLAN) --- */
 .session-cell-card {
   width: 100%;
-  min-height: 40%;
-  max-height: 40%;
-  padding: 7px 9px;
-  border-radius: 10px;
+  box-sizing: border-box;
+  padding: 4px 8px; /* Mycket mindre padding på höjden */
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 5px;
+  gap: 2px;
   text-align: left;
-  overflow: hidden;
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
-.session-cell-card strong {
-  max-width: 100%;
-  font-size: 0.85rem;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* Subtil lyft-effekt vid hovring */
+.session-cell-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
-.session-cell-card span {
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.session-cell-card.logged {
-  background: #ecfdf5;
-  border: 1px solid #86efac;
-}
-
-.session-cell-card.logged strong,
-.session-cell-card.logged span {
-  color: #047857;
-}
-
+/* Status: Planerat (Mjukt blå) */
 .session-cell-card.planned {
-  background: #eff6ff;
-  border: 1px solid #93c5fd;
+  background: #f0f6ff;
+  border: 1px solid #bfdbfe;
 }
-
 .session-cell-card.planned strong,
 .session-cell-card.planned span {
   color: #1d4ed8;
 }
 
-.session-cell-card-content {
-  display: flex;
-  flex-direction: row;
-  width: 80%;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: -10px;
+/* Status: Strava (Sportig orange) */
+.session-cell-card.strava {
+  background: #fff7ed;
+  border: 1px solid #ffedd5;
+  border-left: 4px solid #f97316;
 }
+.session-cell-card.strava strong,
+.session-cell-card.strava span {
+  color: #c2410c;
+}
+
+/* Status: Loggat (Mjukt grön) */
+.session-cell-card.logged {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+.session-cell-card.logged strong,
+.session-cell-card.logged span {
+  color: #15803d;
+}
+
+/* Kortets Header (Aktivitet + Knappar) */
 .session-cell-header {
   display: flex;
   flex-direction: row;
-  width: 90%;
+  width: 100%;
   justify-content: space-between;
+  align-items: center;
 }
 
+.session-cell-card strong {
+  font-size: 0.8rem;
+  font-weight: 800;
+  flex-grow: 1;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+/* Kortets Content (Minuter) */
+.session-cell-card-content {
+  display: flex;
+  flex-direction: column; /* Ändrat till column så de staplas på höjden */
+  align-items: flex-start; /* Justera texten till vänster */
+  width: 100%;
+  gap: 2px;
+}
+
+.session-cell-card span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.session-cell-comment-preview {
+  margin: 2px 0 0 0;
+  padding: 0;
+  font-size: 0.7rem;
+  font-weight: 500;
+  font-style: italic;
+  text-align: left;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  /* FIXAT: Aktivera radbrytning istället för att klippa texten */
+  white-space: normal; /* Tillåter texten att brytas till ny rad */
+  word-break: break-word; /* Bryter långa ord om det absolut behövs så det inte trycks ut */
+
+  /* Färgmatchning baserat på status */
+  color: inherit;
+  opacity: 0.8;
+}
+
+.session-cell-card.strava .session-cell-comment-preview {
+  color: #c2410c; /* Orangeaktig ton för Strava-pass */
+}
+.session-cell-card.logged .session-cell-comment-preview {
+  color: #047857; /* Grönaktig ton för loggade pass */
+}
+
+.session-cell-card.planned .session-cell-comment-preview {
+  color: #1d4ed8; /* Blåaktig ton för planerade pass */
+}
+
+/* --- INTERAKTIVA KNAPPAR (Döljs och visas vid hovring) --- */
+.sm-edit-btns-container .sm-edit-btn {
+  opacity: 1 !important;
+  display: inline-flex !important;
+}
+.sm-edit-btns-container {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+
+  /* FIXAT: Knappar får ALDRIG tryckas ihop eller skjutas ut */
+  flex-shrink: 0;
+}
+/* Visa knapparna enbart när muspekaren är på just det här kortet */
+.session-cell-card:hover .sm-edit-btns-container {
+  opacity: 1;
+}
+
+.sm-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: rgba(15, 23, 42, 0.06);
+  color: #475569;
+}
+
+.session-cell-card.planned .sm-edit-btn:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.session-cell-card.strava .sm-edit-btn:hover {
+  background: #f97316;
+  color: white;
+}
+.session-cell-card.logged .sm-edit-btn:hover {
+  background: #11b981;
+  color: white;
+}
+
+.sm-edit-btn.delete:hover {
+  background: #ef4444 !important;
+  color: white !important;
+}
+
+/* Den lilla runda Logga-knappen för ologgade pass */
 .session-cell-log-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 20px;
-  width: 80px;
-  padding: 0 1.25rem;
+  height: 20px;
+  padding: 2px 8px;
   border: none;
-  border-radius: 16px;
-  background: #87adff;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
+  transition: all 0.15s ease;
+}
+
+.session-cell-log-btn.planned {
+  background: #3b82f6;
+  color: white;
+}
+
+.session-cell-log-btn.strava {
+  background: #f97316;
+  color: white;
+}
+
+.session-cell-log-btn:hover {
+  transform: scale(1.03);
 }
 
 .session-cell-log-btn.logged {
   display: none;
 }
 
-.session-cell-log-btn.logged:hover {
-  background-color: #2fd08f;
-  transform: translateY(-1px);
-}
-
-.session-cell-log-btn.planned:hover {
-  background-color: #3b82f6;
-  transform: translateY(-1px);
-}
-
-.sm-edit-btns-container {
-  width: 24%;
+/* --- TOGGLE BUTTONS (PLANERA / LOGGA TYPER) --- */
+.nav-log-type-div {
+  width: 30%;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-.sm-edit-btn {
-  /* Layout */
-  display: inline-flex;
   align-items: center;
-  justify-content: center;
+}
 
-  /* Storlek och form */
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border-radius: 6px;
-
-  /* Färger */
-  background: #87adff; /* Samma mörka färg som dina andra knappar */
-  color: white;
-  border: 1px solid transparent;
-
-  /* Interaktion */
+.nav-log-type-btn {
+  width: 25%;
+  height: 50px;
+  border: none;
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+  border: solid #3b82f6 1px;
+  background-color: white;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.sm-edit-btn.logged {
-  background-color: #91e7b4;
+.nav-plan-type-btn {
+  width: 25%;
+  height: 50px;
+  border: none;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border: solid #11b981 1px;
+  background-color: white;
+  cursor: pointer;
 }
 
-/* Vid hovring: knappen "lyfter" lite och ändrar färg */
-.sm-edit-btn.planned:hover {
-  background: #3b82f6;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-  border-color: #3b82f6; /* En subtil blå kant för att visa fokus */
+.nav-log-selected {
+  background-color: #11b981;
+  height: 50px;
+  width: 25%;
+  border: none;
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
 }
 
-.sm-edit-btn.logged:hover {
-  background: #2fd08f;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-  border-color: #2fd08f; /* En subtil blå kant för att visa fokus */
-}
-
-/* Vid tryck: knappen trycks ner */
-.sm-edit-btn:active {
-  transform: translateY(0px);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  background: #000;
-}
-
-/* Se till att SVG:n är centrerad inuti */
-.sm-edit-btn svg {
-  display: block;
-}
-
-.sm-edit-btn.delete:hover {
-  background-color: red;
-  border: solid red 1px;
-}
-
-.session-cell-card.planned.strava {
-  border: 1px solid darkorange;
-  background: #fff8ef;
+.nav-plan-selected {
+  background-color: #3b82f6;
+  border: solid #3b82f6 1px;
 }

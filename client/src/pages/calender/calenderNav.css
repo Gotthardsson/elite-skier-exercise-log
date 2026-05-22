@@ -3,7 +3,7 @@
   justify-content: left;
   align-items: center;
   gap: 1.5rem;
-  margin-bottom: 2rem;
+
   flex-wrap: wrap;
   padding: 0.5rem;
 }
@@ -12,10 +12,8 @@
   display: flex;
   gap: 0.75rem;
   align-items: center;
-  background-color: #ffffff;
   padding: 20px;
   border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
 }
 
 /* Selector styling som matchar ButtonPrimary */
@@ -24,10 +22,10 @@
   align-items: center;
   min-height: 48px;
   padding: 0 2.5rem 0 1.25rem;
-  border: none;
+  border: solid 1px black;
   border-radius: 16px;
-  background-color: #0f172a; /* Samma som button-primary */
-  color: #fff;
+
+  color: #1e293b;
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -38,14 +36,14 @@
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
 
   /* Modern vit pil */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 1rem center;
   background-size: 1rem;
 }
 
 .calendar-custom-select:hover {
-  background-color: #1e293b;
+  background-color: #fff;
   transform: translateY(-1px);
 }
 
