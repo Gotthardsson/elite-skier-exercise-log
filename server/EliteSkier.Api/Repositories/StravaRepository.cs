@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore; // VIKTIGT: För FirstOrDefaultAsync
+using Microsoft.EntityFrameworkCore;
 using EliteSkier.Api.Data;
 using EliteSkier.Api.Models;
 
@@ -13,9 +13,9 @@ public class StravaRepository : IStravaRepository
         _context = context;
     }
 
+    // Sparar eller uppdaterar tokens för en användare
     public async Task UpsertIntegrationAsync(StravaIntegration integration)
     {
-        // Se till att FirstOrDefaultAsync hittas via Microsoft.EntityFrameworkCore
         var existing = await _context.StravaIntegrations
             .FirstOrDefaultAsync(x => x.UserId == integration.UserId);
 
@@ -32,10 +32,17 @@ public class StravaRepository : IStravaRepository
         await _context.SaveChangesAsync();
     }
 
+    // Hittar integrationen baserat på vår interna UserId
     public async Task<StravaIntegration?> GetByUserIdAsync(int userId)
     {
-        // Här var felet troligen returtypen eller saknad await
         return await _context.StravaIntegrations
             .FirstOrDefaultAsync(x => x.UserId == userId);
+    }
+
+    // VIKTIGAST FÖR WEBHOOKEN: Hittar integrationen via Stravas id
+    public async Task<StravaIntegration?> GetByStravaAthleteIdAsync(string athleteId)
+    {
+        return await _context.StravaIntegrations
+            .FirstOrDefaultAsync(x => x.StravaAthleteId == athleteId);
     }
 }

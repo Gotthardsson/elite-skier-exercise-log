@@ -23,6 +23,8 @@ public class StravaController : ControllerBase
         if (success) return Ok(new { message = "Kopplingen lyckades!" });
         return BadRequest("Misslyckades att byta kod mot tokens.");
     }
+
+    
 }
 
 public class StravaExchangeRequest { public string Code { get; set; } = ""; }

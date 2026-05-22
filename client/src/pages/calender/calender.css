@@ -327,3 +327,8 @@
   background-color: red;
   border: solid red 1px;
 }
+
+.session-cell-card.planned.strava {
+  border: 1px solid darkorange;
+  background: #fff8ef;
+}

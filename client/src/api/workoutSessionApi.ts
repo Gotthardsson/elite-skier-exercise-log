@@ -20,6 +20,7 @@ export const workoutSessionApi = {
       feeling: s.physicalRpe ?? 5,
       mentalRpe: s.mentalRpe ?? 5,
       avgHeartRate: s.avgHeartRate ?? 0,
+      stravaRaw: s.stravaRaw,
 
       // Om din DTO skickar objekt, mappar vi så här:
       plannedZones: {

@@ -1,9 +1,10 @@
-using EliteSkier.Api.Models; // Se till att denna rad finns!
+using EliteSkier.Api.Models;
 
 namespace EliteSkier.Api.Repositories;
 
 public interface IStravaRepository
 {
-    Task UpsertIntegrationAsync(StravaIntegration integration); 
-    // ^ Denna StravaIntegration måste vara EliteSkier.Api.Models.StravaIntegration
+    Task UpsertIntegrationAsync(StravaIntegration integration);
+    Task<StravaIntegration?> GetByUserIdAsync(int userId);
+    Task<StravaIntegration?> GetByStravaAthleteIdAsync(string athleteId);
 }

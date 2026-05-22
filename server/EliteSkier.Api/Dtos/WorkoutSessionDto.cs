@@ -10,6 +10,8 @@ public class WorkoutSessionDto
     public int UserId { get; set; }
     public bool IsLogged { get; set; }
 
+    public string? StravaRaw {get ; set;}
+
     // Kommentarer
     public string? Comment { get; set; } // Planerad
     public string? LoggedComment { get; set; } // Utförd

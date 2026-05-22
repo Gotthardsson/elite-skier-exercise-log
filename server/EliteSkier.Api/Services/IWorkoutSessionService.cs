@@ -11,4 +11,6 @@ public interface IWorkoutSessionService
     Task<bool> DeleteSessionAsync(int id);
 
     Task UpdateSessionAsync (WorkoutSessionDto sessionDto);
+
+
 }
