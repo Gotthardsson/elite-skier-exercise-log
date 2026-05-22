@@ -9,4 +9,5 @@ public interface IWorkoutSessionRepository
     Task<WorkoutSession> AddAsync(WorkoutSession session);
     Task UpdateAsync(WorkoutSession session);
     Task <bool> DeleteAsync(int id);
+    Task UpsertStravaWorkoutAsync(WorkoutSession session);
 }

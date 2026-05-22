@@ -10,6 +10,7 @@ export interface WorkoutSessionFromApi {
   physicalRpe: number | null;
   mentalRpe: number | null;
   avgHeartRate: number | null;
+  stravaRaw: string | null;
   // De platta fälten från EF Core / Postgres
   tizA1Planned: number;
   tizA2Planned: number;

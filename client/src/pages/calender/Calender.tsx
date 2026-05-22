@@ -54,10 +54,29 @@ export default function Calendar({ activities }: CalenderProps) {
   }
 
   function getTotalTime(session: SessionType) {
-    const zones = session.isLogged ? session.actualZones : session.plannedZones;
-    return (
-      zones.a1 + zones.a2 + zones.a3Minus + zones.a3 + zones.a3Plus + zones.comp
-    );
+    if (!session.stravaRaw) {
+      const zones = session.isLogged
+        ? session.actualZones
+        : session.plannedZones;
+      return (
+        zones.a1 +
+        zones.a2 +
+        zones.a3Minus +
+        zones.a3 +
+        zones.a3Plus +
+        zones.comp
+      );
+    } else if (session.stravaRaw) {
+      const zones = session.actualZones;
+      return (
+        zones.a1 +
+        zones.a2 +
+        zones.a3Minus +
+        zones.a3 +
+        zones.a3Plus +
+        zones.comp
+      );
+    }
   }
 
   function getActivityName(activityId: number) {
@@ -208,7 +227,7 @@ export default function Calendar({ activities }: CalenderProps) {
                         key={s.id}
                         className={`session-cell-card ${
                           s.isLogged ? "logged" : "planned"
-                        }`}
+                        } ${s.stravaRaw ? "strava" : ""}`}
                         onClick={(e) => {
                           logOrEditSession(e, s, s.isLogged, true);
                           e.stopPropagation();

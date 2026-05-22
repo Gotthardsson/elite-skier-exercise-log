@@ -29,6 +29,7 @@ public class WorkoutSessionService : IWorkoutSessionService
             PhysicalRpe = dto.PhysicalRpe,
             MentalRpe =dto.MentalRpe,
             AvgHeartRate=dto.AvgHeartRate,
+    
             
             // Mappa planerade zoner
             TizA1Planned = dto.PlannedZones.A1,
@@ -66,6 +67,7 @@ public class WorkoutSessionService : IWorkoutSessionService
         ScheduledDate = s.ScheduledDate,
         TimeOfDay = s.TimeOfDay,
         IsLogged = s.IsLogged,
+        StravaRaw = s.StravaRaw,
 
         Comment = s.Comment,
         LoggedComment = s.LoggedComment,

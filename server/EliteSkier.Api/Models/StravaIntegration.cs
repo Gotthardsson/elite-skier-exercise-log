@@ -7,7 +7,7 @@ namespace EliteSkier.Api.Models;
 public class StravaIntegration
 {
     [Key] // Berättar att detta är Primary Key
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("user_id")] // Mappar egenskapen till kolumnen user_id
     public int UserId { get; set; }
 

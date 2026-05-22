@@ -1,4 +1,5 @@
 export interface SessionType {
+  stravaRaw: string | null;
   id?: number;
   userId: number;
   activityId: number;

@@ -30,8 +30,13 @@ export default function SessionModal(props) {
   useEffect(() => {
     if (!props.trigger) return;
     console.log("Effekt körs med session:", props.session);
+
     //Klickat logga planerat pass
-    if (props.plannedSessionClicked && props.session) {
+    if (
+      props.plannedSessionClicked &&
+      props.session &&
+      !props.session.stravaRaw
+    ) {
       setSession({
         ...props.session,
         id: undefined, // Viktigt för att skapa ett NYTT loggat pass
@@ -44,6 +49,28 @@ export default function SessionModal(props) {
           a3: props.session.plannedZones?.a3 ?? 0,
           a3Plus: props.session.plannedZones?.a3Plus ?? 0,
           comp: props.session.plannedZones?.comp ?? 0,
+        },
+        plannedZones: { ...(props.session.plannedZones || {}) },
+        loggedComment: props.session.comment,
+        comment: props.session.comment,
+        mentalRpe: 5,
+        feeling: 5,
+      });
+
+      setLogSelected(true);
+    } else if (props.session.stravaRaw) {
+      setSession({
+        ...props.session,
+        id: props.session.id, // Viktigt för att skapa ett NYTT loggat pass
+        isLogged: true,
+        scheduledDate: new Date(props.session.scheduledDate),
+        actualZones: {
+          a1: props.session.actualZones?.a1 ?? 0,
+          a2: props.session.actualZones?.a2 ?? 0,
+          a3Minus: props.session.actualZones?.a3Minus ?? 0,
+          a3: props.session.actualZones?.a3 ?? 0,
+          a3Plus: props.session.actualZones?.a3Plus ?? 0,
+          comp: props.session.actualZones?.comp ?? 0,
         },
         plannedZones: { ...(props.session.plannedZones || {}) },
         loggedComment: props.session.comment,
