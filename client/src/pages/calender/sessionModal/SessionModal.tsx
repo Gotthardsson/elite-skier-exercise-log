@@ -27,11 +27,19 @@ export default function SessionModal(props) {
     createInitialSession(props.date, props.timeOfDay)
   );
 
+  // Hjälpfunktion för att spara datum utan att tappa tidszonen (förhindrar flytt bakåt en dag)
+  const toLocalISOString = (date: Date | string) => {
+    const d = new Date(date);
+    const tzOffset = d.getTimezoneOffset() * 60000; // i millisekunder
+    const localISOTime = new Date(d.getTime() - tzOffset).toISOString();
+    return localISOTime;
+  };
+
   useEffect(() => {
     if (!props.trigger) return;
     console.log("Effekt körs med session:", props.session);
 
-    //Klickat logga planerat pass
+    // Klickat logga planerat pass (ej Strava)
     if (
       props.plannedSessionClicked &&
       props.session &&
@@ -39,7 +47,7 @@ export default function SessionModal(props) {
     ) {
       setSession({
         ...props.session,
-        id: undefined, // Viktigt för att skapa ett NYTT loggat pass
+        id: props.session.id, // FIX: Behåll ID om vi vill ändra det befintliga planerade passet till loggat!
         isLogged: true,
         scheduledDate: new Date(props.session.scheduledDate),
         actualZones: {
@@ -58,10 +66,10 @@ export default function SessionModal(props) {
       });
 
       setLogSelected(true);
-    } else if (props.session.stravaRaw) {
+    } else if (props.session && props.session.stravaRaw) {
       setSession({
         ...props.session,
-        id: props.session.id, // Viktigt för att skapa ett NYTT loggat pass
+        id: props.session.id, // FIXAT: Behåll ID så att det uppdateras istället för att skapa en dubblett
         isLogged: true,
         scheduledDate: new Date(props.session.scheduledDate),
         actualZones: {
@@ -73,15 +81,15 @@ export default function SessionModal(props) {
           comp: props.session.actualZones?.comp ?? 0,
         },
         plannedZones: { ...(props.session.plannedZones || {}) },
-        loggedComment: props.session.comment,
+        loggedComment: props.session.comment || props.session.loggedComment,
         comment: props.session.comment,
-        mentalRpe: 5,
-        feeling: 5,
+        mentalRpe: props.session.mentalRpe || 5,
+        feeling: props.session.feeling || 5,
       });
 
       setLogSelected(true);
 
-      //Klicka Redigera
+      // Klicka Redigera
     } else if (props.editClicked && props.session) {
       setSession({
         ...props.session,
@@ -115,9 +123,8 @@ export default function SessionModal(props) {
         avgHeartRate: props.session.avgHeartRate,
       });
       setLogSelected(props.session.isLogged);
-      console.log(props.session.feeling);
     } else {
-      //Helt nytt tomt pass
+      // Helt nytt tomt pass
       const newSession = createInitialSession(props.date, props.timeOfDay);
       setSession(newSession);
       setLogSelected(props.isLogSelected);
@@ -150,10 +157,7 @@ export default function SessionModal(props) {
       const sessionToUpdate = {
         ...currentSession,
         isLogged: isLogSelected,
-        scheduledDate: new Date(currentSession.scheduledDate).toISOString(),
-
-        // FIXA KOMMENTARERNA HÄR:
-        // Se till att 'description' (från state) mappar till vad din API-klient förväntar sig
+        scheduledDate: toLocalISOString(currentSession.scheduledDate), // FIXAT: Tidszonssäkrad
         comment: currentSession.comment,
         loggedComment: currentSession.loggedComment,
       };
@@ -175,22 +179,14 @@ export default function SessionModal(props) {
 
   const handleSave = async () => {
     try {
-      // 1. Fixa datumet - oavsett om det är Date eller String från kalendern
-      const dateObj = new Date(session.scheduledDate);
-
-      // 2. Skapa det objekt som ska skickas
       const finalSession = {
         ...session,
-        // Vi tvingar in isLogged från modalens flik-val (true/false)
         isLogged: isLogSelected,
-        // Vi skickar datumet som en ISO-sträng för backend
-        scheduledDate: dateObj.toISOString(),
+        scheduledDate: toLocalISOString(session.scheduledDate), // FIXAT: Tidszonssäkrad
       };
 
-      // 3. Skicka till API
       await workoutSessionApi.create(finalSession);
 
-      // 4. Städa upp och hälsa användaren
       props.onSessionSaved();
       props.setTrigger(false);
 
@@ -209,17 +205,10 @@ export default function SessionModal(props) {
   if (!props.trigger) return null;
 
   return (
-    <div
-      className="sm-overlay"
-      onClick={() => {
-        props.setTrigger(false);
-      }}
-    >
+    <div className="sm-overlay" onClick={() => props.setTrigger(false)}>
       <div
         className={`sm-content ${isLogSelected ? "log-mode" : "plan-mode"}`}
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="sm-header">
           <button
@@ -325,9 +314,7 @@ export default function SessionModal(props) {
         </div>
 
         <div className="sm-field">
-          <label className="sm-label">
-            {isLogSelected ? "Kommentar" : "Kommentar"}
-          </label>
+          <label className="sm-label">Kommentar</label>
           <textarea
             className="sm-textarea"
             value={isLogSelected ? session.loggedComment : session.description}
@@ -379,6 +366,7 @@ export default function SessionModal(props) {
             />
           </div>
         </div>
+
         <div
           className={
             isLogSelected ? "heart-rate-input" : "heart-rate-input planmode"
@@ -390,26 +378,30 @@ export default function SessionModal(props) {
             className="sm-pulse-input"
             placeholder="BPM"
             value={session.avgHeartRate ?? 0}
-            onFocus={(e) => e.target.select()} // Markera allt när man klickar
+            onFocus={(e) => e.target.select()}
             onChange={(e) =>
               setSession({ ...session, avgHeartRate: Number(e.target.value) })
             }
           />
         </div>
+
         <div className="sm-footer">
           <button
             className="sm-save-btn"
             onClick={() => {
-              console.log("Klickade spara. Session ID är:", session.id);
-              if (!props.editClicked) {
-                handleSave();
-              } else if (props.editClicked) {
-                console.log(session.isLogged);
+              if (session.id) {
                 handleEdit(session);
+              } else {
+                handleSave();
               }
             }}
           >
-            {!props.editClicked ? "Spara pass" : "Spara ändringar"}
+            {!session.id
+              ? "Spara pass"
+              : props.plannedSessionClicked ||
+                (session.stravaRaw && !props.session?.isLogged)
+              ? "Logga pass"
+              : "Spara ändringar"}
           </button>
         </div>
       </div>

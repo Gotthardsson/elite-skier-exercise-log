@@ -1,5 +1,6 @@
 using EliteSkier.Api.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection; // <--- Se till att denna finns för CreateScope
 using System.Text.Json.Serialization;
 
 namespace EliteSkier.Api.Controllers;
@@ -8,12 +9,13 @@ namespace EliteSkier.Api.Controllers;
 [Route("api/strava/webhook")]
 public class StravaWebhookController : ControllerBase
 {
-    private readonly IStravaService _stravaService;
+    // FIX 1: Byt ut IStravaService mot IServiceScopeFactory
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly string _verifyToken = "Test1";
 
-    public StravaWebhookController(IStravaService stravaService)
+    public StravaWebhookController(IServiceScopeFactory scopeFactory)
     {
-        _stravaService = stravaService;
+        _scopeFactory = scopeFactory;
     }
 
     [HttpGet]
@@ -35,12 +37,12 @@ public class StravaWebhookController : ControllerBase
 
         if (stravaEvent.ObjectType == "activity" && (stravaEvent.AspectType == "create" || stravaEvent.AspectType == "update"))
         {
-            var serviceProvider = HttpContext.RequestServices;
-            
+            // FIX 2: Använd _scopeFactory istället för HttpContext
             _ = Task.Run(async () => {
                 try 
                 {
-                    using (var scope = serviceProvider.CreateScope())
+                    // Nu skapas ett isolerat scope från applikationens rot som överlever HTTP-anropet!
+                    using (var scope = _scopeFactory.CreateScope())
                     {
                         var scopedStravaService = scope.ServiceProvider.GetRequiredService<IStravaService>();
                         
@@ -51,7 +53,6 @@ public class StravaWebhookController : ControllerBase
                 }
                 catch (Exception ex) 
                 {
-                    // Detta fångar upp kraschen och skriver ut den med röd text i din dotnet-konsol!
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"[CRITICAL ERROR] Fel i Strava-bakgrundstråden: {ex.Message}");
                     Console.WriteLine(ex.StackTrace);
