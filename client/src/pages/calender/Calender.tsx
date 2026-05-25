@@ -6,10 +6,17 @@ import CalendarNav from "./CalenderNav";
 import type { Activity } from "../../types/Activity";
 import { workoutSessionApi } from "../../api/workoutSessionApi";
 import type { SessionType } from "../../types/SessionType";
+import { folderApi } from "../../api/folderApi";
+import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import Swal from "sweetalert2";
+import type { TemplateType } from "../../types/TemplateType";
+import type { FolderType } from "../../types/FolderType";
+import TemplateDropdown from "./templatesInCalender/TemplateDropdown";
+
 
 interface CalenderProps {
   activities: Activity[];
+  
 }
 
 const timeSlots = ["Morgon", "Förmiddag", "Eftermiddag", "Kväll"];
@@ -24,8 +31,10 @@ export default function Calendar({ activities }: CalenderProps) {
   const [sessions, setSessions] = useState<SessionType[]>([]);
   const [plannedSessionClicked, setPlannedSessionClicked] = useState(false);
   const [selectedSession, setSelectedSession] = useState<SessionType | null>(
-    null
-  );
+    null);
+  const [templates, setTemplates] = useState<TemplateType[]>([]);
+  const [folders, setFolders] = useState<FolderType[]>([]);
+  
   const [editClicked, setEditClicked] = useState(false);
 
   const days = useMemo(() => getWeekDays(currentDate), [currentDate]);
@@ -38,10 +47,69 @@ export default function Calendar({ activities }: CalenderProps) {
       console.error("Kunde inte hämta pass:", error);
     }
   };
+  const fetchFoldersAndTemplates = async () => {
+    try {
+      const [foldersResponse, templatesResponse] = await Promise.all([
+        folderApi.getByUserId(1),
+        sessionTemplateApi.getByUserId(1)
+      ]);
+      setFolders(foldersResponse.data);
+      setTemplates(templatesResponse.data);
+    } catch (error) {
+      console.error("Kunde inte hämta mappar eller mallar:", error);
+    }
+  };
 
   useEffect(() => {
     fetchSessions();
+    fetchFoldersAndTemplates();
   }, []);
+
+  const handleTemplateDrop = async (date: Date, slot: string, rawTemplateData: string) => {
+    try {
+      const template = JSON.parse(rawTemplateData);
+      // Bygg upp ett nytt pass baserat på mallens parametrar
+      const newSession = {
+        userId: 1, // Ditt hårdkodade demo-id
+        activityId: template.activityId || 0,
+        scheduledDate: date.toISOString(), // Sparar datumet cellen representerar
+        timeOfDay: slot, // Sparar "Morgon", "Förmiddag" etc.
+        isLogged: false, // Det är ett planerat pass från början
+        description: template.description || "",
+        loggedComment: "",
+        feeling: 5,
+        mentalRpe: 5,
+        plannedZones: {
+          a1: template.plannedZones?.a1 || 0,
+          a2: template.plannedZones?.a2 || 0,
+          a3Minus: template.plannedZones?.a3Minus || 0,
+          a3: template.plannedZones?.a3 || 0,
+          a3Plus: template.plannedZones?.a3Plus || 0,
+          comp: template.plannedZones?.comp || 0,
+        },
+        actualZones: { a1: 0, a2: 0, a3Minus: 0, a3: 0, a3Plus: 0, comp: 0 }
+      };
+
+      // Skicka till din backend
+      await workoutSessionApi.create(newSession);
+      
+      // Uppdatera kalendern direkt så passet dyker upp på skärmen!
+      await fetchSessions();
+      
+      // En liten bekräftelse
+      Swal.fire({
+        title: "Inplanerat!",
+        text: `Mallen "${template.title}" lades till på ${slot.toLowerCase()}en.`,
+        icon: "success",
+        timer: 1800,
+        showConfirmButton: false,
+      });
+
+    } catch (error) {
+      console.error("Kunde inte skapa pass från mall:", error);
+      Swal.fire("Fel", "Gick inte att läsa malldata.", "error");
+    }
+  };
 
   function isSameDate(dateA: Date, dateB: string | Date) {
     const a = new Date(dateA);
@@ -181,7 +249,35 @@ export default function Calendar({ activities }: CalenderProps) {
 
   return (
     <section className="calendar">
-      <CalendarNav currentDate={currentDate} setCurrentDate={setCurrentDate} />
+      <div className="calendar-nav">
+        <button
+          onClick={() => {
+            const prev = new Date(currentDate);
+            prev.setDate(prev.getDate() - 7);
+            setCurrentDate(prev);
+          }}
+        >
+          ←
+        </button>
+        <button onClick={() => setCurrentDate(new Date())}>Idag</button>
+        <button
+          onClick={() => {
+            const next = new Date(currentDate);
+            next.setDate(next.getDate() + 7);
+            setCurrentDate(next);
+          }}
+        >
+          →
+        </button>
+        <SwitchViewComponent
+          onChange={(isLog) => {
+            setBorderStyle(isLog ? "3px solid #2fd08f" : "3px solid #3b82f6");
+            setLogSelected(isLog);
+          }}
+        />
+          <TemplateDropdown folders={folders || []} templates={templates || []} />
+
+      </div>
 
       <div className="calendar-grid" style={{ border: borderStyle }}>
         <div className="calendar-corner">
@@ -248,6 +344,23 @@ export default function Calendar({ activities }: CalenderProps) {
                       setLogSelected(true); // Öppna "Logga"
                       setPlannedSessionClicked(false);
                       setButtonPopup(true);
+                    }
+                  }}
+
+                  // --- NYTT: HÄR LÄGGER VI TILL DRAG & DROP LYSSNARE PÅ CELLEN ---
+                  onDragOver={(e) => {
+                    e.preventDefault(); // Krävs för att tillåta "drop" i webbläsaren
+                    e.currentTarget.classList.add("drag-over"); // Tips: Stylar cellen vid hovring
+                  }}
+                  onDragLeave={(e) => {
+                    e.currentTarget.classList.remove("drag-over");
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.classList.remove("drag-over");
+                    const rawData = e.dataTransfer.getData("application/json");
+                    if (rawData) {
+                      handleTemplateDrop(day.fullDate, slot, rawData);
                     }
                   }}
                 >
@@ -363,9 +476,9 @@ export default function Calendar({ activities }: CalenderProps) {
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                                 className="lucide lucide-trash2"
                               >
                                 <path d="M3 6h18"></path>

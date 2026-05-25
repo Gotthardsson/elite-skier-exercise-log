@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet <Activity> Activities {get; set;}
     public DbSet<WorkoutSession> WorkoutSessions { get; set; }
     public DbSet<SessionTemplate> SessionTemplates { get; set; }
+    public DbSet<Folder> Folders { get; set; }
     public DbSet<StravaIntegration> StravaIntegrations { get; set; }
 
     public DbSet <HeartRateZones> HeartRateZones {get; set;}

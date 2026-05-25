@@ -1,15 +1,24 @@
 import { useState, useEffect } from "react";
+import NewFolderDialog from "./NewFolderDialog.tsx";
 import "./templates.css";
 import TemplateCard from "./TemplateCard.tsx";
 import NewTemplateDialog from "./NewTemplateDialog.tsx";
 import EditTemplateDialog from "./EditTemplateDialog.tsx";
-import Folder from "./Folder.tsx";
+import { folderApi } from "../../api/folderApi.ts";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi.ts";
 import type { TemplateType } from "../../types/TemplateType.ts";
+import type { FolderType } from "../../types/FolderType.ts";
+import Folder from "./Folder.tsx";
 
 function Templates(props) {
   const [templates, setTemplates] = useState<TemplateType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [folders, setFolders] = useState<FolderType[]>([]);
+  const [isFolderDialogOpen, setIsFolderDialogOpen] = useState(false);
+  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<TemplateType | null>(
+    null,
+  );
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -26,8 +35,33 @@ function Templates(props) {
     fetchTemplates();
   }, []);
 
+  useEffect(() => {
+    const fetchFolders = async () => {
+      try {
+        const response = await folderApi.getByUserId(1); // Hårdkodad userId för demo
+        setFolders(response.data); // Assuming response.data contains the array of folders
+        console.log("Fetched folders:", response.data); // Logga de hämtade mapparna
+      } catch (error) {
+        console.error("Error fetching folders:", error);
+      }
+    };
+
+    fetchFolders();
+    // Log fetched folders directly from the response inside fetchFolders if needed
+  }, []); // Kör endast en gång när komponenten mountas
+
+  // NYTT: Beräkna filtrerade mallar baserat på vald mapp
+  // Vi antar här att dina mallar har en property som heter 'folder_id' eller 'folderId'
+  const filteredTemplates = selectedFolderId
+    ? templates.filter((t) => t.folderId === selectedFolderId)
+    : templates;
+
+
   const handleTemplateCreate = (newTemplate: TemplateType) => {
     setTemplates([...templates, newTemplate]);
+  };
+  const handleFolderCreate = (newFolder: FolderType) => {
+    setFolders([...folders, newFolder]);
   };
 
   const handleTemplateUpdate = (updatedTemplate: TemplateType) => {
@@ -40,6 +74,7 @@ function Templates(props) {
   const handleTemplateDelete = (deletedTemplate: TemplateType) => {
     setTemplates((prev) => prev.filter((t) => t.id !== deletedTemplate.id));
   };
+  
 
   function openNewTemplateDialog() {
     const dialog = document.querySelector(
@@ -47,12 +82,11 @@ function Templates(props) {
     ) as HTMLDivElement;
     dialog.style.display = "flex";
   }
-  // 1. Add state for the template being edited
-  const [editingTemplate, setEditingTemplate] = useState<TemplateType | null>(
-    null,
-  );
-
-  // 2. Pass setEditingTemplate to TemplateCard and call it in handleEdit
+  
+  // Funktion för att toggla en mapp (klickar man på samma igen så nollställs filtret)
+  const handleFolderClick = (folderId: number) => {
+    setSelectedFolderId((prevId) => (prevId === folderId ? null : folderId));
+  };
 
   return (
     <>
@@ -68,7 +102,7 @@ function Templates(props) {
           <button className="new-template" onClick={openNewTemplateDialog}>
             <b>+</b> Ny Träningsmall
           </button>
-          <button className="new-folder">
+          <button className="new-folder" onClick={() => setIsFolderDialogOpen(true)}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="15"
@@ -95,7 +129,14 @@ function Templates(props) {
       <h3>Mappar</h3>
       <div className="folders-container">
         <p className="no-folders">Inga mappar skapade</p>
-        <Folder />
+        {folders.map((folder) => (
+          <Folder
+            key={folder.id}
+            folder={folder}
+            isActive={selectedFolderId === folder.id}
+            onClick={() => handleFolderClick(folder.id)}
+          />
+        ))}
       </div>
       <h3>Träningsmallar</h3>
       <div className="templates-container">
@@ -104,9 +145,9 @@ function Templates(props) {
         ) : templates.length === 0 ? (
           <p>Inga mallar skapade</p>
         ) : null}
-        {templates.map((template, index) => (
+        {filteredTemplates.map((template) => (
           <TemplateCard
-            key={index}
+            key={template.id}
             template={template}
             onTemplateUpdate={handleTemplateUpdate}
             setEditingTemplate={setEditingTemplate}
@@ -114,8 +155,14 @@ function Templates(props) {
           />
         ))}
       </div>
+      <NewFolderDialog 
+        isOpen={isFolderDialogOpen}
+        onClose={() => setIsFolderDialogOpen(false)}
+        onFolderCreate={handleFolderCreate}
+      />
       <NewTemplateDialog
         onTemplateCreate={handleTemplateCreate}
+        folders={folders}
         activities={props.activities}
         currentTemplateCount={templates.length}
       />
@@ -123,7 +170,9 @@ function Templates(props) {
         <EditTemplateDialog
           onTemplateUpdate={handleTemplateUpdate}
           activities={props.activities}
+          folders={folders}
           template={editingTemplate}
+          onClose={() => setEditingTemplate(null)}
         />
       )}
     </>

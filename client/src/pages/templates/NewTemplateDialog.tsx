@@ -3,20 +3,24 @@ import "./templates.css";
 import type { TemplateType } from "../../types/TemplateType";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import type { Activity } from "../../types/Activity";
+import type { FolderType } from "../../types/FolderType";
 
 
 interface NewTemplateDialogProps {
   onTemplateCreate: (template: TemplateType) => void;
   activities: Activity[];
   currentTemplateCount: number;
+  folders: FolderType[];
 }
 
 function NewTemplateDialog({
   onTemplateCreate,
   activities,
   currentTemplateCount,
+  folders,
 }: NewTemplateDialogProps) {
 
+  
   const [templateName, setTemplateName] = React.useState("");
   const [folderId, setFolderId] = React.useState(0);
   const [sportId, setSportId] = React.useState(0);
@@ -79,6 +83,7 @@ function closeDialog() {
     setA3(0);
     setA3Plus(0);
     setComp(0);
+    setIsInterval(false);
   }
 
   return (
@@ -108,10 +113,12 @@ function closeDialog() {
               value={folderId}
               onChange={(e) => setFolderId(Number(e.target.value))}
             >
-              <option value="0">Välj mapp</option>
-              <option value="1">Mapp 1</option>
-              <option value="2">Mapp 2</option>
-              <option value="3">Mapp 3</option>
+              
+              {folders?.map((folder) => (
+                <option key={folder.id} value={folder.id}>
+                  {folder.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>

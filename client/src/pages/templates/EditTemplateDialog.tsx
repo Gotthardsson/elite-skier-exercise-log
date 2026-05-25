@@ -3,17 +3,22 @@ import "./templates.css";
 import type { TemplateType } from "../../types/TemplateType";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import type { Activity } from "../../types/Activity";
+import type { FolderType } from "../../types/FolderType";
 
 interface EditTemplateDialogProps {
   template: TemplateType;
   onTemplateUpdate: (updatedTemplate: TemplateType) => void;
   activities: Activity[];
+  folders: FolderType[];
+  onClose: () => void;
 }
 
 function EditTemplateDialog({
+  onClose,
   template,
   onTemplateUpdate,
   activities,
+  folders,
 }: EditTemplateDialogProps) {
   const [templateName, setTemplateName] = useState(template.title);
   const [folderId, setFolderId] = useState(template.folderId || 0);
@@ -28,12 +33,7 @@ function EditTemplateDialog({
   const [isInterval, setIsInterval] = useState(template.isInterval);
 
   function closeDialog() {
-    const dialog = document.querySelector(
-      ".edit-template-dialog",
-    ) as HTMLDivElement;
-    if (dialog) {
-      dialog.style.display = "none";
-    }
+    onClose();
   }
   function updateTemplate() {
     const updatedTemplate: TemplateType = {
@@ -59,7 +59,7 @@ function EditTemplateDialog({
 
   return (
     <>
-      <div className="edit-template-container">
+      <div className="edit-template-container" style={{ display: "flex" }}>
         <h3 className="edit-template-title">Uppdatera Mall</h3>
         <div className="template-name-folder">
           <div className="template-name">
@@ -84,10 +84,11 @@ function EditTemplateDialog({
               value={folderId}
               onChange={(e) => setFolderId(Number(e.target.value))}
             >
-              <option value="0">Välj mapp</option>
-              <option value="1">Mapp 1</option>
-              <option value="2">Mapp 2</option>
-              <option value="3">Mapp 3</option>
+              {folders?.map((folder) => (
+                <option key={folder.id} value={folder.id}>
+                  {folder.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>
