@@ -2,7 +2,7 @@ import { useEffect, Fragment, useMemo, useState } from "react";
 import { getWeekDays } from "../../utils/date/dateHelper";
 import "./calender.css";
 import SessionModal from "./sessionModal/SessionModal";
-import SwitchViewComponent from "./SwitchViewComponent";
+import CalendarNav from "./CalenderNav";
 import type { Activity } from "../../types/Activity";
 import { workoutSessionApi } from "../../api/workoutSessionApi";
 import type { SessionType } from "../../types/SessionType";
@@ -35,6 +35,7 @@ export default function Calendar({ activities }: CalenderProps) {
   const [templates, setTemplates] = useState<TemplateType[]>([]);
   const [folders, setFolders] = useState<FolderType[]>([]);
   
+  const [editClicked, setEditClicked] = useState(false);
 
   const days = useMemo(() => getWeekDays(currentDate), [currentDate]);
 
@@ -121,23 +122,88 @@ export default function Calendar({ activities }: CalenderProps) {
   }
 
   function getTotalTime(session: SessionType) {
-    const zones = session.isLogged ? session.actualZones : session.plannedZones;
-    return (
-      zones.a1 + zones.a2 + zones.a3Minus + zones.a3 + zones.a3Plus + zones.comp
-    );
+    if (!session.stravaRaw) {
+      const zones = session.isLogged
+        ? session.actualZones
+        : session.plannedZones;
+      return (
+        zones.a1 +
+        zones.a2 +
+        zones.a3Minus +
+        zones.a3 +
+        zones.a3Plus +
+        zones.comp
+      );
+    } else if (session.stravaRaw) {
+      const zones = session.actualZones;
+      return (
+        zones.a1 +
+        zones.a2 +
+        zones.a3Minus +
+        zones.a3 +
+        zones.a3Plus +
+        zones.comp
+      );
+    }
   }
 
   function getActivityName(activityId: number) {
     return activities.find((a) => a.id === activityId)?.name ?? "Pass";
   }
 
-  function logPlannedSession(e: React.MouseEvent, plannedSession: SessionType) {
+  function getActivityCode(activityId: number) {
+    switch (activityId) {
+      case 1:
+        return "SK"; // Skate
+      case 2:
+        return "KL"; // Klassiskt
+      case 3:
+        return "RSK"; // Rullskidor Skate
+      case 4:
+        return "RKL"; // Rullskidor Klassiskt
+      case 5:
+        return "MTB"; // MTB
+      case 6:
+        return "LVG"; // Landsvägscykel
+      case 7:
+        return "LÖP"; // Löpning
+      case 8:
+        return "STV"; // Stavgång
+      case 9:
+        return "SIM"; // Simning
+      case 10:
+        return "STK"; // Styrka
+      case 11:
+        return "ERG"; // Skierg
+      case 12:
+        return "ÖVR"; // Övrigt
+      default:
+        return "PASS";
+    }
+  }
+
+  function logOrEditSession(
+    e: React.MouseEvent,
+    session: SessionType,
+    isLogged: boolean,
+    editClicked: boolean
+  ) {
     e.stopPropagation(); // Hindrar cell-klicket
-    setDateOfCell(new Date(plannedSession.scheduledDate));
-    setTimeOfDay(plannedSession.timeOfDay || "Morgon");
-    setSelectedSession(plannedSession);
-    setPlannedSessionClicked(true);
-    setButtonPopup(true);
+
+    //För att logga planerade:
+    if (!isLogged && !editClicked) {
+      setDateOfCell(new Date(session.scheduledDate));
+      setTimeOfDay(session.timeOfDay || "Morgon");
+      setSelectedSession(session);
+      setPlannedSessionClicked(true);
+      setButtonPopup(true);
+    } else if (editClicked) {
+      //För att ändra pass logga/planerade:
+      setDateOfCell(new Date(session.scheduledDate));
+      setTimeOfDay(session.timeOfDay || "Morgon");
+      setSelectedSession(session);
+      setButtonPopup(true);
+    }
   }
 
   const handleDeleteSession = async (e, sessionId) => {
@@ -174,6 +240,13 @@ export default function Calendar({ activities }: CalenderProps) {
       }
     }
   };
+
+  const getDayTotal = (dayDate: Date) => {
+    return sessions
+      .filter((s) => isSameDate(dayDate, s.scheduledDate))
+      .reduce((sum, s) => sum + getTotalTime(s), 0);
+  };
+
   return (
     <section className="calendar">
       <div className="calendar-nav">
@@ -207,7 +280,9 @@ export default function Calendar({ activities }: CalenderProps) {
       </div>
 
       <div className="calendar-grid" style={{ border: borderStyle }}>
-        <div className="calendar-corner" />
+        <div className="calendar-corner">
+          {currentDate.toLocaleString("sv-SE", { month: "long" })}
+        </div>
         {days.map((day) => (
           <div key={day.key} className="calendar-day">
             <span className="calendar-day-short">{day.short}</span>
@@ -216,6 +291,9 @@ export default function Calendar({ activities }: CalenderProps) {
             >
               {day.dateNumber}
             </span>
+            <div className="calendar-day-total">
+              {getDayTotal(day.fullDate)} min
+            </div>
           </div>
         ))}
 
@@ -234,12 +312,39 @@ export default function Calendar({ activities }: CalenderProps) {
                   key={`${slot}-${day.key}`}
                   className="calendar-cell"
                   onClick={() => {
-                    // Skapa NYTT pass
-                    setDateOfCell(day.fullDate);
-                    setTimeOfDay(slot);
-                    setSelectedSession(null);
-                    setPlannedSessionClicked(false);
-                    setButtonPopup(true);
+                    // 1. Skapa ett datum-objekt för klockslaget/dagen du klickat på
+                    const clickedDate = new Date(day.fullDate);
+
+                    // 2. Skapa ett datum-objekt för "just nu"
+                    const now = new Date();
+
+                    // Om du vill att "idag" alltid ska öppna loggningsvyn:
+                    const today = new Date(
+                      now.getFullYear(),
+                      now.getMonth(),
+                      now.getDate()
+                    );
+                    const clickedDay = new Date(
+                      clickedDate.getFullYear(),
+                      clickedDate.getMonth(),
+                      clickedDate.getDate()
+                    );
+
+                    if (clickedDay > today) {
+                      // FRAMTIDEN
+                      setDateOfCell(day.fullDate);
+                      setTimeOfDay(slot);
+                      setLogSelected(false); // Öppna "Planera"
+                      setPlannedSessionClicked(false);
+                      setButtonPopup(true);
+                    } else {
+                      // DÅTID ELLER IDAG
+                      setDateOfCell(day.fullDate);
+                      setTimeOfDay(slot);
+                      setLogSelected(true); // Öppna "Logga"
+                      setPlannedSessionClicked(false);
+                      setButtonPopup(true);
+                    }
                   }}
 
                   // --- NYTT: HÄR LÄGGER VI TILL DRAG & DROP LYSSNARE PÅ CELLEN ---
@@ -266,9 +371,10 @@ export default function Calendar({ activities }: CalenderProps) {
                         key={s.id}
                         className={`session-cell-card ${
                           s.isLogged ? "logged" : "planned"
-                        }`}
+                        } ${s.stravaRaw ? "strava" : ""}`}
                         onClick={(e) => {
-                          e.stopPropagation(); // Hindrar klick även på loggade pass
+                          logOrEditSession(e, s, s.isLogged, true);
+                          e.stopPropagation();
                         }}
                       >
                         <div
@@ -278,7 +384,54 @@ export default function Calendar({ activities }: CalenderProps) {
                               : "session-cell-header planned"
                           }
                         >
-                          <strong>{getActivityName(s.activityId)}</strong>
+                          <div className="sm-text-content-container">
+                            <strong>{getActivityCode(s.activityId)}</strong>
+                            <div className="session-cell-card-content">
+                              <span>{getTotalTime(s)} min</span>
+
+                              {/* FIX: Trimmar till max 5 ord och förhindrar text-overflow */}
+                              {(() => {
+                                const rawText = s.isLogged
+                                  ? s.loggedComment
+                                  : s.comment;
+                                if (!rawText) return null;
+
+                                const words = rawText.trim().split(/\s+/);
+                                const shortText = words.slice(0, 3).join(" ");
+                                const hasMore = words.length > 3;
+
+                                return (
+                                  <p className="session-cell-comment-preview">
+                                    {shortText}
+                                    {hasMore ? "..." : ""}
+                                  </p>
+                                );
+                              })()}
+                            </div>
+
+                            <div>
+                              <button
+                                className={`session-cell-log-btn ${
+                                  s.isLogged ? "logged" : "planned"
+                                }`}
+                                onClick={(e) => {
+                                  if (!s.isLogged) {
+                                    const editClicked = false;
+                                    logOrEditSession(
+                                      e,
+                                      s,
+                                      s.isLogged,
+                                      editClicked
+                                    );
+                                  } else {
+                                    e.stopPropagation(); // Hindrar klick även på loggade pass
+                                  }
+                                }}
+                              >
+                                {!s.isLogged ? "Logga" : ""}
+                              </button>
+                            </div>
+                          </div>
                           <div className="sm-edit-btns-container">
                             <button
                               className={
@@ -287,6 +440,10 @@ export default function Calendar({ activities }: CalenderProps) {
                                   : "sm-edit-btn planned"
                               }
                               title="Redigera"
+                              onClick={(e) => {
+                                setEditClicked(true);
+                                logOrEditSession(e, s, s.isLogged, editClicked);
+                              }}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -333,26 +490,6 @@ export default function Calendar({ activities }: CalenderProps) {
                             </button>
                           </div>
                         </div>
-                        <div className="session-cell-card-content">
-                          <span>{getTotalTime(s)}min</span>
-                        </div>
-
-                        <div>
-                          <button
-                            className={`session-cell-log-btn ${
-                              s.isLogged ? "logged" : "planned"
-                            }`}
-                            onClick={(e) => {
-                              if (!s.isLogged) {
-                                logPlannedSession(e, s);
-                              } else {
-                                e.stopPropagation(); // Hindrar klick även på loggade pass
-                              }
-                            }}
-                          >
-                            {!s.isLogged ? "Logga" : ""}
-                          </button>
-                        </div>
                       </div>
                     ))}
                   </div>
@@ -369,6 +506,7 @@ export default function Calendar({ activities }: CalenderProps) {
           setButtonPopup(val);
           if (!val) {
             setPlannedSessionClicked(false);
+            setEditClicked(false); // FIXAT: Nollställ edit-läget när modalen stängs
             setSelectedSession(null);
           }
         }}
@@ -379,6 +517,7 @@ export default function Calendar({ activities }: CalenderProps) {
         isLogSelected={logSelected}
         plannedSessionClicked={plannedSessionClicked}
         session={selectedSession}
+        editClicked={editClicked}
       />
     </section>
   );

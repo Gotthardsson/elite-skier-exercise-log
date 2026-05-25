@@ -4,7 +4,8 @@ using EliteSkier.Api.Repositories;
 using EliteSkier.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
+// I början av Program.cs
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // 1. Inställningar & Databas
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -22,11 +23,15 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddHttpClient();
+
 // Registrera Repository
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IWorkoutSessionRepository, WorkoutSessionRepository>();
 builder.Services.AddScoped<ISessionTemplateRepository, SessionTemplateRepository>();
 builder.Services.AddScoped<IFolderRepository, FolderRepository>();
+builder.Services.AddScoped<IStravaRepository, StravaRepository>();
+builder.Services.AddScoped<IUserHeartRateRepository, UserHeartRateRepository>();
 
 
 // Registrera Service
@@ -34,6 +39,9 @@ builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<IWorkoutSessionService, WorkoutSessionService>();
 builder.Services.AddScoped<ISessionTemplateService, SessionTemplateService>();
 builder.Services.AddScoped<IFolderService, FolderService>();
+builder.Services.AddScoped<IStravaService, StravaService>();
+builder.Services.AddScoped<IHeartrateZoneService, HeartrateZoneService>();
+
 
 // 4. API & Swagger dokumentation
 builder.Services.AddControllers();

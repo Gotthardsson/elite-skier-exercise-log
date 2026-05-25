@@ -28,6 +28,8 @@ public class WorkoutSessionService : IWorkoutSessionService
             LoggedComment = dto.LoggedComment,
             PhysicalRpe = dto.PhysicalRpe,
             MentalRpe =dto.MentalRpe,
+            AvgHeartRate=dto.AvgHeartRate,
+    
             
             // Mappa planerade zoner
             TizA1Planned = dto.PlannedZones.A1,
@@ -53,8 +55,8 @@ public class WorkoutSessionService : IWorkoutSessionService
         dto.Id = createdSession.Id;
         return dto;
     }
-public async Task<IEnumerable<WorkoutSessionDto>> GetUserSessionsAsync(int userId)
-{
+    public async Task<IEnumerable<WorkoutSessionDto>> GetUserSessionsAsync(int userId)
+    {
     var sessions = await _repo.GetAllByUserIdAsync(userId);
 
     return sessions.Select(s => new WorkoutSessionDto
@@ -65,11 +67,13 @@ public async Task<IEnumerable<WorkoutSessionDto>> GetUserSessionsAsync(int userI
         ScheduledDate = s.ScheduledDate,
         TimeOfDay = s.TimeOfDay,
         IsLogged = s.IsLogged,
+        StravaRaw = s.StravaRaw,
 
         Comment = s.Comment,
         LoggedComment = s.LoggedComment,
         PhysicalRpe = s.PhysicalRpe,
         MentalRpe = s.MentalRpe,
+        AvgHeartRate = s.AvgHeartRate,
 
         PlannedZones = new ZoneDto
         {
@@ -93,11 +97,57 @@ public async Task<IEnumerable<WorkoutSessionDto>> GetUserSessionsAsync(int userI
     });
 }
 
-public async Task<bool> DeleteSessionAsync(int id)
-{
-    // Här kan du lägga till logik senare, t.ex. kolla om användaren 
-    // faktiskt äger passet innan det raderas.
-    var result = await _repo.DeleteAsync(id);
-    return result;
-}
+    public async Task<bool> DeleteSessionAsync(int id)
+    {
+        // Här kan du lägga till logik senare, t.ex. kolla om användaren 
+        // faktiskt äger passet innan det raderas.
+        var result = await _repo.DeleteAsync(id);
+        return result;
+    }
+
+
+    public async Task UpdateSessionAsync (WorkoutSessionDto dto)
+    { 
+
+       // 1. Hämta det befintliga passet från databasen med ID:t från DTO:n
+    var existingSession = await _repo.GetByIdAsync(dto.Id??0);
+
+    if (existingSession == null)
+    {
+        throw new Exception($"Passet med ID {dto.Id} hittades inte i databasen.");
+    }
+
+    // 2. Uppdatera fälten på det existerande objektet
+    existingSession.ActivityId = dto.ActivityId;
+    existingSession.ScheduledDate = dto.ScheduledDate;
+    existingSession.TimeOfDay = dto.TimeOfDay;
+    existingSession.IsLogged = dto.IsLogged;
+    existingSession.Comment = dto.Comment;
+    existingSession.LoggedComment = dto.LoggedComment;
+    existingSession.PhysicalRpe = dto.PhysicalRpe;
+    existingSession.MentalRpe = dto.MentalRpe;
+    existingSession.AvgHeartRate = dto.AvgHeartRate;
+
+    // Uppdatera planerade zoner (Platta fält i modellen)
+    existingSession.TizA1Planned = dto.PlannedZones?.A1 ?? 0;
+    existingSession.TizA2Planned = dto.PlannedZones?.A2 ?? 0;
+    existingSession.TizA3MinusPlanned = dto.PlannedZones?.A3Minus ?? 0;
+    existingSession.TizA3Planned = dto.PlannedZones?.A3 ?? 0;
+    existingSession.TizA3PlusPlanned = dto.PlannedZones?.A3Plus ?? 0;
+    existingSession.TizCompPlanned = dto.PlannedZones?.Comp ?? 0;
+
+    // Uppdatera faktiska zoner (Platta fält i modellen)
+    existingSession.TizA1Actual = dto.ActualZones?.A1 ?? 0;
+    existingSession.TizA2Actual = dto.ActualZones?.A2 ?? 0;
+    existingSession.TizA3MinusActual = dto.ActualZones?.A3Minus ?? 0;
+    existingSession.TizA3Actual = dto.ActualZones?.A3 ?? 0;
+    existingSession.TizA3PlusActual = dto.ActualZones?.A3Plus ?? 0;
+    existingSession.TizCompActual = dto.ActualZones?.Comp ?? 0;
+
+    // 3. Spara ändringarna via repositoryt
+    // EF Core kommer nu bara att generera SQL för de kolumner som faktiskt har ändrats
+    await _repo.UpdateAsync(existingSession);
+    }
+
+
 }

@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 export default function NavigationMenu() {
   return (
     <nav className="navigation-bar">
-      <div className="nav-brand">ES Training</div>
+      <div className="nav-brand">SkiPlan</div>
 
       <div className="nav-divider" />
 
@@ -34,6 +34,15 @@ export default function NavigationMenu() {
           }
         >
           Mallar
+        </NavLink>
+
+        <NavLink
+          to="/integrations"
+          className={({ isActive }) =>
+            isActive ? "nav-item selected" : "nav-item"
+          }
+        >
+          Integrationer
         </NavLink>
 
         <NavLink

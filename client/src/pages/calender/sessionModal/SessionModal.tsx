@@ -1,44 +1,135 @@
 import "./sessionModal.css";
 import { useEffect, useState } from "react";
 import { Calendar } from "primereact/calendar";
-import ButtonPrimary from "../../../components/ButtonPrimary";
 import { workoutSessionApi } from "../../../api/workoutSessionApi";
+import Swal from "sweetalert2";
+import type { SessionType } from "../../../types/SessionType";
 
 export default function SessionModal(props) {
   const createInitialSession = (date, timeOfDay) => ({
+    id: undefined,
     userId: 1,
     activityId: 0,
     scheduledDate: date || new Date(),
     timeOfDay: timeOfDay || "Morgon",
     isLogged: true,
-    description: "",
+    comment: "",
     loggedComment: "",
     feeling: 5,
     mentalRpe: 5,
+    avgHeartRate: 0,
     plannedZones: { a1: 0, a2: 0, a3Minus: 0, a3: 0, a3Plus: 0, comp: 0 },
     actualZones: { a1: 0, a2: 0, a3Minus: 0, a3: 0, a3Plus: 0, comp: 0 },
   });
 
   const [isLogSelected, setLogSelected] = useState(props.isLogSelected);
-  const [session, setSession] = useState(() =>
+  const [session, setSession] = useState<SessionType>(() =>
     createInitialSession(props.date, props.timeOfDay)
   );
 
+  // Hjälpfunktion för att spara datum utan att tappa tidszonen (förhindrar flytt bakåt en dag)
+  const toLocalISOString = (date: Date | string) => {
+    const d = new Date(date);
+    const tzOffset = d.getTimezoneOffset() * 60000; // i millisekunder
+    const localISOTime = new Date(d.getTime() - tzOffset).toISOString();
+    return localISOTime;
+  };
+
   useEffect(() => {
     if (!props.trigger) return;
+    console.log("Effekt körs med session:", props.session);
 
-    if (props.plannedSessionClicked && props.session) {
+    // FIX 2: Lägg Klicka Redigera HÖGST UPP så inte "Logga planerat pass" stjäl klicket!
+    if (props.editClicked && props.session) {
       setSession({
         ...props.session,
-        id: undefined, // Viktigt för att skapa ett NYTT loggat pass
+        id: props.session?.id,
+        isLogged: props.session.isLogged, // FIX: använd direkt från objektet
+        scheduledDate: new Date(props.session.scheduledDate),
+        actualZones: {
+          ...(props.session.actualZones || {
+            a1: 0,
+            a2: 0,
+            a3Minus: 0,
+            a3: 0,
+            a3Plus: 0,
+            comp: 0,
+          }),
+        },
+        plannedZones: {
+          ...(props.session.plannedZones || {
+            a1: 0,
+            a2: 0,
+            a3Minus: 0,
+            a3: 0,
+            a3Plus: 0,
+            comp: 0,
+          }),
+        },
+        loggedComment: props.session.loggedComment || "",
+        comment: props.session.comment || "", // FIX: Se till att comment hänger med
+        mentalRpe: props.session.mentalRpe,
+        feeling: props.session.feeling,
+        avgHeartRate: props.session.avgHeartRate,
+      });
+      setLogSelected(props.session.isLogged);
+
+      // Klickat logga planerat pass (ej Strava)
+    } else if (
+      props.plannedSessionClicked &&
+      props.session &&
+      !props.session.stravaRaw
+    ) {
+      setSession({
+        ...props.session,
+        id: props.session.id,
         isLogged: true,
         scheduledDate: new Date(props.session.scheduledDate),
-        actualZones: { ...props.session.plannedZones },
-        loggedComment: "",
+        actualZones: {
+          a1: props.session.plannedZones?.a1 ?? 0,
+          a2: props.session.plannedZones?.a2 ?? 0,
+          a3Minus: props.session.plannedZones?.a3Minus ?? 0,
+          a3: props.session.plannedZones?.a3 ?? 0,
+          a3Plus: props.session.plannedZones?.a3Plus ?? 0,
+          comp: props.session.plannedZones?.comp ?? 0,
+        },
+        plannedZones: { ...(props.session.plannedZones || {}) },
+        loggedComment: props.session.comment || "",
+        comment: props.session.comment || "",
+        mentalRpe: 5,
+        feeling: 5,
       });
+
+      setLogSelected(true);
+
+      // Strava-pass
+    } else if (props.session && props.session.stravaRaw) {
+      setSession({
+        ...props.session,
+        id: props.session.id,
+        isLogged: true,
+        scheduledDate: new Date(props.session.scheduledDate),
+        actualZones: {
+          a1: props.session.actualZones?.a1 ?? 0,
+          a2: props.session.actualZones?.a2 ?? 0,
+          a3Minus: props.session.actualZones?.a3Minus ?? 0,
+          a3: props.session.actualZones?.a3 ?? 0,
+          a3Plus: props.session.actualZones?.a3Plus ?? 0,
+          comp: props.session.actualZones?.comp ?? 0,
+        },
+        plannedZones: { ...(props.session.plannedZones || {}) },
+        loggedComment:
+          props.session.comment || props.session.loggedComment || "",
+        comment: props.session.comment || "",
+        mentalRpe: props.session.mentalRpe || 5,
+        feeling: props.session.feeling || 5,
+      });
+
       setLogSelected(true);
     } else {
-      setSession(createInitialSession(props.date, props.timeOfDay));
+      // Helt nytt tomt pass
+      const newSession = createInitialSession(props.date, props.timeOfDay);
+      setSession(newSession);
       setLogSelected(props.isLogSelected);
     }
   }, [
@@ -48,6 +139,8 @@ export default function SessionModal(props) {
     props.date,
     props.timeOfDay,
     props.isLogSelected,
+    props.editClicked,
+    props.isLogged,
   ]);
 
   const handleZoneChange = (zoneKey, value) => {
@@ -60,26 +153,66 @@ export default function SessionModal(props) {
     }));
   };
 
+  const handleEdit = async (currentSession: SessionType) => {
+    if (!currentSession.id) return;
+
+    try {
+      const sessionToUpdate = {
+        ...currentSession,
+        isLogged: isLogSelected,
+        scheduledDate: toLocalISOString(currentSession.scheduledDate), // FIXAT: Tidszonssäkrad
+        comment: currentSession.comment,
+        loggedComment: currentSession.loggedComment,
+      };
+
+      await workoutSessionApi.update(currentSession.id, sessionToUpdate);
+
+      props.onSessionSaved();
+      props.setTrigger(false);
+      Swal.fire({
+        title: "Sparat!",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Fel vid PUT-anrop:", error);
+    }
+  };
+
   const handleSave = async () => {
     try {
       const finalSession = {
         ...session,
-        scheduledDate: session.scheduledDate.toISOString(),
         isLogged: isLogSelected,
+        scheduledDate: toLocalISOString(session.scheduledDate), // FIXAT: Tidszonssäkrad
       };
+
       await workoutSessionApi.create(finalSession);
+
       props.onSessionSaved();
       props.setTrigger(false);
+
+      Swal.fire({
+        title: "Sparat!",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (error) {
-      console.error("Fel vid sparning:", error);
+      console.error("Fel vid Post-anrop:", error);
+      Swal.fire("Fel", "Kunde inte spara passet.", "error");
     }
   };
 
   if (!props.trigger) return null;
 
   return (
-    <div className="sm-overlay">
-      <div className={`sm-content ${isLogSelected ? "log-mode" : "plan-mode"}`}>
+    <div className="sm-overlay" onClick={() => props.setTrigger(false)}>
+      <div
+        className={`sm-content ${isLogSelected ? "log-mode" : "plan-mode"}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="sm-header">
           <button
             className="sm-close-btn"
@@ -184,26 +317,93 @@ export default function SessionModal(props) {
         </div>
 
         <div className="sm-field">
-          <label className="sm-label">
-            {isLogSelected ? "Kommentar om passet" : "Beskrivning av plan"}
-          </label>
+          <label className="sm-label">Kommentar</label>
           <textarea
             className="sm-textarea"
-            value={isLogSelected ? session.loggedComment : session.description}
+            value={isLogSelected ? session.loggedComment : session.comment}
             onChange={(e) =>
               setSession({
                 ...session,
-                [isLogSelected ? "loggedComment" : "description"]:
-                  e.target.value,
+                [isLogSelected ? "loggedComment" : "comment"]: e.target.value,
               })
             }
             placeholder={isLogSelected ? "Hur kändes det?" : "Vad ska du köra?"}
           />
         </div>
 
+        <div
+          className={isLogSelected ? "sm-slider-row" : "sm-slider-row planmode"}
+        >
+          <div className="sm-slider-field">
+            <div className="sm-slider-header">
+              <label className="sm-label">Känsla i kroppen</label>
+              <span className="sm-slider-value">{session.feeling}/10</span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              className="sm-range-input"
+              value={session.feeling ?? 5}
+              onChange={(e) =>
+                setSession({ ...session, feeling: Number(e.target.value) })
+              }
+            />
+          </div>
+
+          <div className="sm-slider-field">
+            <div className="sm-slider-header">
+              <label className="sm-label">Mental Känsla</label>
+              <span className="sm-slider-value">{session.mentalRpe}/10</span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              className="sm-range-input"
+              value={session.mentalRpe ?? 5}
+              onChange={(e) =>
+                setSession({ ...session, mentalRpe: Number(e.target.value) })
+              }
+            />
+          </div>
+        </div>
+
+        <div
+          className={
+            isLogSelected ? "heart-rate-input" : "heart-rate-input planmode"
+          }
+        >
+          <label className="sm-label">Medelpuls</label>
+          <input
+            type="number"
+            className="sm-pulse-input"
+            placeholder="BPM"
+            value={session.avgHeartRate ?? 0}
+            onFocus={(e) => e.target.select()}
+            onChange={(e) =>
+              setSession({ ...session, avgHeartRate: Number(e.target.value) })
+            }
+          />
+        </div>
+
         <div className="sm-footer">
-          <button className="sm-save-btn" onClick={handleSave}>
-            Spara pass
+          <button
+            className="sm-save-btn"
+            onClick={() => {
+              if (session.id) {
+                handleEdit(session);
+              } else {
+                handleSave();
+              }
+            }}
+          >
+            {!session.id
+              ? "Spara pass"
+              : props.plannedSessionClicked ||
+                (session.stravaRaw && !props.session?.isLogged)
+              ? "Logga pass"
+              : "Spara ändringar"}
           </button>
         </div>
       </div>

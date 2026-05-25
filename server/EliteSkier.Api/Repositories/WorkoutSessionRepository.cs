@@ -13,6 +13,43 @@ public class WorkoutSessionRepository : IWorkoutSessionRepository
         _context = context;
     }
 
+    public async Task UpsertStravaWorkoutAsync(WorkoutSession session)
+    {
+        // 1. Kolla om passet redan finns via Stravas ID (ExternalId)
+        var existingSession = await _context.WorkoutSessions
+            .FirstOrDefaultAsync(w => w.ExternalId == session.ExternalId);
+
+        if (existingSession != null)
+        {
+            // 2. Om passet finns, uppdatera bara rådatan och eventuellt kommentar 
+            // men RÖR INTE IsLogged om användaren redan hunnit logga det.
+            existingSession.StravaRaw = session.StravaRaw;
+
+            if (!existingSession.IsLogged)
+            {
+                existingSession.Comment = session.Comment;
+                existingSession.ScheduledDate = session.ScheduledDate;
+                // Här kan du uppdatera fler fält som t.ex. ActivityId om Strava-typen ändras
+                existingSession.TizA1Actual = session.TizA1Actual;
+                existingSession.TizA2Actual = session.TizA2Actual;
+                existingSession.TizA3MinusActual = session.TizA3MinusActual;
+                existingSession.TizA3Actual = session.TizA3Actual;
+                existingSession.TizA3PlusActual = session.TizA3PlusActual;
+                existingSession.TizCompActual = session.TizCompActual;
+            }
+            
+            _context.WorkoutSessions.Update(existingSession);
+        }
+        else
+        {
+            // 3. Om det är ett helt nytt pass, lägg till det i kön för sparning
+            await _context.WorkoutSessions.AddAsync(session);
+        }
+
+        // 4. Skicka ändringarna till databasen
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<WorkoutSession?> GetByIdAsync(int id) => 
         await _context.WorkoutSessions.FindAsync(id);
 
@@ -31,8 +68,8 @@ public class WorkoutSessionRepository : IWorkoutSessionRepository
 
     public async Task UpdateAsync(WorkoutSession session)
     {
-        _context.Entry(session).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
+       _context.WorkoutSessions.Update(session); 
+       await _context.SaveChangesAsync();
     }
 
     public async Task<bool> DeleteAsync(int id)
@@ -46,4 +83,7 @@ public class WorkoutSessionRepository : IWorkoutSessionRepository
         }
         return false;
     }
+
+
+
 }

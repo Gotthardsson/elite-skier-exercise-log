@@ -10,6 +10,8 @@ public class WorkoutSessionDto
     public int UserId { get; set; }
     public bool IsLogged { get; set; }
 
+    public string? StravaRaw {get ; set;}
+
     // Kommentarer
     public string? Comment { get; set; } // Planerad
     public string? LoggedComment { get; set; } // Utförd
@@ -21,6 +23,7 @@ public class WorkoutSessionDto
     // Här använder vi objektet ZoneDto för att slippa 12 olika fält i frontenden
     public ZoneDto PlannedZones { get; set; } = new();
     public ZoneDto ActualZones { get; set; } = new();
+    public int? AvgHeartRate { get; set; }
 }
 
 public class ZoneDto

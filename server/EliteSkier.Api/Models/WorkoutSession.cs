@@ -87,5 +87,8 @@ public class WorkoutSession
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    [Column("avg_heart_rate")]
+    public int? AvgHeartRate { get; set; }
+
 
 } 
