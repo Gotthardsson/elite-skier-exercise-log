@@ -6,11 +6,8 @@ import CalendarNav from "./CalenderNav";
 import type { Activity } from "../../types/Activity";
 import { workoutSessionApi } from "../../api/workoutSessionApi";
 import type { SessionType } from "../../types/SessionType";
-import { folderApi } from "../../api/folderApi";
-import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import Swal from "sweetalert2";
-import type { TemplateType } from "../../types/TemplateType";
-import type { FolderType } from "../../types/FolderType";
+
 
 
 

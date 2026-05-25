@@ -6,7 +6,7 @@ import type { TemplateType } from "../../types/TemplateType";
 import type { FolderType } from "../../types/FolderType";
 import { folderApi } from "../../api/folderApi";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface CalendarNavProps {
   currentDate: Date;
@@ -38,6 +38,17 @@ export default function CalendarNav({
       }
     };
 
+  const handleCoachModeToggle = () => {
+    const athleteNavLink = document.getElementById("athletes-nav-link");
+    const coachButton = document.querySelector(".coach-button");
+    if (athleteNavLink) {
+      const isHidden = athleteNavLink.style.display === "none";
+      athleteNavLink.style.display = isHidden ? "flex" : "none";
+      coachButton.style.backgroundColor = isHidden ? "#007bff" : "#000000"; // Blå när aktiv, grå när inaktiv
+      
+    }
+  };
+
   const handleJump = (seasonYear: number, period: number, week: number) => {
     // Skid-säsongen startar ofta 1 maj
     const date = new Date(seasonYear, 4, 1);
@@ -54,7 +65,10 @@ export default function CalendarNav({
     setCurrentDate(date);
     
   };
+  useEffect(() => {
     fetchFoldersAndTemplates();
+  }, []);
+
   return (
     <div className="calendar-nav-container">
       <div className="nav-group buttons">
@@ -95,6 +109,11 @@ export default function CalendarNav({
           ))}
         </select>
       </div>
+      <ButtonPrimary 
+      className="coach-button"
+      onClick={handleCoachModeToggle}
+      text="Tränarläge"
+      ></ButtonPrimary>
       <TemplateDropdown folders={folders || []} templates={templates || []} />
     </div>
   );

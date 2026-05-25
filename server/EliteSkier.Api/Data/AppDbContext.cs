@@ -16,6 +16,7 @@ public class AppDbContext : DbContext
     public DbSet<StravaIntegration> StravaIntegrations { get; set; }
 
     public DbSet <HeartRateZones> HeartRateZones {get; set;}
+    public DbSet <User> Users {get; set;}
   
 
 
