@@ -69,6 +69,11 @@
   background: #111827;
   color: white;
 }
+.calendar-cell.drag-over {
+  background-color: #e3f2fd !important; /* Ljusblå highlight */
+  border: 2px dashed #2196f3 !important;
+  cursor: copy;
+}
 
 .calendar-row-label {
   display: flex;

@@ -7,11 +7,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Account from "./pages/account/Account";
 import { useState, useEffect } from "react";
 import { getActivities } from "./api/activityApi";
+import type { Activity } from "./types/Activity";
 
 //https://www.w3schools.com/react/react_router.asp
 
 function App() {
-  const [activities, setActivities] = useState([]); // En tom låda för sporter
+  const [activities, setActivities] = useState<Activity[]>([]); // En tom låda för sporter
 
   // Så fort appen startar, hämta sporterna
   useEffect(() => {

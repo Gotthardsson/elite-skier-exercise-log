@@ -8,7 +8,6 @@ import { useState, useEffect } from "react";
 function TemplateCard({
   template,
   onTemplateDelete,
-  onTemplateUpdate,
   setEditingTemplate,
 }: {
   template: TemplateType;
@@ -20,23 +19,12 @@ function TemplateCard({
   function handleDelete() {
     sessionTemplateApi.delete(template.id);
     onTemplateDelete(template);
-    // Här kan du lägga till logik för att radera mallen, t.ex. genom att anropa en API-endpoint
     console.log(`Radera mall med id: ${template.id}`);
   }
-  function handleEdit() {
-    onTemplateUpdate(template);
-    setEditingTemplate(template); // Sätt den mall som ska redigeras
-    const dialog = document.querySelector(
-      ".edit-template-container",
-    ) as HTMLDivElement;
-    dialog.style.display = "flex";
-    // Här kan du lägga till logik för att öppna redigeringsdialogen, t.ex. genom att ändra state i en överordnad komponent
-    console.log(`Redigera mall med id: ${template.id}`);
+  function handleEdit(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation(); // Förhindra att klicket bubblar upp till kortet
+    setEditingTemplate(template); 
   }
-
-  useEffect(() => {
-    getActivities().then(setActivities);
-  }, []);
 
   useEffect(() => {
     getActivities().then(setActivities);
@@ -52,13 +40,14 @@ function TemplateCard({
     0,
   );
   const length = totalTime > 0 ? totalTime : "0";
-  console.log(length);
+
   return (
     <div className="template-card">
       <div className="card-title-container">
         <h4 className="card-title">{title}</h4>
         <div className="icons-container">
-          <button className="icon-button">
+          <button className="icon-button"
+            onClick={handleEdit}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -70,7 +59,7 @@ function TemplateCard({
               strokeLinecap="round"
               strokeLinejoin="round"
               className="lucide lucide-pen"
-              onClick={handleEdit}
+              
             >
               <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path>
             </svg>
