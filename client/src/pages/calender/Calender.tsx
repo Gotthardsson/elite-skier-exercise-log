@@ -11,7 +11,7 @@ import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import Swal from "sweetalert2";
 import type { TemplateType } from "../../types/TemplateType";
 import type { FolderType } from "../../types/FolderType";
-import TemplateDropdown from "./templatesInCalender/TemplateDropdown";
+
 
 
 interface CalenderProps {
@@ -32,8 +32,6 @@ export default function Calendar({ activities }: CalenderProps) {
   const [plannedSessionClicked, setPlannedSessionClicked] = useState(false);
   const [selectedSession, setSelectedSession] = useState<SessionType | null>(
     null);
-  const [templates, setTemplates] = useState<TemplateType[]>([]);
-  const [folders, setFolders] = useState<FolderType[]>([]);
   
   const [editClicked, setEditClicked] = useState(false);
 
@@ -47,22 +45,10 @@ export default function Calendar({ activities }: CalenderProps) {
       console.error("Kunde inte hämta pass:", error);
     }
   };
-  const fetchFoldersAndTemplates = async () => {
-    try {
-      const [foldersResponse, templatesResponse] = await Promise.all([
-        folderApi.getByUserId(1),
-        sessionTemplateApi.getByUserId(1)
-      ]);
-      setFolders(foldersResponse.data);
-      setTemplates(templatesResponse.data);
-    } catch (error) {
-      console.error("Kunde inte hämta mappar eller mallar:", error);
-    }
-  };
+  
 
   useEffect(() => {
     fetchSessions();
-    fetchFoldersAndTemplates();
   }, []);
 
   const handleTemplateDrop = async (date: Date, slot: string, rawTemplateData: string) => {
@@ -249,35 +235,10 @@ export default function Calendar({ activities }: CalenderProps) {
 
   return (
     <section className="calendar">
-      <div className="calendar-nav">
-        <button
-          onClick={() => {
-            const prev = new Date(currentDate);
-            prev.setDate(prev.getDate() - 7);
-            setCurrentDate(prev);
-          }}
-        >
-          ←
-        </button>
-        <button onClick={() => setCurrentDate(new Date())}>Idag</button>
-        <button
-          onClick={() => {
-            const next = new Date(currentDate);
-            next.setDate(next.getDate() + 7);
-            setCurrentDate(next);
-          }}
-        >
-          →
-        </button>
-        <SwitchViewComponent
-          onChange={(isLog) => {
-            setBorderStyle(isLog ? "3px solid #2fd08f" : "3px solid #3b82f6");
-            setLogSelected(isLog);
-          }}
-        />
-          <TemplateDropdown folders={folders || []} templates={templates || []} />
-
-      </div>
+      <CalendarNav
+        currentDate={currentDate}
+        setCurrentDate={setCurrentDate}
+      />
 
       <div className="calendar-grid" style={{ border: borderStyle }}>
         <div className="calendar-corner">

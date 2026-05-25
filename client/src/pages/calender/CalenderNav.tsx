@@ -1,6 +1,12 @@
 import "./calenderNav.css";
 import ButtonPrimary from "../../components/ButtonPrimary";
 import "../../components/button.css";
+import TemplateDropdown from "./templatesInCalender/TemplateDropdown";
+import type { TemplateType } from "../../types/TemplateType";
+import type { FolderType } from "../../types/FolderType";
+import { folderApi } from "../../api/folderApi";
+import { sessionTemplateApi } from "../../api/sessionTemplateApi";
+import { useState } from "react";
 
 interface CalendarNavProps {
   currentDate: Date;
@@ -16,6 +22,21 @@ export default function CalendarNav({
     newDate.setDate(newDate.getDate() + days);
     setCurrentDate(newDate);
   };
+  const [folders, setFolders] = useState<FolderType[]>([]);
+  const [templates, setTemplates] = useState<TemplateType[]>([]);
+
+  const fetchFoldersAndTemplates = async () => {
+      try {
+        const [foldersResponse, templatesResponse] = await Promise.all([
+          folderApi.getByUserId(1),
+          sessionTemplateApi.getByUserId(1)
+        ]);
+        setFolders(foldersResponse.data);
+        setTemplates(templatesResponse.data);
+      } catch (error) {
+        console.error("Kunde inte hämta mappar eller mallar:", error);
+      }
+    };
 
   const handleJump = (seasonYear: number, period: number, week: number) => {
     // Skid-säsongen startar ofta 1 maj
@@ -31,8 +52,9 @@ export default function CalendarNav({
     date.setDate(date.getDate() + totalWeeksToAdd * 7);
 
     setCurrentDate(date);
+    
   };
-
+    fetchFoldersAndTemplates();
   return (
     <div className="calendar-nav-container">
       <div className="nav-group buttons">
@@ -73,6 +95,7 @@ export default function CalendarNav({
           ))}
         </select>
       </div>
+      <TemplateDropdown folders={folders || []} templates={templates || []} />
     </div>
   );
 }
