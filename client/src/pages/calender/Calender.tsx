@@ -9,10 +9,15 @@ import type { SessionType } from "../../types/SessionType";
 import { folderApi } from "../../api/folderApi";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import Swal from "sweetalert2";
+<<<<<<< Updated upstream
 import type { TemplateType } from "../../types/TemplateType";
 import type { FolderType } from "../../types/FolderType";
 
 
+=======
+import ButtonPrimary from "../../components/ButtonPrimary";
+import DayStatusModal from "./dayStatusModal/DayStatusModal";
+>>>>>>> Stashed changes
 
 interface CalenderProps {
   activities: Activity[];
@@ -24,6 +29,7 @@ const timeSlots = ["Morgon", "Förmiddag", "Eftermiddag", "Kväll"];
 export default function Calendar({ activities }: CalenderProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [buttonPopup, setButtonPopup] = useState(false);
+  const [dayStatusPopup, setDayStatusPopup] = useState(false);
   const [borderStyle, setBorderStyle] = useState("3px solid #2fd08f");
   const [logSelected, setLogSelected] = useState(true);
   const [dateOfCell, setDateOfCell] = useState<Date>(new Date());
@@ -31,8 +37,14 @@ export default function Calendar({ activities }: CalenderProps) {
   const [sessions, setSessions] = useState<SessionType[]>([]);
   const [plannedSessionClicked, setPlannedSessionClicked] = useState(false);
   const [selectedSession, setSelectedSession] = useState<SessionType | null>(
+<<<<<<< Updated upstream
     null);
   
+=======
+    null
+  );
+
+>>>>>>> Stashed changes
   const [editClicked, setEditClicked] = useState(false);
 
   const days = useMemo(() => getWeekDays(currentDate), [currentDate]);
@@ -255,6 +267,14 @@ export default function Calendar({ activities }: CalenderProps) {
             <div className="calendar-day-total">
               {getDayTotal(day.fullDate)} min
             </div>
+            <div className="day-status-container">
+              <ButtonPrimary
+                text="Status"
+                onClick={() => {
+                  setDayStatusPopup(true);
+                }}
+              />
+            </div>
           </div>
         ))}
 
@@ -273,13 +293,10 @@ export default function Calendar({ activities }: CalenderProps) {
                   key={`${slot}-${day.key}`}
                   className="calendar-cell"
                   onClick={() => {
-                    // 1. Skapa ett datum-objekt för klockslaget/dagen du klickat på
                     const clickedDate = new Date(day.fullDate);
 
-                    // 2. Skapa ett datum-objekt för "just nu"
                     const now = new Date();
 
-                    // Om du vill att "idag" alltid ska öppna loggningsvyn:
                     const today = new Date(
                       now.getFullYear(),
                       now.getMonth(),
@@ -350,7 +367,6 @@ export default function Calendar({ activities }: CalenderProps) {
                             <div className="session-cell-card-content">
                               <span>{getTotalTime(s)} min</span>
 
-                              {/* FIX: Trimmar till max 5 ord och förhindrar text-overflow */}
                               {(() => {
                                 const rawText = s.isLogged
                                   ? s.loggedComment
@@ -467,7 +483,7 @@ export default function Calendar({ activities }: CalenderProps) {
           setButtonPopup(val);
           if (!val) {
             setPlannedSessionClicked(false);
-            setEditClicked(false); // FIXAT: Nollställ edit-läget när modalen stängs
+            setEditClicked(false);
             setSelectedSession(null);
           }
         }}
@@ -479,6 +495,13 @@ export default function Calendar({ activities }: CalenderProps) {
         plannedSessionClicked={plannedSessionClicked}
         session={selectedSession}
         editClicked={editClicked}
+      />
+
+      <DayStatusModal
+        trigger={dayStatusPopup}
+        setTrigger={(val: boolean) => {
+          setDayStatusPopup(val);
+        }}
       />
     </section>
   );

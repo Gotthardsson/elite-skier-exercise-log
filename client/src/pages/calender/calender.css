@@ -80,6 +80,9 @@
   color: #98a0ad;
 }
 
+.day-status-btn {
+}
+
 /* --- CALENDAR CELLS --- */
 .calendar-cell {
   min-height: 100%;
