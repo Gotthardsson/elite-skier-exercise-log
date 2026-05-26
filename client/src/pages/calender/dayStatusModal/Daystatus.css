@@ -1,0 +1,195 @@
+/* --- CONTAINER & RUBRIKER --- */
+.ds-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 8px;
+}
+
+.ds-header-title-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.ds-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.ds-date-subtitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2fd08f; /* Kalendergrön */
+  text-transform: capitalize;
+  margin-top: 4px;
+}
+
+/* --- GRID-STRUKTUR FÖR ALLA CARDS --- */
+.ds-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 16px; /* Tätare avstånd mellan raderna */
+}
+
+.ds-status-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.ds-status-card:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.ds-card-icon {
+  font-size: 1.6rem;
+}
+
+.ds-card-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.ds-card-text strong {
+  font-size: 0.95rem;
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.ds-card-text span {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Göm undan standard-checkboxen helt */
+.ds-hidden-checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* --- REAKTIVA FÄRGER NÄR EN TOGGLE ÄR ACTIVE --- */
+
+/* Sjuk -> Mjuk röd */
+.ds-status-card.sick.active {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+.ds-status-card.sick.active strong {
+  color: #991b1b;
+}
+
+/* Skadad -> Mjuk orange */
+.ds-status-card.injured.active {
+  border-color: #f97316;
+  background: #fff7ed;
+}
+.ds-status-card.injured.active strong {
+  color: #9a3412;
+}
+
+/* Vilodag -> Mjuk Blå/Lila för återhämtning */
+.ds-status-card.rest.active {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+.ds-status-card.rest.active strong {
+  color: #1e40af;
+}
+
+/* Resdag -> Mjuk Turkos/Grå */
+.ds-status-card.travel.active {
+  border-color: #06b6d4;
+  background: #ecfeff;
+}
+.ds-status-card.travel.active strong {
+  color: #155e75;
+}
+
+/* --- BIOMETRI / INPUTS --- */
+.ds-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 20px;
+}
+
+.ds-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.ds-input-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.ds-unit {
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.ds-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.ds-number-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  background: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.ds-number-input:focus {
+  outline: none;
+  border-color: #2fd08f;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(47, 208, 143, 0.1);
+}
+
+.ds-number-input::placeholder {
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+/* --- FOOTER / SPARA --- */
+.ds-save-btn {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.ds-save-btn button {
+  width: 100%;
+}

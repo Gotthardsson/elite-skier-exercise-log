@@ -6,7 +6,13 @@ import CalendarNav from "./CalenderNav";
 import type { Activity } from "../../types/Activity";
 import { workoutSessionApi } from "../../api/workoutSessionApi";
 import type { SessionType } from "../../types/SessionType";
+import { folderApi } from "../../api/folderApi";
+import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import Swal from "sweetalert2";
+import type { TemplateType } from "../../types/TemplateType";
+import type { FolderType } from "../../types/FolderType";
+
+
 
 interface CalenderProps {
   activities: Activity[];
@@ -17,6 +23,7 @@ const timeSlots = ["Morgon", "Förmiddag", "Eftermiddag", "Kväll"];
 export default function Calendar({ activities }: CalenderProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [buttonPopup, setButtonPopup] = useState(false);
+  const [dayStatusPopup, setDayStatusPopup] = useState(false);
   const [borderStyle, setBorderStyle] = useState("3px solid #2fd08f");
   const [logSelected, setLogSelected] = useState(true);
   const [dateOfCell, setDateOfCell] = useState<Date>(new Date());
@@ -24,9 +31,8 @@ export default function Calendar({ activities }: CalenderProps) {
   const [sessions, setSessions] = useState<SessionType[]>([]);
   const [plannedSessionClicked, setPlannedSessionClicked] = useState(false);
   const [selectedSession, setSelectedSession] = useState<SessionType | null>(
-    null,
-  );
-
+    null);
+  
   const [editClicked, setEditClicked] = useState(false);
   const [userId, setUserId] = useState(1); // Hårt kodat för demo, byt ut mot dynamiskt id vid implementering
 
@@ -40,25 +46,21 @@ export default function Calendar({ activities }: CalenderProps) {
       console.error("Kunde inte hämta pass:", error);
     }
   };
+  
 
   useEffect(() => {
     fetchSessions();
   }, [userId]);
 
-  const handleTemplateDrop = async (
-    date: Date,
-    slot: string,
-    rawTemplateData: string,
-  ) => {
+  const handleTemplateDrop = async (date: Date, slot: string, rawTemplateData: string) => {
     try {
       const template = JSON.parse(rawTemplateData);
-      // Bygg upp ett nytt pass baserat på mallens parametrar
       const newSession = {
-        userId: userId, // Ditt hårdkodade demo-id
+        userId: 1, // Ditt hårdkodade demo-id
         activityId: template.activityId || 0,
-        scheduledDate: date.toISOString(), // Sparar datumet cellen representerar
-        timeOfDay: slot, // Sparar "Morgon", "Förmiddag" etc.
-        isLogged: false, // Det är ett planerat pass från början
+        scheduledDate: date.toISOString(),
+        timeOfDay: slot,
+        isLogged: false,
         description: template.description || "",
         loggedComment: "",
         feeling: 5,
@@ -74,16 +76,17 @@ export default function Calendar({ activities }: CalenderProps) {
         actualZones: { a1: 0, a2: 0, a3Minus: 0, a3: 0, a3Plus: 0, comp: 0 },
       };
 
-      // Skicka till din backend
       await workoutSessionApi.create(newSession);
-
+      
       // Uppdatera kalendern direkt så passet dyker upp på skärmen!
       await fetchSessions();
-
+      
       // En liten bekräftelse
       Swal.fire({
         title: "Inplanerat!",
-        text: `Mallen "${template.title}" lades till på ${slot.toLowerCase()}en.`,
+        text: `Mallen "${
+          template.title
+        }" lades till på ${slot.toLowerCase()}en.`,
         icon: "success",
         timer: 1800,
         showConfirmButton: false,
@@ -104,62 +107,90 @@ export default function Calendar({ activities }: CalenderProps) {
     );
   }
 
-  function getTotalTime(session: SessionType) {
-    if (!session.stravaRaw) {
-      const zones = session.isLogged
-        ? session.actualZones
-        : session.plannedZones;
-      return (
-        zones.a1 +
-        zones.a2 +
-        zones.a3Minus +
-        zones.a3 +
-        zones.a3Plus +
-        zones.comp
-      );
-    } else if (session.stravaRaw) {
-      const zones = session.actualZones;
-      return (
-        zones.a1 +
-        zones.a2 +
-        zones.a3Minus +
-        zones.a3 +
-        zones.a3Plus +
-        zones.comp
-      );
-    }
+  function getStatusClassForDate(dayDate: Date): string {
+    const year = dayDate.getFullYear();
+    const month = String(dayDate.getMonth() + 1).padStart(2, "0");
+    const dayStr = String(dayDate.getDate()).padStart(2, "0");
+    const calendarDateStr = `${year}-${month}-${dayStr}`;
+
+    const status = savedDayStatuses.find((s) => {
+      if (!s || !s.day) return false;
+      return calendarDateStr === s.day.substring(0, 10);
+    });
+
+    if (!status) return "";
+
+    if (status.sick) return "status-saved-sick";
+    if (status.injured) return "status-saved-injured";
+    if (status.restDay) return "status-saved-rest";
+    if (status.travelDay) return "status-saved-travel";
+    if (status.hrv > 0 || status.restingHeartRate > 0)
+      return "status-saved-biometrics";
+
+    return "";
   }
 
-  function getActivityName(activityId: number) {
-    return activities.find((a) => a.id === activityId)?.name ?? "Pass";
+  function getStatusEmojiForDate(dayDate: Date): string {
+    const year = dayDate.getFullYear();
+    const month = String(dayDate.getMonth() + 1).padStart(2, "0");
+    const dayStr = String(dayDate.getDate()).padStart(2, "0");
+    const calendarDateStr = `${year}-${month}-${dayStr}`;
+
+    const status = savedDayStatuses.find((s) => {
+      if (!s || !s.day) return false;
+      return calendarDateStr === s.day.substring(0, 10);
+    });
+
+    if (!status) return "";
+
+    if (status.sick) return "🤒 ";
+    if (status.injured) return "🤕 ";
+    if (status.restDay) return "💤 ";
+    if (status.travelDay) return "✈️ ";
+    if (status.hrv > 0 || status.restingHeartRate > 0) return "📊 ";
+
+    return "";
+  }
+
+  function getTotalTime(session: SessionType) {
+    const zones =
+      !session.stravaRaw && session.isLogged
+        ? session.actualZones
+        : !session.stravaRaw && !session.isLogged
+        ? session.plannedZones
+        : session.actualZones;
+
+    return (
+      zones.a1 + zones.a2 + zones.a3Minus + zones.a3 + zones.a3Plus + zones.comp
+    );
   }
 
   function getActivityCode(activityId: number) {
     switch (activityId) {
       case 1:
-        return "SK"; // Skate
+        return "SK";
       case 2:
-        return "KL"; // Klassiskt
+        return "KL";
       case 3:
-        return "RSK"; // Rullskidor Skate
+        return "RSK";
       case 4:
-        return "RKL"; // Rullskidor Klassiskt
+        return "RKL";
       case 5:
-        return "MTB"; // MTB
+        return "MTB";
       case 6:
-        return "LVG"; // Landsvägscykel
+        return "LVG";
       case 7:
-        return "LÖP"; // Löpning
+        return "LÖP";
       case 8:
-        return "STV"; // Stavgång
+        return "STV";
       case 9:
-        return "SIM"; // Simning
+        return "SIM";
       case 10:
-        return "STK"; // Styrka
+        return "STK";
       case 11:
-        return "ERG"; // Skierg
+        return "ERG";
       case 12:
-        return "ÖVR"; // Övrigt
+        return "ÖVR";
       default:
         return "PASS";
     }
@@ -171,35 +202,26 @@ export default function Calendar({ activities }: CalenderProps) {
     isLogged: boolean,
     editClicked: boolean,
   ) {
-    e.stopPropagation(); // Hindrar cell-klicket
+    e.stopPropagation();
+    setDateOfCell(new Date(session.scheduledDate));
+    setTimeOfDay(session.timeOfDay || "Morgon");
+    setSelectedSession(session);
 
-    //För att logga planerade:
     if (!isLogged && !editClicked) {
-      setDateOfCell(new Date(session.scheduledDate));
-      setTimeOfDay(session.timeOfDay || "Morgon");
-      setSelectedSession(session);
       setPlannedSessionClicked(true);
-      setButtonPopup(true);
-    } else if (editClicked) {
-      //För att ändra pass logga/planerade:
-      setDateOfCell(new Date(session.scheduledDate));
-      setTimeOfDay(session.timeOfDay || "Morgon");
-      setSelectedSession(session);
-      setButtonPopup(true);
     }
+    setButtonPopup(true);
   }
 
   const handleDeleteSession = async (e, sessionId) => {
     e.stopPropagation();
-
-    // Ersätt window.confirm med SweetAlert
     const result = await Swal.fire({
       title: "Vill du radera passet?",
       text: "Du kan inte ångra detta",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#11b981", // Din gröna färg
-      cancelButtonColor: "#ef4444", // Röd
+      confirmButtonColor: "#11b981",
+      cancelButtonColor: "#ef4444",
       confirmButtonText: "Ja, ta bort!",
       cancelButtonText: "Avbryt",
       background: "#fff",
@@ -210,8 +232,6 @@ export default function Calendar({ activities }: CalenderProps) {
       try {
         await workoutSessionApi.delete(sessionId);
         await fetchSessions();
-
-        // En liten "success" toast efteråt
         Swal.fire({
           title: "Raderad!",
           icon: "success",
@@ -219,7 +239,7 @@ export default function Calendar({ activities }: CalenderProps) {
           showConfirmButton: false,
         });
       } catch (error) {
-        Swal.fire("Fel!", "Kunde inte radera passet: " + { error });
+        Swal.fire("Fel!", "Kunde inte radera passet.", "error");
       }
     }
   };
@@ -229,6 +249,11 @@ export default function Calendar({ activities }: CalenderProps) {
       .filter((s) => isSameDate(dayDate, s.scheduledDate))
       .reduce((sum, s) => sum + getTotalTime(s), 0);
   };
+
+  useEffect(() => {
+    fetchSessions();
+    fetchAllDayStatuses();
+  }, [currentDate, userId]);
 
   return (
     <section className="calendar">
@@ -243,6 +268,8 @@ export default function Calendar({ activities }: CalenderProps) {
         <div className="calendar-corner">
           {currentDate.toLocaleString("sv-SE", { month: "long" })}
         </div>
+
+        {/* TOPPRADEN: Visar bara veckodag, datum och totaltid per dag */}
         {days.map((day) => (
           <div key={day.key} className="calendar-day">
             <span className="calendar-day-short">{day.short}</span>
@@ -257,6 +284,7 @@ export default function Calendar({ activities }: CalenderProps) {
           </div>
         ))}
 
+        {/* TRÄNINGSPASSEN: Loopar ut Morgon, Förmiddag, Eftermiddag, Kväll */}
         {timeSlots.map((slot) => (
           <Fragment key={slot}>
             <div className="calendar-row-label">{slot}</div>
@@ -272,13 +300,8 @@ export default function Calendar({ activities }: CalenderProps) {
                   key={`${slot}-${day.key}`}
                   className="calendar-cell"
                   onClick={() => {
-                    // 1. Skapa ett datum-objekt för klockslaget/dagen du klickat på
                     const clickedDate = new Date(day.fullDate);
-
-                    // 2. Skapa ett datum-objekt för "just nu"
                     const now = new Date();
-
-                    // Om du vill att "idag" alltid ska öppna loggningsvyn:
                     const today = new Date(
                       now.getFullYear(),
                       now.getMonth(),
@@ -290,26 +313,17 @@ export default function Calendar({ activities }: CalenderProps) {
                       clickedDate.getDate(),
                     );
 
-                    if (clickedDay > today) {
-                      // FRAMTIDEN
-                      setDateOfCell(day.fullDate);
-                      setTimeOfDay(slot);
-                      setLogSelected(false); // Öppna "Planera"
-                      setPlannedSessionClicked(false);
-                      setButtonPopup(true);
-                    } else {
-                      // DÅTID ELLER IDAG
-                      setDateOfCell(day.fullDate);
-                      setTimeOfDay(slot);
-                      setLogSelected(true); // Öppna "Logga"
-                      setPlannedSessionClicked(false);
-                      setButtonPopup(true);
-                    }
+                    setDateOfCell(day.fullDate);
+                    setTimeOfDay(slot);
+                    setPlannedSessionClicked(false);
+                    setLogSelected(clickedDay <= today);
+                    setButtonPopup(true);
                   }}
+
                   // --- NYTT: HÄR LÄGGER VI TILL DRAG & DROP LYSSNARE PÅ CELLEN ---
                   onDragOver={(e) => {
-                    e.preventDefault(); // Krävs för att tillåta "drop" i webbläsaren
-                    e.currentTarget.classList.add("drag-over"); // Tips: Stylar cellen vid hovring
+                    e.preventDefault();
+                    e.currentTarget.classList.add("drag-over");
                   }}
                   onDragLeave={(e) => {
                     e.currentTarget.classList.remove("drag-over");
@@ -347,27 +361,21 @@ export default function Calendar({ activities }: CalenderProps) {
                             <strong>{getActivityCode(s.activityId)}</strong>
                             <div className="session-cell-card-content">
                               <span>{getTotalTime(s)} min</span>
-
-                              {/* FIX: Trimmar till max 5 ord och förhindrar text-overflow */}
                               {(() => {
                                 const rawText = s.isLogged
                                   ? s.loggedComment
                                   : s.comment;
                                 if (!rawText) return null;
-
                                 const words = rawText.trim().split(/\s+/);
                                 const shortText = words.slice(0, 3).join(" ");
-                                const hasMore = words.length > 3;
-
                                 return (
                                   <p className="session-cell-comment-preview">
                                     {shortText}
-                                    {hasMore ? "..." : ""}
+                                    {words.length > 3 ? "..." : ""}
                                   </p>
                                 );
                               })()}
                             </div>
-
                             <div>
                               <button
                                 className={`session-cell-log-btn ${
@@ -380,10 +388,10 @@ export default function Calendar({ activities }: CalenderProps) {
                                       e,
                                       s,
                                       s.isLogged,
-                                      editClicked,
+                                      editClicked
                                     );
                                   } else {
-                                    e.stopPropagation(); // Hindrar klick även på loggade pass
+                                    e.stopPropagation();
                                   }
                                 }}
                               >
@@ -401,7 +409,7 @@ export default function Calendar({ activities }: CalenderProps) {
                               title="Redigera"
                               onClick={(e) => {
                                 setEditClicked(true);
-                                logOrEditSession(e, s, s.isLogged, editClicked);
+                                logOrEditSession(e, s, s.isLogged, true);
                               }}
                             >
                               <svg
@@ -424,9 +432,7 @@ export default function Calendar({ activities }: CalenderProps) {
                                   ? "sm-edit-btn logged delete"
                                   : "sm-edit-btn planned delete "
                               }
-                              onClick={(e) => {
-                                handleDeleteSession(e, s.id);
-                              }}
+                              onClick={(e) => handleDeleteSession(e, s.id)}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -438,7 +444,6 @@ export default function Calendar({ activities }: CalenderProps) {
                                 strokeWidth="2"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                className="lucide lucide-trash2"
                               >
                                 <path d="M3 6h18"></path>
                                 <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
@@ -457,6 +462,27 @@ export default function Calendar({ activities }: CalenderProps) {
             })}
           </Fragment>
         ))}
+
+        {/* FIXAT: NY BOTTENRAD FÖR STATUSKNAPPARNA */}
+        <div className="calendar-row-label"></div>
+        {days.map((day) => (
+          <div
+            key={`status-row-${day.key}`}
+            className="calendar-cell calendar-status-cell"
+          >
+            <div className="day-status-container">
+              <div className={getStatusClassForDate(day.fullDate)}>
+                <ButtonPrimary
+                  text={`${getStatusEmojiForDate(day.fullDate)}Status`}
+                  onClick={() => {
+                    setDateOfCell(day.fullDate);
+                    setDayStatusPopup(true);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       <SessionModal
@@ -465,7 +491,7 @@ export default function Calendar({ activities }: CalenderProps) {
           setButtonPopup(val);
           if (!val) {
             setPlannedSessionClicked(false);
-            setEditClicked(false); // FIXAT: Nollställ edit-läget när modalen stängs
+            setEditClicked(false);
             setSelectedSession(null);
           }
         }}
@@ -478,6 +504,13 @@ export default function Calendar({ activities }: CalenderProps) {
         plannedSessionClicked={plannedSessionClicked}
         session={selectedSession}
         editClicked={editClicked}
+      />
+
+      <DayStatusModal
+        trigger={dayStatusPopup}
+        setTrigger={(val: boolean) => setDayStatusPopup(val)}
+        date={dateOfCell}
+        onStatusSaved={fetchAllDayStatuses}
       />
     </section>
   );

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using EliteSkier.Api.Data;
 using EliteSkier.Api.Repositories;
 using EliteSkier.Api.Services;
+using EliteSkier.Api.Data.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 // I början av Program.cs
@@ -32,6 +33,7 @@ builder.Services.AddScoped<ISessionTemplateRepository, SessionTemplateRepository
 builder.Services.AddScoped<IFolderRepository, FolderRepository>();
 builder.Services.AddScoped<IStravaRepository, StravaRepository>();
 builder.Services.AddScoped<IUserHeartRateRepository, UserHeartRateRepository>();
+builder.Services.AddScoped<IDayStatusRepository, DayStatusRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // Registrera Service
@@ -41,6 +43,7 @@ builder.Services.AddScoped<ISessionTemplateService, SessionTemplateService>();
 builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<IStravaService, StravaService>();
 builder.Services.AddScoped<IHeartrateZoneService, HeartrateZoneService>();
+builder.Services.AddScoped<IDayStatusService, DayStatusService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 

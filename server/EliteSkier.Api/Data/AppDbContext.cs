@@ -18,6 +18,7 @@ public class AppDbContext : DbContext
     public DbSet <HeartRateZones> HeartRateZones {get; set;}
     public DbSet <User> Users {get; set;}
   
+    public DbSet <DayStatus> DayStatus {get; set;}
 
 
     protected override void OnModelCreating (ModelBuilder modelBuilder)
