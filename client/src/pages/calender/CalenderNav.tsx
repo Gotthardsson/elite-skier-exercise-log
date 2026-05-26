@@ -6,7 +6,7 @@ import type { TemplateType } from "../../types/TemplateType";
 import type { FolderType } from "../../types/FolderType";
 import { folderApi } from "../../api/folderApi";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface CalendarNavProps {
   currentDate: Date;
@@ -17,6 +17,45 @@ export default function CalendarNav({
   currentDate,
   setCurrentDate,
 }: CalendarNavProps) {
+  // --- HJÄLPFUNKTION: Räkna ut första måndagen i maj för ett givet år ---
+  const getFirstMondayOfMay = (year: number): Date => {
+    const date = new Date(year, 4, 1); // 1 maj
+    while (date.getDay() !== 1) {
+      // 1 = Måndag
+      date.setDate(date.getDate() + 1);
+    }
+    return date;
+  };
+
+  // --- HJÄLPFUNKTION: Räkna ut Säsong, Period och Vecka baserat på currentDate ---
+  const getSeasonPeriodWeek = (date: Date) => {
+    let seasonYear = date.getFullYear();
+    let startMonday = getFirstMondayOfMay(seasonYear);
+
+    // Om dagens datum är INNAN första måndagen i maj, tillhör vi föregående säsong
+    if (date < startMonday) {
+      seasonYear -= 1;
+      startMonday = getFirstMondayOfMay(seasonYear);
+    }
+
+    // Räkna ut differensen i millisekunder och konvertera till hela veckor
+    const diffTime = date.getTime() - startMonday.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const totalWeeks = Math.floor(diffDays / 7);
+
+    // En period är 4 veckor. Förhindra negativa värden eller för höga värden (t.ex. vid nyår)
+    const currentPeriod = Math.max(
+      1,
+      Math.min(13, Math.floor(totalWeeks / 4) + 1)
+    );
+    const currentWeek = Math.max(1, Math.min(4, (totalWeeks % 4) + 1));
+
+    return { seasonYear, period: currentPeriod, week: currentWeek };
+  };
+
+  // Hämta de aktuella värdena baserat på currentDate
+  const { seasonYear, period, week } = getSeasonPeriodWeek(currentDate);
+
   const changeDate = (days: number) => {
     const newDate = new Date(currentDate);
     newDate.setDate(newDate.getDate() + days);
@@ -25,36 +64,29 @@ export default function CalendarNav({
   const [folders, setFolders] = useState<FolderType[]>([]);
   const [templates, setTemplates] = useState<TemplateType[]>([]);
 
+  //Denna ska egentligen ligga i kalender för att förbättra effektiviteten på systemet.
   const fetchFoldersAndTemplates = async () => {
-      try {
-        const [foldersResponse, templatesResponse] = await Promise.all([
-          folderApi.getByUserId(1),
-          sessionTemplateApi.getByUserId(1)
-        ]);
-        setFolders(foldersResponse.data);
-        setTemplates(templatesResponse.data);
-      } catch (error) {
-        console.error("Kunde inte hämta mappar eller mallar:", error);
-      }
-    };
-
-  const handleJump = (seasonYear: number, period: number, week: number) => {
-    // Skid-säsongen startar ofta 1 maj
-    const date = new Date(seasonYear, 4, 1);
-
-    // Hitta första måndagen i maj
-    while (date.getDay() !== 1) {
-      date.setDate(date.getDate() + 1);
+    try {
+      const [foldersResponse, templatesResponse] = await Promise.all([
+        folderApi.getByUserId(1),
+        sessionTemplateApi.getByUserId(1),
+      ]);
+      setFolders(foldersResponse.data);
+      setTemplates(templatesResponse.data);
+    } catch (error) {
+      console.error("Kunde inte hämta mappar eller mallar:", error);
     }
-
-    // Hoppa framåt: (Perioder är ofta 4 veckor långa)
-    const totalWeeksToAdd = (period - 1) * 4 + (week - 1);
-    date.setDate(date.getDate() + totalWeeksToAdd * 7);
-
-    setCurrentDate(date);
-    
   };
+
+  const handleJump = (year: number, p: number, w: number) => {
+    const date = getFirstMondayOfMay(year);
+    const totalWeeksToAdd = (p - 1) * 4 + (w - 1);
+    date.setDate(date.getDate() + totalWeeksToAdd * 7);
+    setCurrentDate(date);
+  };
+  useEffect(() => {
     fetchFoldersAndTemplates();
+  }, []);
   return (
     <div className="calendar-nav-container">
       <div className="nav-group buttons">
@@ -64,18 +96,22 @@ export default function CalendarNav({
       </div>
 
       <div className="nav-group selectors">
+        {/* SäsongDropdown - bunden till seasonYear */}
         <select
           className="calendar-custom-select"
-          onChange={(e) => handleJump(Number(e.target.value), 1, 1)}
+          value={seasonYear}
+          onChange={(e) => handleJump(Number(e.target.value), period, week)}
         >
           <option value="2026">Säsong 26/27</option>
           <option value="2025">Säsong 25/26</option>
           <option value="2024">Säsong 24/25</option>
         </select>
 
+        {/* PeriodDropdown - bunden till period */}
         <select
           className="calendar-custom-select"
-          onChange={(e) => handleJump(2026, Number(e.target.value), 1)}
+          value={period}
+          onChange={(e) => handleJump(seasonYear, Number(e.target.value), week)}
         >
           {[...Array(13)].map((_, i) => (
             <option key={i} value={i + 1}>
@@ -84,9 +120,13 @@ export default function CalendarNav({
           ))}
         </select>
 
+        {/* VeckaDropdown - bunden till week */}
         <select
           className="calendar-custom-select"
-          onChange={(e) => handleJump(2026, 1, Number(e.target.value))}
+          value={week}
+          onChange={(e) =>
+            handleJump(seasonYear, period, Number(e.target.value))
+          }
         >
           {[1, 2, 3, 4].map((v) => (
             <option key={v} value={v}>

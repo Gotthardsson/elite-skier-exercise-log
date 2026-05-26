@@ -80,6 +80,63 @@
   color: #98a0ad;
 }
 
+/* --- DYNAMISKA STATUSHANTERINGAR FÖR KALENDERKNAPPARNA --- */
+
+/* Sjuk -> Mjuk Röd */
+.status-saved-sick button {
+  background-color: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+.status-saved-sick button:hover {
+  background-color: #dc2626 !important;
+}
+
+/* Skadad -> Mjuk Orange */
+.status-saved-injured button {
+  background-color: #f97316 !important;
+  border-color: #f97316 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+.status-saved-injured button:hover {
+  background-color: #ea580c !important;
+}
+
+/* Vilodag -> Mjuk Blå/Lila återhämtning */
+.status-saved-rest button {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+.status-saved-rest button:hover {
+  background-color: #2563eb !important;
+}
+
+/* Resdag -> Mjuk Turkos */
+.status-saved-travel button {
+  background-color: #06b6d4 !important;
+  border-color: #06b6d4 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+.status-saved-travel button:hover {
+  background-color: #0891b2 !important;
+}
+
+/* Bara biometri (Puls/HRV sparat) -> Behåll kalendergrön */
+.status-saved-biometrics button {
+  background-color: #2fd08f !important;
+  border-color: #2fd08f !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+.status-saved-biometrics button:hover {
+  background-color: #26b37a !important;
+}
+
 /* --- CALENDAR CELLS --- */
 .calendar-cell {
   min-height: 100%;
@@ -384,4 +441,27 @@
 .nav-plan-selected {
   background-color: #3b82f6;
   border: solid #3b82f6 1px;
+}
+
+/* Placerar statusknappen snyggt centrerad i bottenradens celler */
+.calendar-status-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px !important;
+  background-color: #f8fafc; /* Gör raden svagt ljusgrå för att markera att det är en sammanfattning */
+  border: none;
+}
+
+/* Gömmer det lilla plus-tecknet (+) på just statusraden */
+.calendar-status-cell .cell-plus {
+  display: none;
+}
+
+.calendar-status-cell .day-status-container {
+  width: 100%;
+}
+
+.calendar-status-cell .day-status-container button {
+  width: 100%;
 }
