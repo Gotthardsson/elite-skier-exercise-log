@@ -16,14 +16,11 @@ public class DayStatusController : ControllerBase
     }
 
     // GET: api/day-status?date=2026-05-25
-    [HttpGet]
-    public async Task<IActionResult> GetByDate([FromQuery] DateTime date)
+   [HttpGet]
+    public async Task<IActionResult> GetByDate([FromQuery] DateTime date, [FromQuery] int userId)
     {
-        var status = await _service.GetStatusByDateAsync(date);
-        
-        // Returnera 200 OK med data, eller 204 No Content om dagen inte har loggats än
-        if (status == null) return NoContent(); 
-        
+        // Om userId skickas från frontend blir det automatiskt '1' här nu istället för hårdkodat!
+        var status = await _service.GetStatusByDateAsync(userId, date);
         return Ok(status);
     }
 
@@ -38,10 +35,9 @@ public class DayStatusController : ControllerBase
     }
 
     [HttpGet("all")]
-    public async Task<IActionResult> GetAllStatuses()
+    public async Task<IActionResult> GetAllStatuses([FromQuery] int userId)
     {
-        var statuses = await _service.GetAllStatusesAsync();
-    
-    return Ok(statuses);
+        var statuses = await _service.GetAllStatusesAsync(userId);
+        return Ok(statuses);
     }
 }

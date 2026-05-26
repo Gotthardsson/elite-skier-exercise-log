@@ -16,6 +16,7 @@ export default function DayStatusModal(props: DayStatusModalProps) {
   // 1. Sätt upp ett grund-state baserat på dayType-interfacet
   const [status, setStatus] = useState<dayType>({
     id: 0,
+    userId: 1,
     sick: false,
     injured: false,
     day: "",

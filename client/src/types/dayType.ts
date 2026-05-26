@@ -1,5 +1,6 @@
 export interface dayType {
   id: number;
+  userId: number;
   sick: boolean;
   injured: boolean;
   day: string;

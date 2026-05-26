@@ -4,8 +4,7 @@ namespace EliteSkier.Api.Services;
 
 public interface IDayStatusService
 {
-    Task<DayStatusDto?> GetStatusByDateAsync(DateTime date);
+    Task<DayStatusDto?> GetStatusByDateAsync(int userId, DateTime date);
+    Task<List<DayStatusDto>> GetAllStatusesAsync(int userId);
     Task<DayStatusDto> SaveStatusAsync(DayStatusDto dto);
-
-    Task<List<DayStatusDto>> GetAllStatusesAsync();
 }

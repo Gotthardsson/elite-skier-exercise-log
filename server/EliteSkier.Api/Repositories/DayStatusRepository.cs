@@ -12,16 +12,15 @@ public class DayStatusRepository : IDayStatusRepository
         _context = context;
     }
 
-    public async Task<DayStatus?> GetByDateAsync(DateTime date)
+   public async Task<DayStatus?> GetByDateAsync(int userId, DateTime date)
     {
-        // ÄNDRAT: Använd _context.DayStatus direkt istället för .Set<dayStatus>()
-        return await _context.DayStatus
-            .FirstOrDefaultAsync(x => x.Day.Date == date.Date);
+    return await _context.DayStatus
+        .FirstOrDefaultAsync(x => x.UserId == userId && x.Day.Date == date.Date);
     }
 
    public async Task<DayStatus> UpsertAsync(DayStatus status)
     {
-        var existing = await GetByDateAsync(status.Day);
+        var existing = await GetByDateAsync(status.UserId, status.Day);
 
         if (existing != null)
         {
@@ -44,8 +43,10 @@ public class DayStatusRepository : IDayStatusRepository
             return status;
         }
     }
-    public async Task<List<DayStatus>> GetAllAsync()
+    public async Task<List<DayStatus>> GetAllAsync(int userId)
     {   
-    return await _context.DayStatus.ToListAsync();
-    }
+    return await _context.DayStatus
+        .Where(x => x.UserId == userId)
+        .ToListAsync();
+    }       
 }
