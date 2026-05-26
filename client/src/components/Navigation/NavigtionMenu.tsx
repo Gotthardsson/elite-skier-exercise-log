@@ -18,6 +18,16 @@ export default function NavigationMenu() {
 
       <div className="nav-items">
         <NavLink
+          to="/athletes"
+          className={({ isActive }) =>
+            isActive ? "nav-item selected" : "nav-item"
+          }
+          style={{ display: "none" }}
+          id="athletes-nav-link"
+        >
+          Atleter
+        </NavLink>
+        <NavLink
           to="/calendar"
           className={({ isActive }) =>
             isActive ? "nav-item selected" : "nav-item"

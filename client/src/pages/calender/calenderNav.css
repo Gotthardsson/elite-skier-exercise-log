@@ -58,6 +58,12 @@
   background-color: #fff;
   color: #0f172a;
 }
+.dropdowns-container {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-left: auto;
+}
 
 /* Responsivitet för mobilen */
 @media (max-width: 768px) {

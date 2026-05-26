@@ -7,15 +7,20 @@ import type { FolderType } from "../../types/FolderType";
 import { folderApi } from "../../api/folderApi";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import { useEffect, useState } from "react";
+import AthleteDropdown from "./AthleteDropdown";
 
 interface CalendarNavProps {
   currentDate: Date;
   setCurrentDate: (date: Date) => void;
+  userId: number;
+  setUserId: (userId: number) => void;
 }
 
 export default function CalendarNav({
   currentDate,
   setCurrentDate,
+  userId,
+  setUserId
 }: CalendarNavProps) {
   // --- HJÄLPFUNKTION: Räkna ut första måndagen i maj för ett givet år ---
   const getFirstMondayOfMay = (year: number): Date => {
@@ -64,6 +69,34 @@ export default function CalendarNav({
   const [folders, setFolders] = useState<FolderType[]>([]);
   const [templates, setTemplates] = useState<TemplateType[]>([]);
 
+  const [isCoachMode, setIsCoachMode] = useState<boolean>(false);
+   
+  
+  const handleUserIdChange = (newUserId: number) => {
+    setUserId(newUserId);
+  }
+
+  const handleCoachModeToggle = () => {
+  setIsCoachMode((prevMode) => {
+    const nextMode = !prevMode;
+    
+    // Om nästa läge är falskt (vi stänger av tränarläget),
+    // återställ userId till demonstrations-profilen (1)
+    if (!nextMode) {
+      setUserId(1);
+    }
+    
+    return nextMode;
+  });
+};
+
+  const handleJump = (seasonYear: number, period: number, week: number) => {
+    // Skid-säsongen startar ofta 1 maj
+    const date = new Date(seasonYear, 4, 1);
+
+    // Hitta första måndagen i maj
+    while (date.getDay() !== 1) {
+      date.setDate(date.getDate() + 1);
   //Denna ska egentligen ligga i kalender för att förbättra effektiviteten på systemet.
   const fetchFoldersAndTemplates = async () => {
     try {
@@ -135,7 +168,18 @@ export default function CalendarNav({
           ))}
         </select>
       </div>
-      <TemplateDropdown folders={folders || []} templates={templates || []} />
+      <ButtonPrimary 
+      className="coach-button"
+      style={{ backgroundColor: isCoachMode ? "#007bff" : "#000000" }}
+      onClick={handleCoachModeToggle}
+      text="Tränarläge"
+      ></ButtonPrimary>
+      <div className="dropdowns-container"> 
+        {isCoachMode && (
+          <AthleteDropdown athleteId={userId} onAthleteChange={handleUserIdChange} />
+        )}
+        <TemplateDropdown folders={folders || []} templates={templates || []} />
+      </div>
     </div>
   );
 }

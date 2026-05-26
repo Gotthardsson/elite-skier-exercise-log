@@ -35,17 +35,22 @@ export default function Calendar({ activities }: CalenderProps) {
   );
   const [savedDayStatuses, setSavedDayStatuses] = useState<dayType[]>([]);
   const [editClicked, setEditClicked] = useState(false);
+  const [userId, setUserId] = useState(1); // Hårt kodat för demo, byt ut mot dynamiskt id vid implementering
 
   const days = useMemo(() => getWeekDays(currentDate), [currentDate]);
 
   const fetchSessions = async () => {
     try {
-      const response = await workoutSessionApi.getByUserId(1);
+      const response = await workoutSessionApi.getByUserId(userId);
       setSessions(response.data);
     } catch (error) {
       console.error("Kunde inte hämta pass:", error);
     }
   };
+
+  useEffect(() => {
+    fetchSessions();
+  }, [userId]);
 
   const fetchAllDayStatuses = async () => {
     try {
@@ -70,7 +75,7 @@ export default function Calendar({ activities }: CalenderProps) {
     try {
       const template = JSON.parse(rawTemplateData);
       const newSession = {
-        userId: 1,
+        userId: userId, // Ditt hårdkodade demo-id
         activityId: template.activityId || 0,
         scheduledDate: date.toISOString(),
         timeOfDay: slot,
@@ -211,7 +216,7 @@ export default function Calendar({ activities }: CalenderProps) {
     e: React.MouseEvent,
     session: SessionType,
     isLogged: boolean,
-    editClicked: boolean
+    editClicked: boolean,
   ) {
     e.stopPropagation();
     setDateOfCell(new Date(session.scheduledDate));
@@ -268,7 +273,12 @@ export default function Calendar({ activities }: CalenderProps) {
 
   return (
     <section className="calendar">
-      <CalendarNav currentDate={currentDate} setCurrentDate={setCurrentDate} />
+      <CalendarNav
+        currentDate={currentDate}
+        setCurrentDate={setCurrentDate}
+        userId={userId}
+        setUserId={setUserId}
+      />
 
       <div className="calendar-grid" style={{ border: borderStyle }}>
         <div className="calendar-corner">
@@ -298,7 +308,7 @@ export default function Calendar({ activities }: CalenderProps) {
               const sessionsForCell = sessions.filter(
                 (s) =>
                   isSameDate(day.fullDate, s.scheduledDate) &&
-                  s.timeOfDay === slot
+                  s.timeOfDay === slot,
               );
 
               return (
@@ -311,12 +321,12 @@ export default function Calendar({ activities }: CalenderProps) {
                     const today = new Date(
                       now.getFullYear(),
                       now.getMonth(),
-                      now.getDate()
+                      now.getDate(),
                     );
                     const clickedDay = new Date(
                       clickedDate.getFullYear(),
                       clickedDate.getMonth(),
-                      clickedDate.getDate()
+                      clickedDate.getDate(),
                     );
 
                     setDateOfCell(day.fullDate);
@@ -494,6 +504,7 @@ export default function Calendar({ activities }: CalenderProps) {
           }
         }}
         activities={activities}
+        userId={userId}
         date={dateOfCell}
         timeOfDay={timeOfDay}
         onSessionSaved={fetchSessions}

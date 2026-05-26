@@ -40,6 +40,7 @@ builder.Services.AddScoped<ISessionTemplateRepository, SessionTemplateRepository
 builder.Services.AddScoped<IFolderRepository, FolderRepository>();
 builder.Services.AddScoped<IStravaRepository, StravaRepository>();
 builder.Services.AddScoped<IUserHeartRateRepository, UserHeartRateRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IDayStatusRepository, DayStatusRepository>();
 
 // Registrera Service
@@ -49,6 +50,7 @@ builder.Services.AddScoped<ISessionTemplateService, SessionTemplateService>();
 builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<IStravaService, StravaService>();
 builder.Services.AddScoped<IHeartrateZoneService, HeartrateZoneService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDayStatusService, DayStatusService>();
 
 

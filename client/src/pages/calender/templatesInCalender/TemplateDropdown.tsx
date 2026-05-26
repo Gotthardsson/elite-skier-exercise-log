@@ -41,13 +41,13 @@ export default function TemplateDropdown({ folders, templates }: TemplateDropdow
   const looseTemplates = templates.filter(t => !t.folderId && t.folderId !== 0);
 
   return (
-    <div ref={dropdownRef} className="template-dropdown-wrapper" style={{ position: "relative", marginLeft: "auto" }}>
+    <div ref={dropdownRef} className="template-dropdown-wrapper" style={{ position: "relative", marginLeft: "auto", width: "100px" }}>
       <button 
         className="btn btn-primary"
         onClick={() => setIsOpen(!isOpen)}
         style={{ display: "flex", alignItems: "center", gap: "6px" }}
       >
-        📑 Mallar ▾
+         Mallar ▾
       </button>
 
       {isOpen && (
@@ -117,7 +117,7 @@ export default function TemplateDropdown({ folders, templates }: TemplateDropdow
                             fontSize: "13px"
                           }}
                         >
-                          📄 {template.title}
+                           {template.title}
                         </div>
                       ))
                     )}
@@ -149,7 +149,7 @@ export default function TemplateDropdown({ folders, templates }: TemplateDropdow
                     fontSize: "13px"
                   }}
                 >
-                  📄 {template.title}
+                   {template.title}
                 </div>
               ))}
             </>

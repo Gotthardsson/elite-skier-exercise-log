@@ -35,8 +35,8 @@ public class WorkoutSessionsController : ControllerBase
 
         try
         {
-            // Vi hårdkodar UserId till 1 för nu, tills du har ett inloggningssystem
-            sessionDto.UserId = 1; 
+            
+            
             
             var createdSession = await _workoutSessionService.CreateSessionAsync(sessionDto);
             

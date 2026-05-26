@@ -10,6 +10,8 @@ import { getActivities } from "./api/activityApi";
 import type { Activity } from "./types/Activity";
 import Integrations from "./pages/integrations/Integrations";
 import StravaCallback from "./pages/integrations/StravaCallback";
+import Athletes from "./pages/athletes/Athletes";
+
 
 //https://www.w3schools.com/react/react_router.asp
 
@@ -37,12 +39,15 @@ function App() {
               path="/templates"
               element={<Templates activities={activities} />}
             />
+            <Route path="/athletes" element={<Athletes />} />
             <Route path="/account" element={<Account />} />
 
             <Route path="/integrations" element={<Integrations />} />
 
             <Route path="/strava-callback" element={<StravaCallback />} />
+            
           </Routes>
+          
         </main>
       </div>
     </BrowserRouter>
