@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using EliteSkier.Api.Data;
 using EliteSkier.Api.Repositories;
 using EliteSkier.Api.Services;
+using EliteSkier.Api.Data.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 // I början av Program.cs
@@ -9,7 +10,14 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // 1. Inställningar & Databas
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,                  // Max antal försök
+            maxRetryDelay: TimeSpan.FromSeconds(30), // Max väntetid mellan försök
+            errorCodesToAdd: null              // Specifika felkoder (null = standard)
+        )
+    ));
 
 // 2. CORS - Registrera policyn (Viktigt för React!)
 builder.Services.AddCors(options =>
@@ -33,6 +41,7 @@ builder.Services.AddScoped<IFolderRepository, FolderRepository>();
 builder.Services.AddScoped<IStravaRepository, StravaRepository>();
 builder.Services.AddScoped<IUserHeartRateRepository, UserHeartRateRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IDayStatusRepository, DayStatusRepository>();
 
 // Registrera Service
 builder.Services.AddScoped<IActivityService, ActivityService>();
@@ -42,6 +51,7 @@ builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<IStravaService, StravaService>();
 builder.Services.AddScoped<IHeartrateZoneService, HeartrateZoneService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IDayStatusService, DayStatusService>();
 
 
 // 4. API & Swagger dokumentation

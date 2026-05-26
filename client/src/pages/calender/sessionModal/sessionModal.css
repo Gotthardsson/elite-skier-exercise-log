@@ -129,7 +129,25 @@
   background: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
+.sm-error-text {
+  color: #ef4444; /* En tydlig röd färg */
+  font-size: 0.85rem; /* Något mindre text än vanliga labels */
+  margin-top: 4px; /* Lite avstånd från dropdownen */
+  display: block; /* Gör att den lägger sig på en egen rad under */
+  font-weight: 500;
+  animation: fadeIn 0.2s ease-in-out; /* Valfritt: ger en mjuk övergång när texten dyker upp */
+}
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 /* --- KALENDER INPUT (PILLER-FORM) --- */
 .sm-calendar-input {
   width: 100% !important;

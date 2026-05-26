@@ -1,12 +1,20 @@
 import "./navigation.css";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+// Importera sportiga och passande ikoner
+import { Calendar, BarChart3, FolderHeart, Zap, User } from "lucide-react";
 
 export default function NavigationMenu() {
+  const navigate = useNavigate();
   return (
     <nav className="navigation-bar">
-      <div className="nav-brand">SkiPlan</div>
-
-      <div className="nav-divider" />
+      <div
+        className="nav-brand-container"
+        onClick={() => navigate("/calendar")}
+        style={{ cursor: "pointer" }}
+      >
+        <div className="nav-brand-logo">🎿</div>
+        <div className="nav-brand">SkiPlan</div>
+      </div>
 
       <div className="nav-items">
         <NavLink
@@ -25,7 +33,8 @@ export default function NavigationMenu() {
             isActive ? "nav-item selected" : "nav-item"
           }
         >
-          Kalender
+          <Calendar className="nav-icon" size={20} />
+          <span>Kalender</span>
         </NavLink>
 
         <NavLink
@@ -34,7 +43,8 @@ export default function NavigationMenu() {
             isActive ? "nav-item selected" : "nav-item"
           }
         >
-          Statistik
+          <BarChart3 className="nav-icon" size={20} />
+          <span>Statistik</span>
         </NavLink>
 
         <NavLink
@@ -43,7 +53,8 @@ export default function NavigationMenu() {
             isActive ? "nav-item selected" : "nav-item"
           }
         >
-          Mallar
+          <FolderHeart className="nav-icon" size={20} />
+          <span>Mallar</span>
         </NavLink>
 
         <NavLink
@@ -52,7 +63,8 @@ export default function NavigationMenu() {
             isActive ? "nav-item selected" : "nav-item"
           }
         >
-          Integrationer
+          <Zap className="nav-icon" size={20} />
+          <span>Integrationer</span>
         </NavLink>
 
         <NavLink
@@ -61,11 +73,15 @@ export default function NavigationMenu() {
             isActive ? "nav-item selected" : "nav-item"
           }
         >
-          Konto
+          <User className="nav-icon" size={20} />
+          <span>Konto</span>
         </NavLink>
       </div>
 
-      <div className="nav-footer">&copy; Elit skier training log</div>
+      <div className="nav-footer">
+        <p>Elit Skier Log</p>
+        <span>v1.2.0</span>
+      </div>
     </nav>
   );
 }

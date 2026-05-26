@@ -2,76 +2,115 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 220px;
+  width: 260px; /* Ökad bredd för mer rymd */
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 24px 20px 20px;
+  padding: 32px 24px; /* Mer luft i paddingen */
   background: #ffffff;
-  border-right: 1px solid #e5e7eb;
+  border-right: 1px solid #f3f4f6; /* Ljusare och mjukare kant */
   box-sizing: border-box;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.02); /* Ultralätt skugga från sidan */
 }
-.nav-divider {
-  height: 1px;
-  background-color: #6b7280;
-  margin: 0 -20px 20px;
+
+/* Varumärkes-sektionen */
+.nav-brand-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px; /* Mer avstånd ner till menyvalen */
+  padding-left: 8px;
+}
+
+.nav-brand-logo {
+  font-size: 1.5rem;
 }
 
 .nav-brand {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: #111827;
-  margin-bottom: 24px;
-  padding: 0 6px;
+  font-size: 1.35rem; /* Större och tydligare text */
+  font-weight: 900;
+  color: #0f172a; /* Skönare mörk färg (slate-900) */
+  letter-spacing: -0.03em;
 }
 
+/* Menyvalen */
 .nav-items {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px; /* Tätare mellan valen för ett modernare list-utseende */
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  min-height: 48px;
+  gap: 14px; /* Avstånd mellan ikon och text */
+  min-height: 46px;
   padding: 0 16px;
-  border-radius: 14px;
+  border-radius: 12px; /* Lite mindre rundade hörn för skarpare look */
   text-decoration: none;
-  color: #111827;
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  color: #64748b; /* Mjukare grå som default-text (slate-500) */
+  font-size: 0.95rem;
+  font-weight: 600; /* Halvfet istället för supertung */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-sizing: border-box;
 }
 
+/* Ikonen inuti menyvalet */
+.nav-icon {
+  color: #94a3b8; /* Ljusgrå ikon när den inte är vald */
+  transition: color 0.2s ease;
+}
+
+/* Hover-effekt på icke-valda element */
 .nav-item:hover {
-  background-color: #f3f4f6;
-  color: #000000;
+  background-color: #f8fafc; /* Mycket mjukare grå bakgrund (slate-50) */
+  color: #0f172a;
+}
+
+.nav-item:hover .nav-icon {
+  color: #0f172a; /* Ikonen mörknar vid hover */
 }
 
 .nav-item:active {
   transform: scale(0.98);
 }
 
+/* Aktivt/valt menyval */
 .selected {
-  background-color: #111827;
-  color: #ffffff;
-  box-shadow: 0 8px 20px rgba(17, 24, 39, 0.12);
+  background-color: #0f172a; /* Matcha den sköna slate-900 färgen */
+  color: #ffffff !important;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15); /* Modernare diffus skugga */
+}
+
+.selected .nav-icon {
+  color: #2fd08f; /* Din kalender-gröna profilfärg på den aktiva ikonen! 🔥 */
 }
 
 .selected:hover {
-  background-color: #111827;
+  background-color: #0f172a;
   color: #ffffff;
 }
 
+/* Sidfoten längst ner */
 .nav-footer {
   margin-top: auto;
-  padding-top: 16px;
-  font-size: 0.85rem;
-  color: #6b7280;
-  line-height: 1.4;
+  padding-left: 8px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 20px;
+}
+
+.nav-footer p {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.nav-footer span {
+  font-size: 0.7rem;
+  color: #cbd5e1;
+  display: block;
+  margin-top: 2px;
 }
