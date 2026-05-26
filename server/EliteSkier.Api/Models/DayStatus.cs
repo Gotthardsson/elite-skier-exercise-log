@@ -8,6 +8,9 @@ public class DayStatus
     [Column ("id")]
     public int Id { get; set; }
 
+    [Column ("user_id")]
+    public int UserId { get; set; }
+
     [Column ("sick")]
     public bool Sick { get; set; }
 

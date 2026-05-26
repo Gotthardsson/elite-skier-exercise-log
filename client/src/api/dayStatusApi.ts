@@ -1,7 +1,6 @@
 import apiClient from "./apiClient";
 import type { dayType } from "../types/dayType";
 
-// Hjälpfunktion för att göra om alla typer av datum till en säker lokal "YYYY-MM-DD"-sträng
 const formatLocalYYYYMMDD = (date: Date | string): string => {
   const d = date instanceof Date ? date : new Date(date);
   const year = d.getFullYear();
@@ -12,20 +11,23 @@ const formatLocalYYYYMMDD = (date: Date | string): string => {
 
 export const dayStatusApi = {
   /**
-   * Hämtar dagsstatus för ett specifikt datum.
+   * Hämtar dagsstatus för ett specifikt datum och en specifik användare.
    */
   getByDate: async (date: string | Date) => {
     const dateStr = formatLocalYYYYMMDD(date);
-    return await apiClient.get<dayType | null>(`/day-status?date=${dateStr}`);
+    // FIXAT: Skicka med userId som en query-parameter (matchar [FromQuery] i C# om du har det där)
+    return await apiClient.get<dayType | null>(
+      `/day-status?date=${dateStr}&userId=1`
+    );
   },
 
   /**
    * Sparar eller uppdaterar en dagsstatus (Upsert).
    */
   saveStatus: async (status: dayType) => {
-    // Säkra att datumet i objektet är en ren lokal sträng innan det skickas till .NET
     const cleanStatus = {
       ...status,
+      userId: 1, // FIXAT: Garantera att userId följer med i bodyn till din POST
       day: formatLocalYYYYMMDD(status.day),
     };
 
@@ -33,9 +35,10 @@ export const dayStatusApi = {
   },
 
   /**
-   * Hämtar alla dagsstatusar.
+   * Hämtar alla dagsstatusar för den inloggade användaren.
    */
   getAllStatuses: async () => {
-    return await apiClient.get<dayType[]>("/day-status/all");
+    // FIXAT: Skicka med userId till din /all-endpoint
+    return await apiClient.get<dayType[]>("/day-status/all?userId=1");
   },
 };

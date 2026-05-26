@@ -13,9 +13,10 @@ public class DayStatusService : IDayStatusService
         _repository = repository;
     }
 
-    public async Task<DayStatusDto?> GetStatusByDateAsync(DateTime date)
+    // ÄNDRAT: Lagt till int userId i parametern och skickar med det till repo
+    public async Task<DayStatusDto?> GetStatusByDateAsync(int userId, DateTime date)
     {
-        var model = await _repository.GetByDateAsync(date);
+        var model = await _repository.GetByDateAsync(userId, date);
         if (model == null) return null;
 
         return MapToDto(model);
@@ -26,6 +27,7 @@ public class DayStatusService : IDayStatusService
         var model = new DayStatus
         {
             Id = dto.Id,
+            UserId = dto.UserId,
             Sick = dto.Sick,
             Injured = dto.Injured,
             Day = dto.Day.Date, // Spara rent datum utan klockslag
@@ -39,26 +41,27 @@ public class DayStatusService : IDayStatusService
         return MapToDto(savedModel);
     }
 
-
     private static DayStatusDto MapToDto(DayStatus model)
     {
         return new DayStatusDto
         {
             Id = model.Id,
+            UserId = model.UserId,
             Sick = model.Sick,
             Injured = model.Injured,
             Day = model.Day,
             RestingHeartRate = model.RestingHeartRate,
             Hrv = model.Hrv,
-            RestDay=model.RestDay,
-            TravelDay=model.TravelDay
+            RestDay = model.RestDay,
+            TravelDay = model.TravelDay
         };
     }
 
-    public async Task<List<DayStatusDto>> GetAllStatusesAsync()
+    // ÄNDRAT: Lagt till int userId i parametern och skickar med det till repo
+    public async Task<List<DayStatusDto>> GetAllStatusesAsync(int userId)
     {
-        // 1. Hämta alla modeller från databasen via ditt repository
-        var models = await _repository.GetAllAsync(); 
+        // 1. Hämta alla modeller filtrerat på användaren från databasen via ditt repository
+        var models = await _repository.GetAllAsync(userId); 
         
         // 2. Mappa om varje modell i listan till en DTO med hjälp av din existerande MapToDto-metod
         return models.Select(model => MapToDto(model)).ToList();
