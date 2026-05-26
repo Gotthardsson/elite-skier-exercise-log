@@ -10,14 +10,14 @@ import {
   getAllTimeStats,
 } from "./workoutStatsService.ts";
 import { workoutSessionApi } from "../../api/workoutSessionApi.ts";
+import { dayStatusApi } from "../../api/dayStatusApi.ts"; // NY: Importera ditt dagsstatus-API
 import type { SessionType } from "../../types/SessionType.ts";
-
-// KVAR ATT FIXA:
-// SJUKDAGAR OCH SKADEDAGAR (hårdkodade just nu),
-// VISA "PERIOD DATA" FÖR SÄSONG I STAPLAR
+import type { dayType } from "../../types/dayType.ts"; // NY: Importera din typ
+import TimePerPeriod from "./TimePerPeriod";
 
 function Stats(props: { activities: any[] }) {
   const [sessions, setSessions] = useState<SessionType[]>([]);
+  const [dayStatuses, setDayStatuses] = useState<dayType[]>([]); // NY: State för dagsstatusar
   const [timeSpan, setTimeSpan] = useState("Säsong");
   const [season, setSeason] = useState("26/27");
   const [period, setPeriod] = useState("Alla perioder");
@@ -38,20 +38,25 @@ function Stats(props: { activities: any[] }) {
     "Vecka 4",
   ];
 
+  // Hämta både träningspass och dagsstatusar vid laddning
   useEffect(() => {
-    const fetchSessions = async () => {
+    const fetchData = async () => {
       try {
-        // Antar userId 1 för tillfället enligt din kod
-        const response = await workoutSessionApi.getByUserId(1);
-        setSessions(response.data);
+        const sessionResponse = await workoutSessionApi.getByUserId(1);
+        setSessions(sessionResponse.data);
+
+        const statusResponse = await dayStatusApi.getAllStatuses();
+        if (statusResponse.status === 200 && statusResponse.data) {
+          setDayStatuses(statusResponse.data);
+        }
       } catch (error) {
-        console.error("Kunde inte hämta pass:", error);
+        console.error("Kunde inte hämta data till statistiken:", error);
       }
     };
-    fetchSessions();
+    fetchData();
   }, []);
 
-  // Beräkna statistik baserat på valen i UI
+  // Beräkna träningsstatistik baserat på valen i UI
   const activeStats = useMemo(() => {
     if (!sessions.length || !props.activities.length) return null;
 
@@ -60,15 +65,12 @@ function Stats(props: { activities: any[] }) {
     }
 
     if (timeSpan === "Säsong") {
-      // 1. Hela säsongen vald
       if (period === "Alla perioder") {
         return getStatsForSeason(sessions, props.activities, season);
       }
 
-      // 2. Specifik period vald
       const periodNumber = parseInt(period.replace("Period ", ""));
 
-      // 3. Specifik vecka inom perioden vald
       if (periodView !== "Hela perioden") {
         const weekInPeriodNumber = parseInt(periodView.replace("Vecka ", ""));
         return getStatsForWeekInPeriod(
@@ -80,7 +82,6 @@ function Stats(props: { activities: any[] }) {
         );
       }
 
-      // Returnera statistik för hela perioden om ingen specifik vecka är vald
       return getStatsForPeriod(
         sessions,
         props.activities,
@@ -92,12 +93,83 @@ function Stats(props: { activities: any[] }) {
     return null;
   }, [timeSpan, period, periodView, season, sessions, props.activities]);
 
-  // Just nu hårdkodat
-  const sickDays = 14;
-  const injuryDays = 40;
+  // Räkna ut ackumulerad tid per period för stapeldiagrammet
+  const periodChartData = useMemo(() => {
+    // Vi vill BARA visa detta om vyn är "Säsong" och urvalet är "Alla perioder"
+    if (
+      timeSpan !== "Säsong" ||
+      period !== "Alla perioder" ||
+      !sessions.length
+    ) {
+      return null;
+    }
+
+    // Skapa en array för de 13 perioderna (P1 till P13)
+    return Array.from({ length: 13 }, (_, i) => {
+      const periodNumber = i + 1;
+
+      // Hämta ut statistiken för just denna specifika period via din service
+      const statsForThisPeriod = getStatsForPeriod(
+        sessions,
+        props.activities,
+        periodNumber,
+        season
+      );
+
+      // Hämta totalt antal minuter och konvertera till timmar
+      const totalMinutes = statsForThisPeriod?.total?.logged?.totalMinutes || 0;
+      const hours = totalMinutes / 60;
+
+      return {
+        period: periodNumber,
+        hours: hours,
+      };
+    });
+  }, [timeSpan, period, season, sessions, props.activities]);
+
+  // NYTT: Beräkna och filtrera dagsstatusar dynamiskt baserat på ditt aktiva tidsfilter!
+  const statusSummary = useMemo(() => {
+    let filteredStatuses = [...dayStatuses];
+
+    // Om vi bara kollar på en specifik säsong (t.ex. "26/27" startar 1 maj 2026)
+    if (timeSpan === "Säsong") {
+      const startYear = 2000 + parseInt(season.split("/")[0]); // Blir 2026
+      const seasonStart = new Date(startYear, 4, 1); // 1 Maj
+      const seasonEnd = new Date(startYear + 1, 3, 30, 23, 59, 59); // 30 April året efter
+
+      filteredStatuses = filteredStatuses.filter((s) => {
+        const statusDate = new Date(s.day);
+        return statusDate >= seasonStart && statusDate <= seasonEnd;
+      });
+
+      // Om en specifik period eller vecka är vald, synkar vi enklast genom att matcha
+      // de exakta datumen som dina aktiva träningspass i 'activeStats' har fallit inom.
+      if (period !== "Alla perioder" && activeStats?.periodDates) {
+        const { start, end } = activeStats.periodDates;
+        // Obs: Om dina workoutStatsService-metoder inte returnerar datumintervall,
+        // kan du använda de generella datumen från dina pass. Här matchar vi mot activeStats period.
+        const pStart = new Date(start);
+        const pEnd = new Date(end);
+
+        filteredStatuses = filteredStatuses.filter((s) => {
+          const d = new Date(s.day);
+          return d >= pStart && d <= pEnd;
+        });
+      }
+    }
+
+    // Räkna ihop antal förekomster i den filtrerade listan
+    return {
+      sick: filteredStatuses.filter((s) => s.sick).length,
+      injured: filteredStatuses.filter((s) => s.injured).length,
+      rest: filteredStatuses.filter((s) => s.restDay).length,
+      travel: filteredStatuses.filter((s) => s.travelDay).length,
+    };
+  }, [timeSpan, season, period, periodView, dayStatuses, activeStats]);
 
   return (
     <main>
+      {/* 1. Dropdown-menyerna för filtrering */}
       <div className="stats-menu">
         <SelectField
           label="Vy"
@@ -121,7 +193,7 @@ function Stats(props: { activities: any[] }) {
               value={period}
               onChange={(val) => {
                 setPeriod(val);
-                setPeriodView("Hela perioden"); // Återställ veckovyn vid periodbyte
+                setPeriodView("Hela perioden");
               }}
               options={periodOptions}
               className="dropdown-period dropdown-stats"
@@ -140,34 +212,62 @@ function Stats(props: { activities: any[] }) {
         )}
       </div>
 
+      {/* 2. De fyra sammanfattande rutorna (Tid, Hälsa, Logistik) */}
       <div className="stats-div">
         <div className="stats-item">
           <label>Loggad tid</label>
           <br />
-          <strong>{activeStats?.total?.logged?.formatted || "0h 0m"}</strong>
+          <strong className="logged-time">
+            {activeStats?.total?.logged?.formatted || "0h 0m"}
+          </strong>
         </div>
         <div className="stats-item">
           <label>Planerad tid</label>
           <br />
-          <strong>{activeStats?.total?.planned?.formatted || "0h 0m"}</strong>
+          <strong className="planned-time">
+            {activeStats?.total?.planned?.formatted || "0h 0m"}
+          </strong>
         </div>
-        <div className="stats-item">
-          <label>Sjuk/Skadad (dagar)</label>
+        <div className="stats-item status-indicator-sick-injured">
+          <label>Hälsa (Sjuk / Skadad)</label>
           <br />
           <strong>
-            {sickDays}/{injuryDays}
+            <span className="text-red">🤒 {statusSummary.sick}d</span>{" "}
+            <span className="text-orange">🤕 {statusSummary.injured}d</span>
+          </strong>
+        </div>
+        <div className="stats-item status-indicator-rest-travel">
+          <label>Logistik (Vila / Resa)</label>
+          <br />
+          <strong>
+            <span className="text-blue">💤 {statusSummary.rest}d</span>{" "}
+            <span className="text-cyan">✈️ {statusSummary.travel}d</span>
           </strong>
         </div>
       </div>
 
+      {/* 3. Diagramsektionen – renderas bara om det finns data */}
       {activeStats ? (
         <>
+          {/* Visar period-stapeldiagrammet överst, MEN bara om 'Säsong' och 'Alla perioder' är valt */}
+          {periodChartData && (
+            <div className="distribution-diagrams full-width-diagram">
+              <TimePerPeriod
+                data={periodChartData}
+                onPeriodClick={(pNum) => setPeriod(`Period ${pNum}`)}
+              />
+            </div>
+          )}
+
+          {/* Pulszonsfördelning */}
           <div className="distribution-diagrams">
             <TimePerZone
               totalMinutes={activeStats?.total?.logged?.totalMinutes || 0}
               data={activeStats?.tiz || []}
             />
           </div>
+
+          {/* Sportfördelning */}
           <div className="distribution-diagrams">
             <TimePerSport
               totalMinutes={activeStats?.total?.logged?.totalMinutes || 0}
