@@ -90,14 +90,6 @@ export default function CalendarNav({
   });
 };
 
-  const handleJump = (seasonYear: number, period: number, week: number) => {
-    // Skid-säsongen startar ofta 1 maj
-    const date = new Date(seasonYear, 4, 1);
-
-    // Hitta första måndagen i maj
-    while (date.getDay() !== 1) {
-      date.setDate(date.getDate() + 1);
-  //Denna ska egentligen ligga i kalender för att förbättra effektiviteten på systemet.
   const fetchFoldersAndTemplates = async () => {
     try {
       const [foldersResponse, templatesResponse] = await Promise.all([
@@ -117,6 +109,7 @@ export default function CalendarNav({
     date.setDate(date.getDate() + totalWeeksToAdd * 7);
     setCurrentDate(date);
   };
+
   useEffect(() => {
     fetchFoldersAndTemplates();
   }, []);
