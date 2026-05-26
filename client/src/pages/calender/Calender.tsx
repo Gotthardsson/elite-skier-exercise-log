@@ -8,12 +8,8 @@ import { workoutSessionApi } from "../../api/workoutSessionApi";
 import type { SessionType } from "../../types/SessionType";
 import Swal from "sweetalert2";
 
-
-
-
 interface CalenderProps {
   activities: Activity[];
-  
 }
 
 const timeSlots = ["Morgon", "Förmiddag", "Eftermiddag", "Kväll"];
@@ -28,32 +24,37 @@ export default function Calendar({ activities }: CalenderProps) {
   const [sessions, setSessions] = useState<SessionType[]>([]);
   const [plannedSessionClicked, setPlannedSessionClicked] = useState(false);
   const [selectedSession, setSelectedSession] = useState<SessionType | null>(
-    null);
-  
+    null,
+  );
+
   const [editClicked, setEditClicked] = useState(false);
+  const [userId, setUserId] = useState(1); // Hårt kodat för demo, byt ut mot dynamiskt id vid implementering
 
   const days = useMemo(() => getWeekDays(currentDate), [currentDate]);
 
   const fetchSessions = async () => {
     try {
-      const response = await workoutSessionApi.getByUserId(1);
+      const response = await workoutSessionApi.getByUserId(userId);
       setSessions(response.data);
     } catch (error) {
       console.error("Kunde inte hämta pass:", error);
     }
   };
-  
 
   useEffect(() => {
     fetchSessions();
-  }, []);
+  }, [userId]);
 
-  const handleTemplateDrop = async (date: Date, slot: string, rawTemplateData: string) => {
+  const handleTemplateDrop = async (
+    date: Date,
+    slot: string,
+    rawTemplateData: string,
+  ) => {
     try {
       const template = JSON.parse(rawTemplateData);
       // Bygg upp ett nytt pass baserat på mallens parametrar
       const newSession = {
-        userId: 1, // Ditt hårdkodade demo-id
+        userId: userId, // Ditt hårdkodade demo-id
         activityId: template.activityId || 0,
         scheduledDate: date.toISOString(), // Sparar datumet cellen representerar
         timeOfDay: slot, // Sparar "Morgon", "Förmiddag" etc.
@@ -70,15 +71,15 @@ export default function Calendar({ activities }: CalenderProps) {
           a3Plus: template.plannedZones?.a3Plus || 0,
           comp: template.plannedZones?.comp || 0,
         },
-        actualZones: { a1: 0, a2: 0, a3Minus: 0, a3: 0, a3Plus: 0, comp: 0 }
+        actualZones: { a1: 0, a2: 0, a3Minus: 0, a3: 0, a3Plus: 0, comp: 0 },
       };
 
       // Skicka till din backend
       await workoutSessionApi.create(newSession);
-      
+
       // Uppdatera kalendern direkt så passet dyker upp på skärmen!
       await fetchSessions();
-      
+
       // En liten bekräftelse
       Swal.fire({
         title: "Inplanerat!",
@@ -87,7 +88,6 @@ export default function Calendar({ activities }: CalenderProps) {
         timer: 1800,
         showConfirmButton: false,
       });
-
     } catch (error) {
       console.error("Kunde inte skapa pass från mall:", error);
       Swal.fire("Fel", "Gick inte att läsa malldata.", "error");
@@ -169,7 +169,7 @@ export default function Calendar({ activities }: CalenderProps) {
     e: React.MouseEvent,
     session: SessionType,
     isLogged: boolean,
-    editClicked: boolean
+    editClicked: boolean,
   ) {
     e.stopPropagation(); // Hindrar cell-klicket
 
@@ -235,6 +235,8 @@ export default function Calendar({ activities }: CalenderProps) {
       <CalendarNav
         currentDate={currentDate}
         setCurrentDate={setCurrentDate}
+        userId={userId}
+        setUserId={setUserId}
       />
 
       <div className="calendar-grid" style={{ border: borderStyle }}>
@@ -262,7 +264,7 @@ export default function Calendar({ activities }: CalenderProps) {
               const sessionsForCell = sessions.filter(
                 (s) =>
                   isSameDate(day.fullDate, s.scheduledDate) &&
-                  s.timeOfDay === slot
+                  s.timeOfDay === slot,
               );
 
               return (
@@ -280,12 +282,12 @@ export default function Calendar({ activities }: CalenderProps) {
                     const today = new Date(
                       now.getFullYear(),
                       now.getMonth(),
-                      now.getDate()
+                      now.getDate(),
                     );
                     const clickedDay = new Date(
                       clickedDate.getFullYear(),
                       clickedDate.getMonth(),
-                      clickedDate.getDate()
+                      clickedDate.getDate(),
                     );
 
                     if (clickedDay > today) {
@@ -304,7 +306,6 @@ export default function Calendar({ activities }: CalenderProps) {
                       setButtonPopup(true);
                     }
                   }}
-
                   // --- NYTT: HÄR LÄGGER VI TILL DRAG & DROP LYSSNARE PÅ CELLEN ---
                   onDragOver={(e) => {
                     e.preventDefault(); // Krävs för att tillåta "drop" i webbläsaren
@@ -379,7 +380,7 @@ export default function Calendar({ activities }: CalenderProps) {
                                       e,
                                       s,
                                       s.isLogged,
-                                      editClicked
+                                      editClicked,
                                     );
                                   } else {
                                     e.stopPropagation(); // Hindrar klick även på loggade pass
@@ -469,6 +470,7 @@ export default function Calendar({ activities }: CalenderProps) {
           }
         }}
         activities={activities}
+        userId={userId}
         date={dateOfCell}
         timeOfDay={timeOfDay}
         onSessionSaved={fetchSessions}

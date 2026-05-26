@@ -6,9 +6,9 @@ import Swal from "sweetalert2";
 import type { SessionType } from "../../../types/SessionType";
 
 export default function SessionModal(props) {
-  const createInitialSession = (date, timeOfDay) => ({
+  const createInitialSession = (date, timeOfDay, userId) => ({
     id: undefined,
-    userId: 1,
+    userId: userId || 1,
     activityId: 0,
     scheduledDate: date || new Date(),
     timeOfDay: timeOfDay || "Morgon",
@@ -24,7 +24,7 @@ export default function SessionModal(props) {
 
   const [isLogSelected, setLogSelected] = useState(props.isLogSelected);
   const [session, setSession] = useState<SessionType>(() =>
-    createInitialSession(props.date, props.timeOfDay)
+    createInitialSession(props.date, props.timeOfDay, props.userId)
   );
 
   // Hjälpfunktion för att spara datum utan att tappa tidszonen (förhindrar flytt bakåt en dag)
@@ -128,7 +128,7 @@ export default function SessionModal(props) {
       setLogSelected(true);
     } else {
       // Helt nytt tomt pass
-      const newSession = createInitialSession(props.date, props.timeOfDay);
+      const newSession = createInitialSession(props.date, props.timeOfDay, props.userId);
       setSession(newSession);
       setLogSelected(props.isLogSelected);
     }
@@ -141,6 +141,7 @@ export default function SessionModal(props) {
     props.isLogSelected,
     props.editClicked,
     props.isLogged,
+    props.userId
   ]);
 
   const handleZoneChange = (zoneKey, value) => {

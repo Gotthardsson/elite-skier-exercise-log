@@ -7,15 +7,20 @@ import type { FolderType } from "../../types/FolderType";
 import { folderApi } from "../../api/folderApi";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import { useEffect, useState } from "react";
+import AthleteDropdown from "./AthleteDropdown";
 
 interface CalendarNavProps {
   currentDate: Date;
   setCurrentDate: (date: Date) => void;
+  userId: number;
+  setUserId: (userId: number) => void;
 }
 
 export default function CalendarNav({
   currentDate,
   setCurrentDate,
+  userId,
+  setUserId
 }: CalendarNavProps) {
   const changeDate = (days: number) => {
     const newDate = new Date(currentDate);
@@ -25,29 +30,26 @@ export default function CalendarNav({
   const [folders, setFolders] = useState<FolderType[]>([]);
   const [templates, setTemplates] = useState<TemplateType[]>([]);
 
-  const fetchFoldersAndTemplates = async () => {
-      try {
-        const [foldersResponse, templatesResponse] = await Promise.all([
-          folderApi.getByUserId(1),
-          sessionTemplateApi.getByUserId(1)
-        ]);
-        setFolders(foldersResponse.data);
-        setTemplates(templatesResponse.data);
-      } catch (error) {
-        console.error("Kunde inte hämta mappar eller mallar:", error);
-      }
-    };
+  const [isCoachMode, setIsCoachMode] = useState<boolean>(false);
+   
+  
+  const handleUserIdChange = (newUserId: number) => {
+    setUserId(newUserId);
+  }
 
   const handleCoachModeToggle = () => {
-    const athleteNavLink = document.getElementById("athletes-nav-link");
-    const coachButton = document.querySelector(".coach-button");
-    if (athleteNavLink) {
-      const isHidden = athleteNavLink.style.display === "none";
-      athleteNavLink.style.display = isHidden ? "flex" : "none";
-      coachButton.style.backgroundColor = isHidden ? "#007bff" : "#000000"; // Blå när aktiv, grå när inaktiv
-      
+  setIsCoachMode((prevMode) => {
+    const nextMode = !prevMode;
+    
+    // Om nästa läge är falskt (vi stänger av tränarläget),
+    // återställ userId till demonstrations-profilen (1)
+    if (!nextMode) {
+      setUserId(1);
     }
-  };
+    
+    return nextMode;
+  });
+};
 
   const handleJump = (seasonYear: number, period: number, week: number) => {
     // Skid-säsongen startar ofta 1 maj
@@ -66,8 +68,21 @@ export default function CalendarNav({
     
   };
   useEffect(() => {
+    const fetchFoldersAndTemplates = async () => {
+      try {
+        const [foldersResponse, templatesResponse] = await Promise.all([
+          folderApi.getByUserId(userId),
+          sessionTemplateApi.getByUserId(userId)
+        ]);
+        setFolders(foldersResponse.data);
+        setTemplates(templatesResponse.data);
+      } catch (error) {
+        console.error("Kunde inte hämta mappar eller mallar:", error);
+      }
+    };
+
     fetchFoldersAndTemplates();
-  }, []);
+  }, [userId]);
 
   return (
     <div className="calendar-nav-container">
@@ -111,10 +126,16 @@ export default function CalendarNav({
       </div>
       <ButtonPrimary 
       className="coach-button"
+      style={{ backgroundColor: isCoachMode ? "#007bff" : "#000000" }}
       onClick={handleCoachModeToggle}
       text="Tränarläge"
       ></ButtonPrimary>
-      <TemplateDropdown folders={folders || []} templates={templates || []} />
+      <div className="dropdowns-container"> 
+        {isCoachMode && (
+          <AthleteDropdown athleteId={userId} onAthleteChange={handleUserIdChange} />
+        )}
+        <TemplateDropdown folders={folders || []} templates={templates || []} />
+      </div>
     </div>
   );
 }
