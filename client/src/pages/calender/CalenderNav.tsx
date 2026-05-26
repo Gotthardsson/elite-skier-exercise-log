@@ -6,7 +6,7 @@ import type { TemplateType } from "../../types/TemplateType";
 import type { FolderType } from "../../types/FolderType";
 import { folderApi } from "../../api/folderApi";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface CalendarNavProps {
   currentDate: Date;
@@ -64,27 +64,29 @@ export default function CalendarNav({
   const [folders, setFolders] = useState<FolderType[]>([]);
   const [templates, setTemplates] = useState<TemplateType[]>([]);
 
+  //Denna ska egentligen ligga i kalender för att förbättra effektiviteten på systemet.
   const fetchFoldersAndTemplates = async () => {
-      try {
-        const [foldersResponse, templatesResponse] = await Promise.all([
-          folderApi.getByUserId(1),
-          sessionTemplateApi.getByUserId(1)
-        ]);
-        setFolders(foldersResponse.data);
-        setTemplates(templatesResponse.data);
-      } catch (error) {
-        console.error("Kunde inte hämta mappar eller mallar:", error);
-      }
-    };
+    try {
+      const [foldersResponse, templatesResponse] = await Promise.all([
+        folderApi.getByUserId(1),
+        sessionTemplateApi.getByUserId(1),
+      ]);
+      setFolders(foldersResponse.data);
+      setTemplates(templatesResponse.data);
+    } catch (error) {
+      console.error("Kunde inte hämta mappar eller mallar:", error);
+    }
+  };
 
   const handleJump = (year: number, p: number, w: number) => {
     const date = getFirstMondayOfMay(year);
     const totalWeeksToAdd = (p - 1) * 4 + (w - 1);
     date.setDate(date.getDate() + totalWeeksToAdd * 7);
     setCurrentDate(date);
-    
   };
+  useEffect(() => {
     fetchFoldersAndTemplates();
+  }, []);
   return (
     <div className="calendar-nav-container">
       <div className="nav-group buttons">
