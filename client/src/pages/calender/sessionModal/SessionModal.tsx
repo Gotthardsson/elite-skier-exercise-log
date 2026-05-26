@@ -26,6 +26,7 @@ export default function SessionModal(props) {
   const [session, setSession] = useState<SessionType>(() =>
     createInitialSession(props.date, props.timeOfDay)
   );
+  const [error, setError] = useState<string | null>(null);
 
   // Hjälpfunktion för att spara datum utan att tappa tidszonen (förhindrar flytt bakåt en dag)
   const toLocalISOString = (date: Date | string) => {
@@ -34,6 +35,10 @@ export default function SessionModal(props) {
     const localISOTime = new Date(d.getTime() - tzOffset).toISOString();
     return localISOTime;
   };
+
+  useEffect(() => {
+    setError(null);
+  }, [props.trigger]);
 
   useEffect(() => {
     if (!props.trigger) return;
@@ -144,7 +149,8 @@ export default function SessionModal(props) {
   ]);
 
   const handleZoneChange = (zoneKey, value) => {
-    const numValue = Number(value) || 0;
+    const numValue = value === "" ? 0 : parseInt(value, 10);
+
     const targetZoneGroup = isLogSelected ? "actualZones" : "plannedZones";
 
     setSession((prev) => ({
@@ -181,7 +187,15 @@ export default function SessionModal(props) {
   };
 
   const handleSave = async () => {
+    // 1. NYTT: Kontrollera om sporten är giltig (inte 0 eller tom)
+    if (!session.activityId || session.activityId === 0) {
+      setError("Du måste välja en sport innan du kan spara passet.");
+      return; // Avbryt funktionen här, resten av koden (och API-anropet) körs aldrig!
+    }
+
     try {
+      setError(null); // Rensar eventuella gamla felmeddelanden om det lyckas nu
+
       const finalSession = {
         ...session,
         isLogged: isLogSelected,
@@ -287,6 +301,7 @@ export default function SessionModal(props) {
               </option>
             ))}
           </select>
+          {error && <span className="sm-error-text">{error}</span>}
         </div>
 
         <div className="sm-zones-box">
@@ -303,13 +318,19 @@ export default function SessionModal(props) {
                 <input
                   type="number"
                   className="sm-zone-input"
+                  // FIXAT: Om värdet är 0, visa en tom sträng i rutan istället
                   value={
                     isLogSelected
-                      ? session.actualZones[zone]
+                      ? session.actualZones[zone] === 0
+                        ? ""
+                        : session.actualZones[zone]
+                      : session.plannedZones[zone] === 0
+                      ? ""
                       : session.plannedZones[zone]
                   }
                   onChange={(e) => handleZoneChange(zone, e.target.value)}
                   onFocus={(e) => e.target.select()}
+                  placeholder="0" // Lägg till en placeholder så det fortfarande står en ljusgrå 0:a när den är tom!
                 />
               </div>
             ))}

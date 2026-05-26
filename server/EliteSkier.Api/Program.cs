@@ -10,7 +10,14 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // 1. Inställningar & Databas
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,                  // Max antal försök
+            maxRetryDelay: TimeSpan.FromSeconds(30), // Max väntetid mellan försök
+            errorCodesToAdd: null              // Specifika felkoder (null = standard)
+        )
+    ));
 
 // 2. CORS - Registrera policyn (Viktigt för React!)
 builder.Services.AddCors(options =>
