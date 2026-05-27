@@ -4,6 +4,7 @@ import type { TemplateType } from "../../types/TemplateType";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import type { Activity } from "../../types/Activity";
 import type { FolderType } from "../../types/FolderType";
+import ButtonPrimary from "../../components/ButtonPrimary";
 
 interface EditTemplateDialogProps {
   template: TemplateType;
@@ -211,24 +212,13 @@ function EditTemplateDialog({
           </div>
         </div>
 
-        <label htmlFor="intervalCheckbox" className="interval-label">
-          <input
-            type="checkbox"
-            name="intervalCheckbox"
-            onChange={(e) => {
-              setIsInterval(e.target.checked);
-            }}
-          />{" "}
-          Intervallpass{" "}
-        </label>
-
         <div className="new-template-buttons">
-          <button className="btn btn-secondary" onClick={closeDialog}>
+          <ButtonPrimary className="btn btn-secondary" onClick={closeDialog}>
             Avbryt
-          </button>
-          <button className="btn btn-primary" onClick={updateTemplate}>
+          </ButtonPrimary>
+          <ButtonPrimary className="btn btn-primary" onClick={updateTemplate}>
             Uppdatera mall
-          </button>
+          </ButtonPrimary>
         </div>
       </div>
     </>

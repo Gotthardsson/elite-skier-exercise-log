@@ -16,6 +16,7 @@ function Templates(props) {
   const [isLoading, setIsLoading] = useState(true);
   const [folders, setFolders] = useState<FolderType[]>([]);
   const [isFolderDialogOpen, setIsFolderDialogOpen] = useState(false);
+  const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [editingTemplate, setEditingTemplate] = useState<TemplateType | null>(
     null,
@@ -78,10 +79,7 @@ function Templates(props) {
   
 
   function openNewTemplateDialog() {
-    const dialog = document.querySelector(
-      ".new-template-container",
-    ) as HTMLDivElement;
-    dialog.style.display = "flex";
+    setIsTemplateDialogOpen(true);
   }
   
   // Funktion för att toggla en mapp (klickar man på samma igen så nollställs filtret)
@@ -174,20 +172,36 @@ function Templates(props) {
         onClose={() => setIsFolderDialogOpen(false)}
         onFolderCreate={handleFolderCreate}
       />
-      <NewTemplateDialog
-        onTemplateCreate={handleTemplateCreate}
-        folders={folders}
-        activities={props.activities}
-        
-      />
+      {/* NY TRÄNINGSMALL-MODAL MED OVERLAY */}
+      {isTemplateDialogOpen && (
+        <div className="modal-overlay" onClick={() => setIsTemplateDialogOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <NewTemplateDialog
+              onTemplateCreate={(newTemplate) => {
+                handleTemplateCreate(newTemplate);
+                setIsTemplateDialogOpen(false); // Stäng efter lyckad skapelse
+              }}
+              folders={folders}
+              activities={props.activities}
+              onClose={() => setIsTemplateDialogOpen(false)} // Om du har en avbryt-knapp där i
+            />
+          </div>
+        </div>
+      )}
+
+      {/* REDIGERA MALL-MODAL MED OVERLAY */}
       {editingTemplate && (
-        <EditTemplateDialog
-          onTemplateUpdate={handleTemplateUpdate}
-          activities={props.activities}
-          folders={folders}
-          template={editingTemplate}
-          onClose={() => setEditingTemplate(null)}
-        />
+        <div className="modal-overlay" onClick={() => setEditingTemplate(null)}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <EditTemplateDialog
+              onTemplateUpdate={handleTemplateUpdate}
+              activities={props.activities}
+              folders={folders}
+              template={editingTemplate}
+              onClose={() => setEditingTemplate(null)}
+            />
+          </div>
+        </div>
       )}
     </>
   );
