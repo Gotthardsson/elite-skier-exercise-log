@@ -232,5 +232,47 @@ public class StravaService : IStravaService
         };
     }
 
+    // 1. Kolla status via ditt repo
+   // 1. Kolla status via ditt repo (Mappar mot din StravaIntegration-modell)
+ public async Task<bool> HasActiveConnectionAsync(int userId)
+    {
+        Console.WriteLine($"[StravaService] Kollar status för userId: {userId}");
+        
+        // Hämta integrationen direkt från strava_integration via ditt repo
+        StravaIntegration? integration = await _stravaRepo.GetByIdAsync(userId);
+        
+        if (integration == null)
+        {
+            Console.WriteLine("[StravaService] Repot returnerade NULL. Hittade ingen rad i strava_integration.");
+            return false;
+        }
+
+        Console.WriteLine($"[StravaService] Rad hittad! Token i C#-modell: '{integration.StravaRefreshToken}'");
+
+        // Om strängen inte är tom så är vi sammankopplade!
+        return !string.IsNullOrEmpty(integration.StravaRefreshToken);
+    }
+
+    // 2. Koppla bort genom att nolla i tabellen via ditt repo
+    public async Task<bool> DisconnectAsync(int userId)
+    {
+        Console.WriteLine($"[StravaService] Kopplar bort Strava för userId: {userId}");
+
+        // Hämta rätt modell (StravaIntegration)
+        StravaIntegration? integration = await _stravaRepo.GetByIdAsync(userId);
+        if (integration == null) return false;
+
+        // Eftersom ditt repo saknade "DeleteAsync", kör vi den säkra vägen:
+        // Vi tömmer bara fälten och sparar (detta matchar bilden på din DB perfekt!)
+        integration.StravaRefreshToken = string.Empty;
+        integration.StravaAthleteId = string.Empty;
+
+        // Uppdatera tabellen via ditt repo
+        await _stravaRepo.UpsertIntegrationAsync(integration);
+        
+        Console.WriteLine("[StravaService] Bortkoppling sparad i databasen!");
+        return true;
+    }
+
     #endregion
 }

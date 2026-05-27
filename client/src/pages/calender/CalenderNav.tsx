@@ -20,7 +20,7 @@ export default function CalendarNav({
   currentDate,
   setCurrentDate,
   userId,
-  setUserId
+  setUserId,
 }: CalendarNavProps) {
   // --- HJÄLPFUNKTION: Räkna ut första måndagen i maj för ett givet år ---
   const getFirstMondayOfMay = (year: number): Date => {
@@ -70,25 +70,24 @@ export default function CalendarNav({
   const [templates, setTemplates] = useState<TemplateType[]>([]);
 
   const [isCoachMode, setIsCoachMode] = useState<boolean>(false);
-   
-  
+
   const handleUserIdChange = (newUserId: number) => {
     setUserId(newUserId);
-  }
+  };
 
   const handleCoachModeToggle = () => {
-  setIsCoachMode((prevMode) => {
-    const nextMode = !prevMode;
-    
-    // Om nästa läge är falskt (vi stänger av tränarläget),
-    // återställ userId till demonstrations-profilen (1)
-    if (!nextMode) {
-      setUserId(1);
-    }
-    
-    return nextMode;
-  });
-};
+    setIsCoachMode((prevMode) => {
+      const nextMode = !prevMode;
+
+      // Om nästa läge är falskt (vi stänger av tränarläget),
+      // återställ userId till demonstrations-profilen (1)
+      if (!nextMode) {
+        setUserId(1);
+      }
+
+      return nextMode;
+    });
+  };
 
   const fetchFoldersAndTemplates = async () => {
     try {
@@ -161,15 +160,18 @@ export default function CalendarNav({
           ))}
         </select>
       </div>
-      <ButtonPrimary 
-      className="coach-button"
-      style={{ backgroundColor: isCoachMode ? "#007bff" : "#000000" }}
-      onClick={handleCoachModeToggle}
-      text="Tränarläge"
+      <ButtonPrimary
+        className="coach-button"
+        style={{ backgroundColor: isCoachMode ? "#007bff" : "#000000" }}
+        onClick={handleCoachModeToggle}
+        text="Tränarläge"
       ></ButtonPrimary>
-      <div className="dropdowns-container"> 
+      <div className="dropdowns-container">
         {isCoachMode && (
-          <AthleteDropdown athleteId={userId} onAthleteChange={handleUserIdChange} />
+          <AthleteDropdown
+            athleteId={userId}
+            onAthleteChange={handleUserIdChange}
+          />
         )}
         <TemplateDropdown folders={folders || []} templates={templates || []} />
       </div>
