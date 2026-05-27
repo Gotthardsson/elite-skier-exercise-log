@@ -159,10 +159,10 @@ export default function Calendar({ activities }: CalenderProps) {
 
     if (!status) return "";
 
-    if (status.sick) return "🤒 ";
-    if (status.injured) return "🤕 ";
-    if (status.restDay) return "💤 ";
-    if (status.travelDay) return "✈️ ";
+    if (status.sick) return "(Sjuk) ";
+    if (status.injured) return "(Skadad) ";
+    if (status.restDay) return "(Vila) ";
+    if (status.travelDay) return "(Resdag) ";
     if (status.hrv > 0 || status.restingHeartRate > 0) return "📊 ";
 
     return "";
@@ -216,7 +216,7 @@ export default function Calendar({ activities }: CalenderProps) {
     e: React.MouseEvent,
     session: SessionType,
     isLogged: boolean,
-    editClicked: boolean,
+    editClicked: boolean
   ) {
     e.stopPropagation();
     setDateOfCell(new Date(session.scheduledDate));
@@ -308,7 +308,7 @@ export default function Calendar({ activities }: CalenderProps) {
               const sessionsForCell = sessions.filter(
                 (s) =>
                   isSameDate(day.fullDate, s.scheduledDate) &&
-                  s.timeOfDay === slot,
+                  s.timeOfDay === slot
               );
 
               return (
@@ -321,12 +321,12 @@ export default function Calendar({ activities }: CalenderProps) {
                     const today = new Date(
                       now.getFullYear(),
                       now.getMonth(),
-                      now.getDate(),
+                      now.getDate()
                     );
                     const clickedDay = new Date(
                       clickedDate.getFullYear(),
                       clickedDate.getMonth(),
-                      clickedDate.getDate(),
+                      clickedDate.getDate()
                     );
 
                     setDateOfCell(day.fullDate);
@@ -360,8 +360,19 @@ export default function Calendar({ activities }: CalenderProps) {
                           s.isLogged ? "logged" : "planned"
                         } ${s.stravaRaw ? "strava" : ""}`}
                         onClick={(e) => {
-                          logOrEditSession(e, s, s.isLogged, true);
+                          // 1. Stoppa klicket från att bubbla ut till kalendercellen
                           e.stopPropagation();
+
+                          // 2. Kontrollera om passet är loggat eller inte
+                          if (!s.isLogged) {
+                            // Planerat pass (eller planerat Strava-pass) -> Öppna direkt i loggningsvyn
+                            setEditClicked(false); // Säkra att vi inte är i redigeringsläge
+                            logOrEditSession(e, s, s.isLogged, false);
+                          } else {
+                            // Redan loggat pass (oavsett om det är vanligt eller Strava) -> Öppna i redigeringsvyn
+                            setEditClicked(true); // <-- FIX: Detta talar om för modalen att den ska tillåta ändringar!
+                            logOrEditSession(e, s, s.isLogged, true);
+                          }
                         }}
                       >
                         <div
@@ -375,6 +386,60 @@ export default function Calendar({ activities }: CalenderProps) {
                             <strong>{getActivityCode(s.activityId)}</strong>
                             <div className="session-cell-card-content">
                               <span>{getTotalTime(s)} min</span>
+
+                              {/* HÄR ÄR DEN UPPDATERADE ZONSTAPELN */}
+                              {getTotalTime(s) > 0 && (
+                                <div className="session-zone-bar">
+                                  {(() => {
+                                    const total = getTotalTime(s);
+
+                                    // 1. Välj rätt zon-objekt baserat på om passet är loggat eller planerat
+                                    const zoneObj = s.isLogged
+                                      ? s.actualZones
+                                      : s.plannedZones;
+
+                                    // Om zon-objektet saknas helt (t.ex. vid felaktig initiering), rita inget
+                                    if (!zoneObj) return null;
+
+                                    // 2. Skapa arrayen av minuter i exakt ordning utifrån ditt underobjekt
+                                    const zones = [
+                                      zoneObj.a1,
+                                      zoneObj.a2,
+                                      zoneObj.a3Minus,
+                                      zoneObj.a3,
+                                      zoneObj.a3Plus,
+                                      zoneObj.comp,
+                                    ];
+
+                                    // Matchande CSS-klasser (samma som i ditt CSS)
+                                    const zoneClasses = [
+                                      "zone-a1",
+                                      "zone-a2",
+                                      "zone-a3minus",
+                                      "zone-a3",
+                                      "zone-a3plus",
+                                      "zone-comp",
+                                    ];
+
+                                    return zones.map((minutes, index) => {
+                                      if (!minutes || minutes <= 0) return null;
+
+                                      // Räkna ut den procentuella andelen av totaltiden
+                                      const percentage =
+                                        (minutes / total) * 100;
+
+                                      return (
+                                        <div
+                                          key={index}
+                                          className={`zone-segment ${zoneClasses[index]}`}
+                                          style={{ width: `${percentage}%` }}
+                                          title={`${minutes} min i denna zon`}
+                                        />
+                                      );
+                                    });
+                                  })()}
+                                </div>
+                              )}
                               {(() => {
                                 const rawText = s.isLogged
                                   ? s.loggedComment
@@ -390,6 +455,18 @@ export default function Calendar({ activities }: CalenderProps) {
                                 );
                               })()}
                             </div>
+                            {/* NYTT: Dynamisk statustext i hörnet */}
+                            <span className="session-status-badge">
+                              {(() => {
+                                if (!s.isLogged && s.stravaRaw)
+                                  return "Ologgat (Strava)";
+                                if (s.isLogged && s.stravaRaw)
+                                  return "Loggat (Strava)";
+                                if (s.isLogged) return "Loggat";
+                                return "Planerat";
+                              })()}
+                            </span>
+
                             <div>
                               <button
                                 className={`session-cell-log-btn ${
@@ -471,7 +548,6 @@ export default function Calendar({ activities }: CalenderProps) {
           </Fragment>
         ))}
 
-        {/* FIXAT: NY BOTTENRAD FÖR STATUSKNAPPARNA */}
         <div className="calendar-row-label"></div>
         {days.map((day) => (
           <div
@@ -481,7 +557,7 @@ export default function Calendar({ activities }: CalenderProps) {
             <div className="day-status-container">
               <div className={getStatusClassForDate(day.fullDate)}>
                 <ButtonPrimary
-                  text={`${getStatusEmojiForDate(day.fullDate)}Status`}
+                  text={`${getStatusEmojiForDate(day.fullDate)}Dagsstatus`}
                   onClick={() => {
                     setDateOfCell(day.fullDate);
                     setDayStatusPopup(true);

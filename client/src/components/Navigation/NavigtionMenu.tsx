@@ -12,7 +12,7 @@ export default function NavigationMenu() {
         onClick={() => navigate("/calendar")}
         style={{ cursor: "pointer" }}
       >
-        <div className="nav-brand-logo">🎿</div>
+        <div className="nav-brand-logo"></div>
         <div className="nav-brand">SkiPlan</div>
       </div>
 
