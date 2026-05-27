@@ -9,14 +9,12 @@ import type { FolderType } from "../../types/FolderType";
 interface NewTemplateDialogProps {
   onTemplateCreate: (template: TemplateType) => void;
   activities: Activity[];
-  currentTemplateCount: number;
   folders: FolderType[];
 }
 
 function NewTemplateDialog({
   onTemplateCreate,
   activities,
-  currentTemplateCount,
   folders,
 }: NewTemplateDialogProps) {
 
@@ -41,8 +39,7 @@ function closeDialog() {
   }
   async function createTemplate() {
     // Skapa objektet så det matchar C# (platt struktur)
-    const newTemplateData: TemplateType = {
-      id: currentTemplateCount + 1, // Generera ett unikt ID för mallen
+    const newTemplateData: Omit<TemplateType, "id"> = {
       title: templateName,
       folderId: folderId === 0 ? null : folderId, // Om ingen mapp är vald, sätt folderId till null
       activityId: sportId,
@@ -61,7 +58,8 @@ function closeDialog() {
 
     try {
       
-    const createdTemplate = await sessionTemplateApi.create(newTemplateData).then(response => response.data);
+    const response = await sessionTemplateApi.create(newTemplateData)
+    const createdTemplate = response.data;
 
     
       onTemplateCreate(createdTemplate || newTemplateData); // Uppdatera parent-komponenten

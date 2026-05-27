@@ -6,6 +6,13 @@
   --clr-a3plus: rgb(248 113 113 / 1);
   --clr-comp: rgb(185 28 28 / 1);
 }
+main {
+    display: flex;
+    flex-direction: column;
+    width: 88dvw;
+    height: 100%;
+    padding-left: 50px;
+}
 
 
 .header{
@@ -320,28 +327,17 @@ label{
     display: flex;
     justify-content: flex-end;
     margin-top: 20px;
+    margin-right: 10px;
+   
 }
-.btn.btn-primary{
-    padding: 8px 16px;
-    border-radius: 5px;
-    border: none;
-    font-weight: 500;
-    font-size: 1.1em;
-    background-color: rgb(0, 0, 0);
-    color: white;
-    cursor: pointer;
+.new-template-button{
+    margin:10px;
+    
+}
+.new-folder-button{
+    margin:10px;
+    
 }
 .btn btn-primary:hover{
     background-color: rgb(0, 0, 0, 0.8);
-}
-.btn.btn-secondary{
-    padding: 8px 16px;
-    border-radius: 5px;
-    border: rgba(128, 128, 128, 0.411) solid 1px;
-    background-color: rgb(255, 255, 255);
-    color: black;
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 1.1em;
-    margin-right: 10px;
 }

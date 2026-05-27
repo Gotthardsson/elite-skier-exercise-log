@@ -9,6 +9,7 @@ import { sessionTemplateApi } from "../../api/sessionTemplateApi.ts";
 import type { TemplateType } from "../../types/TemplateType.ts";
 import type { FolderType } from "../../types/FolderType.ts";
 import Folder from "./Folder.tsx";
+import ButtonPrimary from "../../components/ButtonPrimary.tsx";
 
 function Templates(props) {
   const [templates, setTemplates] = useState<TemplateType[]>([]);
@@ -99,10 +100,10 @@ function Templates(props) {
           </p>
         </div>
         <div className="new-buttons">
-          <button className="new-template" onClick={openNewTemplateDialog}>
-            <b>+</b> Ny Träningsmall
-          </button>
-          <button className="new-folder" onClick={() => setIsFolderDialogOpen(true)}>
+          <ButtonPrimary className="new-template-button" onClick={openNewTemplateDialog}>
+             Ny Träningsmall
+          </ButtonPrimary>
+          <ButtonPrimary className="new-folder-button" onClick={() => setIsFolderDialogOpen(true)}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="15"
@@ -123,7 +124,7 @@ function Templates(props) {
               ></path>
             </svg>
             Ny Mapp
-          </button>
+          </ButtonPrimary>
         </div>
       </div>
       <h3>Mappar</h3>
@@ -135,6 +136,19 @@ function Templates(props) {
             folder={folder}
             isActive={selectedFolderId === folder.id}
             onClick={() => handleFolderClick(folder.id)}
+            style={{
+          // color-mix tar din färg, behåller 20% av den och blandar resten med transparent (80% opacity)
+          backgroundColor: selectedFolderId === folder.id 
+            ? `color-mix(in srgb, ${folder.color} 20%, transparent)` 
+            : "transparent",
+          
+          // Vi sätter texten till mappens skarpa originalfärg så den syns tydligt mot den bleka bakgrunden
+          color: selectedFolderId === folder.id ? "#000000" : "inherit",
+          
+          // Vi gör ramen lite softare men i samma färg
+          borderColor: selectedFolderId === folder.id ? folder.color : "#ccc",
+          fontWeight: selectedFolderId === folder.id ? "bold" : "normal"
+        }}
           />
         ))}
       </div>
@@ -164,7 +178,7 @@ function Templates(props) {
         onTemplateCreate={handleTemplateCreate}
         folders={folders}
         activities={props.activities}
-        currentTemplateCount={templates.length}
+        
       />
       {editingTemplate && (
         <EditTemplateDialog
