@@ -4,20 +4,21 @@ import type { TemplateType } from "../../types/TemplateType";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import type { Activity } from "../../types/Activity";
 import type { FolderType } from "../../types/FolderType";
-
+import ButtonPrimary from "../../components/ButtonPrimary";
 
 interface NewTemplateDialogProps {
   onTemplateCreate: (template: TemplateType) => void;
+  onClose: () => void; // NYTT: Ta emot stängnings-funktionen härifrån
   activities: Activity[];
   folders: FolderType[];
 }
 
 function NewTemplateDialog({
   onTemplateCreate,
+  onClose, // NYTT: Packa upp onClose
   activities,
   folders,
 }: NewTemplateDialogProps) {
-
   
   const [templateName, setTemplateName] = React.useState("");
   const [folderId, setFolderId] = React.useState(0);
@@ -31,20 +32,14 @@ function NewTemplateDialog({
   const [comp, setComp] = React.useState(0);
   const [isInterval, setIsInterval] = React.useState(false);
 
-function closeDialog() {
-    const dialog = document.querySelector(
-      ".new-template-container"
-    ) as HTMLDivElement;
-    dialog.style.display = "none";
-  }
   async function createTemplate() {
     // Skapa objektet så det matchar C# (platt struktur)
     const newTemplateData: Omit<TemplateType, "id"> = {
       title: templateName,
-      folderId: folderId === 0 ? null : folderId, // Om ingen mapp är vald, sätt folderId till null
+      folderId: folderId === 0 ? null : folderId, 
       activityId: sportId,
       description: description,
-      creatorId:1, // Hårdkodad för nu, byt ut mot riktig userId när du har auth på plats
+      creatorId: 1, 
       plannedZones: {
         a1: a1 || 0,
         a2: a2 || 0,
@@ -53,18 +48,17 @@ function closeDialog() {
         a3Plus: a3Plus || 0,
         comp: comp || 0,
       },
-      isInterval: isInterval, // Lägg till state för denna om du vill ha den dynamisk
+      isInterval: isInterval, 
     };
 
     try {
-      
-    const response = await sessionTemplateApi.create(newTemplateData)
-    const createdTemplate = response.data;
+      const response = await sessionTemplateApi.create(newTemplateData);
+      const createdTemplate = response.data;
 
-    
-      onTemplateCreate(createdTemplate || newTemplateData); // Uppdatera parent-komponenten
-      closeDialog();
+      onTemplateCreate(createdTemplate || newTemplateData); 
       resetForm();
+      // onClose() körs automatiskt i föräldern nu via onTemplateCreate, 
+      // men ifall du vill köra den manuellt så ligger den här.
     } catch (error) {
       console.log("Kunde inte spara: " + error);
     }
@@ -86,8 +80,12 @@ function closeDialog() {
 
   return (
     <>
+      {/* ÄNDRING: Vi tog bort .modal-overlay-divarna härifrån helt eftersom 
+        de ligger i Templates.tsx nu. Kvar är bara själva container-rutan.
+      */}
       <div className="new-template-container">
         <h3 className="new-template-title">Ny Mall</h3>
+        
         <div className="template-name-folder">
           <div className="template-name">
             <label className="name-label" htmlFor="templateNameInput">
@@ -111,7 +109,7 @@ function closeDialog() {
               value={folderId}
               onChange={(e) => setFolderId(Number(e.target.value))}
             >
-              
+              <option value="0">Ingen mapp</option> {/* Bra default-fall */}
               {folders?.map((folder) => (
                 <option key={folder.id} value={folder.id}>
                   {folder.name}
@@ -151,118 +149,84 @@ function closeDialog() {
           onChange={(e) => setDescription(e.target.value)}
         ></textarea>
 
-        <label htmlFor="zoneInput" className="zone-label">
-          Minuter per pulszon:{" "}
-        </label>
+        <div className="zones-label">Minuter per pulszon: </div>
         <div className="zone-inputs">
           <div className="zone-container">
             <label className="zone-input-label" htmlFor="a1Input" id="a1-label">
-              A1{" "}
+              A1
             </label>
             <input
               type="number"
               name="a1Input"
               value={a1}
-              onChange={(e) => setA1(e.target.valueAsNumber||0)}
-              
+              onChange={(e) => setA1(e.target.valueAsNumber || 0)}
             />
           </div>
           <div className="zone-container">
             <label className="zone-input-label" htmlFor="a2Input" id="a2-label">
-              A2{" "}
+              A2
             </label>
             <input
               type="number"
               name="a2Input"
               value={a2}
-              onChange={(e) => setA2(e.target.valueAsNumber||0)}
-              
+              onChange={(e) => setA2(e.target.valueAsNumber || 0)}
             />
           </div>
           <div className="zone-container">
-            <label
-              className="zone-input-label"
-              htmlFor="a3minus-input"
-              id="a3minus-label"
-            >
-              A3-{" "}
-            </label>{" "}
+            <label className="zone-input-label" htmlFor="a3minus-input" id="a3minus-label">
+              A3-
+            </label>
             <input
               type="number"
-              name="a3-Input"
+              name="a3minus-input"
               value={a3Minus}
-              onChange={(e) => setA3Minus(e.target.valueAsNumber||0)}
-              
+              onChange={(e) => setA3Minus(e.target.valueAsNumber || 0)}
             />
           </div>
           <div className="zone-container">
-            <label
-              className="zone-input-label"
-              htmlFor="a3Input"
-              id="a3minus-label"
-            >
-              A3{" "}
+            <label className="zone-input-label" htmlFor="a3Input" id="a3minus-label">
+              A3
             </label>
             <input
               type="number"
               name="a3Input"
               value={a3}
-              onChange={(e) => setA3(e.target.valueAsNumber||0)}
-              
+              onChange={(e) => setA3(e.target.valueAsNumber || 0)}
             />
           </div>
           <div className="zone-container">
-            <label
-              className="zone-input-label"
-              htmlFor="a3+Input"
-              id="a3plus-label"
-            >
-              A3+{" "}
+            <label className="zone-input-label" htmlFor="a3+Input" id="a3plus-label">
+              A3+
             </label>
             <input
               type="number"
               name="a3+Input"
               value={a3Plus}
-              onChange={(e) => setA3Plus(e.target.valueAsNumber||0)}
-             
+              onChange={(e) => setA3Plus(e.target.valueAsNumber || 0)}
             />
           </div>
           <div className="zone-container">
-            <label
-              className="zone-input-label"
-              htmlFor="compInput"
-              id="comp-label"
-            >
-              Comp{" "}
+            <label className="zone-input-label" htmlFor="compInput" id="comp-label">
+              Comp
             </label>
             <input
               type="number"
               name="compInput"
               value={comp}
-              onChange={(e) => setComp(e.target.valueAsNumber||0)}
-              
+              onChange={(e) => setComp(e.target.valueAsNumber || 0)}
             />
           </div>
         </div>
 
-        <label htmlFor="intervalCheckbox" className="interval-label">
-          <input
-            type="checkbox"
-            name="intervalCheckbox"
-            onChange={(e) => {
-              setIsInterval(e.target.checked);
-            }}
-          />{" "}
-          Intervallpass{" "}
-        </label>
-
         <div className="new-template-buttons">
-          <button className="btn btn-secondary" onClick={closeDialog}>
+          {/* ÄNDRING: Använder props.onClose istället för closeDialog() */}
+          <ButtonPrimary className="btn btn-secondary" onClick={onClose}>
             Avbryt
-          </button>
-          <button className="btn btn-primary" onClick={createTemplate}>
+          </ButtonPrimary>
+          <ButtonPrimary className="btn btn-primary" onClick={createTemplate}>
             Skapa mall
-          </button>
+          </ButtonPrimary>
         </div>
       </div>
     </>

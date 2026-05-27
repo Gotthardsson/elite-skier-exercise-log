@@ -1,6 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { folderApi } from "../../api/folderApi";
 import type { FolderType } from "../../types/FolderType";
+import ButtonPrimary from "../../components/ButtonPrimary";
+import "./templates.css"; // Se till att css-filen är importerad
 
 interface NewFolderDialogProps {
   isOpen: boolean;
@@ -11,10 +13,9 @@ interface NewFolderDialogProps {
 function NewFolderDialog({ isOpen, onClose, onFolderCreate }: NewFolderDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [folderName, setFolderName] = useState("");
-  const [folderColor, setFolderColor] = useState("#000000"); // Standardfärg (svart)
+  const [folderColor, setFolderColor] = useState("#3b82f6"); // Standard till en trevlig blå istället för svart
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Kontrollera om dialogen ska vara öppen eller stängd via props
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
@@ -26,26 +27,30 @@ function NewFolderDialog({ isOpen, onClose, onFolderCreate }: NewFolderDialogPro
     }
   }, [isOpen]);
 
+  // Funktion för att stänga om man klickar på det mörka utanför rutan
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+    if (e.target === dialogRef.current) {
+      onClose();
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!folderName.trim()) return;
 
     setIsSubmitting(true);
     try {
-      // Skicka med userId (1 i ditt demo) och den valda färgen
-      // 1. Skapa en temporär typ för att skicka data utan ID
-        // Vi plockar bort 'id' från FolderType
-    const newFolderData: Omit<FolderType, "id"> = {
-      name: folderName,
-      color: folderColor,
-      userId: 1, // Ditt hårdkodade demo-id
-    };
+      const newFolderData: Omit<FolderType, "id"> = {
+        name: folderName,
+        color: folderColor,
+        userId: 1,
+      };
 
       const response = await folderApi.create(newFolderData);
 
-      onFolderCreate(response); // Skicka upp den nya mappen till Templates.tsx
-      setFolderName(""); // Nollställ formuläret
-      onClose(); // Stäng dialogen
+      onFolderCreate(response);
+      setFolderName("");
+      onClose();
     } catch (error) {
       console.error("Kunde inte skapa mappen:", error);
       alert("Något gick fel när mappen skulle skapas.");
@@ -58,14 +63,14 @@ function NewFolderDialog({ isOpen, onClose, onFolderCreate }: NewFolderDialogPro
     <dialog 
       ref={dialogRef} 
       onClose={onClose}
-      className="folder-dialog" // Lägg till styling i din CSS för denna klass
-      style={{ padding: "20px", borderRadius: "8px", border: "1px solid #ccc" }}
+      onClick={handleBackdropClick}
+      className="folder-dialog"
     >
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px", minWidth: "250px" }}>
-        <h2>Skapa ny mapp</h2>
+      <form onSubmit={handleSubmit} className="folder-form-content">
+        <h3 className="new-template-title">Skapa ny mapp</h3>
         
-        <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-          <label htmlFor="folderName">Mappnamn</label>
+        <div className="sm-field">
+          <label htmlFor="folderName" className="sm-label">Mappnamn</label>
           <input
             id="folderName"
             type="text"
@@ -77,26 +82,27 @@ function NewFolderDialog({ isOpen, onClose, onFolderCreate }: NewFolderDialogPro
           />
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-          <label htmlFor="folderColor">Välj färg på mappen</label>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div className="sm-field">
+          <label htmlFor="folderColor" className="sm-label">Välj färg på mappen</label>
+          <div className="color-picker-row">
             <input
               id="folderColor"
               type="color"
               value={folderColor}
               onChange={(e) => setFolderColor(e.target.value)}
               disabled={isSubmitting}
-              style={{ width: "40px", height: "40px", padding: "0", border: "none", cursor: "pointer" }}
+              className="color-input-square"
             />
-            {/* En liten förhandsvisning av hur ikonen kommer se ut */}
+            
+            {/* En förhandsvisning som matchar din app-stil */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="30"
-              height="30"
+              width="36"
+              height="36"
               viewBox="0 0 24 24"
               fill="none"
-              stroke={folderColor} // Använder den valda färgen dynamiskt
-              strokeWidth="2"
+              stroke={folderColor}
+              strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -105,13 +111,13 @@ function NewFolderDialog({ isOpen, onClose, onFolderCreate }: NewFolderDialogPro
           </div>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "10px" }}>
-          <button type="button" onClick={onClose} disabled={isSubmitting}>
+        <div className="new-template-buttons">
+          <ButtonPrimary type="button" className="btn btn-secondary" onClick={onClose} disabled={isSubmitting}>
             Avbryt
-          </button>
-          <button type="submit" disabled={isSubmitting || !folderName.trim()}>
+          </ButtonPrimary>
+          <ButtonPrimary type="submit" className="btn btn-primary" disabled={isSubmitting || !folderName.trim()}>
             {isSubmitting ? "Skapar..." : "Skapa mapp"}
-          </button>
+          </ButtonPrimary>
         </div>
       </form>
     </dialog>

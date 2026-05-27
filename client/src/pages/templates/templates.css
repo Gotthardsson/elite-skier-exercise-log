@@ -6,14 +6,6 @@
   --clr-a3plus: rgb(248 113 113 / 1);
   --clr-comp: rgb(185 28 28 / 1);
 }
-main {
-    display: flex;
-    flex-direction: column;
-    width: 88dvw;
-    height: 100%;
-    padding-left: 50px;
-}
-
 
 .header{
     padding: 10px;
@@ -180,164 +172,339 @@ h3{
     border-radius: 5px;
 }
 .new-template-container,
-.edit-template-container{
-    display: none;
-    margin: auto;
-    flex-direction: column;
-    margin-top: 20px;
-    width: 450px;
-    border: 1px solid rgba(0, 0, 0, 0.4);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
-    background-color: white;
-    position: absolute;
-      left: 40%;
-      top: 20%;
-      z-index: 1000;
+.edit-template-container {
+  /* Ändra display: none till block/flex via ditt React-state istället på overlayen */
+  display: flex; 
+  flex-direction: column;
+  
+  width: min(90vw, 850px);
+  max-width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 28px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  
+  /* Ta bort absolut/fixed-centrering härifrån då .modal-overlay (flex) sköter det nu! */
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
+  
+  animation: scaleUpDialog 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+/* ==========================================================================
+   MJUKA ANIMATIONER (Bonus för extra lyxig känsla)
+   ========================================================================== */
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUpDialog {
+  from { 
+    opacity: 0;
+    transform: scale(0.95) translateY(10px); 
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1) translateY(0); 
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0; /* Täcker hela skärmen (top:0, left:0, right:0, bottom:0) */
+  background-color: rgba(0, 0, 0, 0.55); /* Mörkar ner bakgrunden lagom mycket */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ligger ovanpå allt annat på sidan */
+  backdrop-filter: blur(5px); /* Gör bakgrunden suddig och supermodern! */
+  animation: fadeInOverlay 0.2s ease-out;
+}
+
+/* Rubriker */
 .new-template-title,
-.edit-template-title{
-    font-size: 1.5em;
-    margin: 0;
-    text-align: center;
-}
-.template-name-folder{
-    display: flex;
-    justify-content:space-between
-}
-.template-name{
-    display: flex;
-    flex-direction: column;
-    width: 48%;
-    
-}
-.template-folder{
-     display: flex;
-    flex-direction: column;
-    width: 48%;
-}
-input{
-    margin-top: 5px;
-    border-radius: 10px;
-    height: 24px;
-    border-color: rgba(0, 0, 0, 0.4);
-    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(0, 0, 0, 0.4);
-}
-label{
-    margin-top: 10px;
-    font-size: 1.2em;
-    color: hsla(0, 0%, 0%, 0.6);
-}
-.select{
-    height: 30px;
-    border-radius: 10px;
-    margin-top: 5px;
-    color: hsla(0, 0%, 0%, 0.6);
-    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
-}
-#description-label{
-    margin-top: 15px;
-}
-#descriptionInput{
-    height: 60px;
-    margin-top: 5px;
-    border-radius: 10px;
-    box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1);
+.edit-template-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #111827;
+  text-align: center;
+  margin: 0 0 20px 0;
 }
 
-.zone-inputs{
-    display: flex;
-    max-width: 100%;
-    justify-content: space-around;
-    margin-top: 2px;
-    margin-bottom: 5px;
-    border-radius: 5px;
-    
-    text-align: center;
-}
-.zone-container{
-    width: 40px;
-    display: flex;
-    flex-direction: column;
-     align-items: center;
+/* Rad-layout för namn och mapp (Sida vid sida) */
+.template-name-folder {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 10px;
 }
 
-.zone-inputs input{
-    width: 60px;
-    height: 20px;
-    border-radius: 8px;
-    border-color: rgba(0, 0, 0, 0.4);
-    text-align: center;
-    box-shadow: none;
+.template-name,
+.template-folder {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
-.zone-inputs label{
-    color: rgb(255, 255, 255);
-    border-radius: 8px;
-    font-size: 0.8em;
-    font-weight: bold;
+
+/* Labels formaterade som i nya temat */
+label {
+  margin-top: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #444;
 }
-#a1-label{
-    background-color: rgb(52 211 153 / 1);
-    width: 68px;
-    padding: 3px 0px;
+
+/* INPUTS & SELECTS (Helt omstylade till det nya temat) */
+input[type="text"],
+.select {
+  width: 100%;
+  padding: 12px 15px;
+  height: 48px; /* Matcha höjden från det nya temat */
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: #fff;
+  box-sizing: border-box;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  color: #333;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-#a2-label{
-    background-color: rgb(163 230 53 / 1);
-    width: 68px;
-    padding: 3px 0px;
+
+input[type="text"]:focus,
+.select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
-#a3-label{
-    background-color:rgb(250 204 21 / 1);
-    width: 68px;
-    padding: 3px 0px;
+
+/* Beskrivningsrutan (Textarea) */
+#description-label {
+  margin-top: 15px;
 }
-#a3minus-label{
-    background-color: rgb(251 146 60 / 1)
-;
-    width: 68px;
-    padding: 3px 0px;
+
+#descriptionInput {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  background: #fff;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 80px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
-#a3plus-label{
-    background-color:rgb(248 113 113 / 1)
-;
-    width: 68px;
-    padding: 3px 0px;
+
+#descriptionInput:focus {
+  outline: none;
+  border-color: #3b82f6;
 }
-#comp-label{
-    background-color: rgb(185 28 28 / 1);
-    width: 68px;
-    padding: 3px 0px;
+
+/* ==========================================================================
+   ZON-INPUTS (Helt uppdaterade till piller-strukturen från nya temat)
+   ========================================================================== */
+.zones-label {
+  margin-top: 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+  color: #444;
 }
-.interval-label{
-    margin-top: 10px;
-    font-size: 1.2em;
-    color: hsla(0, 0%, 0%, 0.6);
-    display: flex;
-    align-items: center;
+.zone-inputs {
+  margin: 15px 0;
+  padding: 25px;
+  background: #f8fafc;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px; /* Ger snyggt mellanrum mellan zonerna */
 }
-.interval-label input{
-    margin-right: 5px;
-    width: 20px;
-    height: 20px;
-    border: none;
+
+.zone-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-.new-template-buttons{
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-    margin-right: 10px;
-   
+
+/* Överskriver de generella input/label-reglerna för just zonerna */
+.zone-inputs label {
+  width: 100%;
+  text-align: center;
+  padding: 6px 0;
+  color: white;
+  border-radius: 10px 10px 0 0;
+  font-weight: 900;
+  font-size: 0.85rem;
+  margin-top: 0;
 }
-.new-template-button{
-    margin:10px;
-    
+#a1-label {
+  background-color: var(--clr-a1);
 }
-.new-folder-button{
-    margin:10px;
-    
+#a2-label {
+  background-color: var(--clr-a2);
 }
-.btn btn-primary:hover{
-    background-color: rgb(0, 0, 0, 0.8);
+#a3minus-label {
+  background-color: var(--clr-a3minus);
+}
+#a3-label {
+  background-color: var(--clr-a3);
+}
+#a3plus-label {
+  background-color: var(--clr-a3plus);
+}
+#comp-label {
+  background-color: var(--clr-comp);
+}
+
+.zone-inputs input {
+  width: 96%;
+  height: 35px;
+  text-align: center;
+  border: 1px solid #cbd5e1;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.zone-inputs input:focus {
+  outline: none;
+  border: 1px solid #3b82f6;
+}
+
+/* ==========================================================================
+   CHECKBOX & FOOTER-KNAPPAR
+   ========================================================================== */
+
+.interval-label {
+  margin-top: 15px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #444;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.interval-label input {
+  margin: 0;
+  width: 20px;
+  height: 20px;
+  accent-color: #0f172a; /* Mörk checkbox som matchar temat */
+  cursor: pointer;
+}
+
+.new-template-buttons {
+  display: flex;
+  justify-content: center; /* Centrerar spara/avbryt precis som i nya temat */
+  gap: 15px;
+  margin-top: 25px;
+}
+
+/* Spara-knappen stylad exakt som .sm-save-btn */
+.new-buttons{
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+/* ==========================================================================
+   STYLING FÖR MAPP-DIALOGRUTAN
+   ========================================================================== */
+
+/* Själva rutan */
+.folder-dialog {
+  border: none;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 28px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  width: min(90vw, 450px); /* Något smalare eftersom det är färre fält */
+  box-sizing: border-box;
+}
+
+/* Formulärets layout inuti */
+.folder-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Raden med färgväljaren och förhandsvisningsikonen */
+.color-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 5px;
+}
+
+/* Snygga till den inbyggda färg-väljar-knappen */
+.color-input-square {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 50px !important;
+  height: 45px !important;
+  padding: 0 !important;
+  border: 1px solid #ddd !important;
+  border-radius: 12px !important;
+  cursor: pointer;
+  background: none;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Tar bort fula standard-ramar inuti färgväljaren i Chrome/Safari */
+.color-input-square::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.color-input-square::-webkit-color-swatch {
+  border: none;
+}
+/* Samma fix för Firefox */
+.color-input-square::-moz-color-swatch {
+  border: none;
+}
+
+/* NYTT: Backdrop-filter för <dialog> (Suddar ut bakgrunden precis som de andra!) */
+.folder-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(5px);
+  animation: fadeInOverlay 0.2s ease-out;
+}
+
+/* Animation när dialogrutan ploppar upp */
+.folder-dialog[open] {
+  animation: scaleUpDialog 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Responsivitet för mindre skärmar */
+@media (max-width: 600px) {
+  .new-template-container,
+  .edit-template-container {
+    padding: 20px;
+    width: 95vw;
+    max-height: 90vh;
+  }
+  .template-name-folder {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .zone-inputs {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 15px;
+  }
 }
