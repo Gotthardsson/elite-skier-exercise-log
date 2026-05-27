@@ -1,9 +1,9 @@
 import "./navigation.css";
 import { NavLink, useNavigate } from "react-router-dom";
 // Importera sportiga och passande ikoner
-import { Calendar, BarChart3, FolderHeart, Zap, User } from "lucide-react";
+import { Calendar, BarChart3, FolderHeart, Zap, User, Contact } from "lucide-react";
 
-export default function NavigationMenu() {
+export default function NavigationMenu({ isCoachMode }: { isCoachMode: boolean }) {
   const navigate = useNavigate();
   return (
     <nav className="navigation-bar">
@@ -22,10 +22,13 @@ export default function NavigationMenu() {
           className={({ isActive }) =>
             isActive ? "nav-item selected" : "nav-item"
           }
-          style={{ display: "none" }}
+          style={{ display: isCoachMode ? "flex" : "none" }}
           id="athletes-nav-link"
         >
+          <Contact className="nav-icon" size={20} />
+          <span>
           Atleter
+          </span>
         </NavLink>
         <NavLink
           to="/calendar"

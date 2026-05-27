@@ -3,6 +3,12 @@
   display: flex;
   justify-content: flex-start;
 }
+.integrations-page{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-left: 20px;
+}
 
 .ig-app-container {
   background: #ffffff;

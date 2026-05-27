@@ -9,11 +9,14 @@ import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import { useEffect, useState } from "react";
 import AthleteDropdown from "./AthleteDropdown";
 
+
 interface CalendarNavProps {
   currentDate: Date;
   setCurrentDate: (date: Date) => void;
   userId: number;
   setUserId: (userId: number) => void;
+  isCoachMode: boolean;
+  setIsCoachMode: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function CalendarNav({
@@ -21,6 +24,8 @@ export default function CalendarNav({
   setCurrentDate,
   userId,
   setUserId,
+  isCoachMode,
+  setIsCoachMode,
 }: CalendarNavProps) {
   // --- HJÄLPFUNKTION: Räkna ut första måndagen i maj för ett givet år ---
   const getFirstMondayOfMay = (year: number): Date => {
@@ -69,25 +74,27 @@ export default function CalendarNav({
   const [folders, setFolders] = useState<FolderType[]>([]);
   const [templates, setTemplates] = useState<TemplateType[]>([]);
 
-  const [isCoachMode, setIsCoachMode] = useState<boolean>(false);
-
+  
+   
+  
   const handleUserIdChange = (newUserId: number) => {
     setUserId(newUserId);
-  };
-
+  }
+  
   const handleCoachModeToggle = () => {
+    
     setIsCoachMode((prevMode) => {
-      const nextMode = !prevMode;
-
-      // Om nästa läge är falskt (vi stänger av tränarläget),
-      // återställ userId till demonstrations-profilen (1)
-      if (!nextMode) {
-        setUserId(1);
-      }
-
-      return nextMode;
-    });
-  };
+    const nextMode = !prevMode;
+    
+    // Om nästa läge är falskt (vi stänger av tränarläget),
+    // återställ userId till demonstrations-profilen (1)
+    if (!nextMode) {
+      setUserId(1);
+    }
+    
+    return nextMode;
+  });
+};
 
   const fetchFoldersAndTemplates = async () => {
     try {

@@ -158,7 +158,8 @@ function NewTemplateDialog({
             <input
               type="number"
               name="a1Input"
-              value={a1}
+              value={a1 === 0 ? "" : a1} // Visa tomt fält istället för 0
+              placeholder="0"
               onChange={(e) => setA1(e.target.valueAsNumber || 0)}
             />
           </div>
@@ -169,7 +170,8 @@ function NewTemplateDialog({
             <input
               type="number"
               name="a2Input"
-              value={a2}
+              value={a2 === 0 ? "" : a2} // Visa tomt fält istället för 0
+              placeholder="0"
               onChange={(e) => setA2(e.target.valueAsNumber || 0)}
             />
           </div>
@@ -180,7 +182,8 @@ function NewTemplateDialog({
             <input
               type="number"
               name="a3minus-input"
-              value={a3Minus}
+              value={a3Minus === 0 ? "" : a3Minus} // Visa tomt fält istället för 0
+              placeholder="0"
               onChange={(e) => setA3Minus(e.target.valueAsNumber || 0)}
             />
           </div>
@@ -191,7 +194,8 @@ function NewTemplateDialog({
             <input
               type="number"
               name="a3Input"
-              value={a3}
+              value={a3 === 0 ? "" : a3} // Visa tomt fält istället för 0
+              placeholder="0"
               onChange={(e) => setA3(e.target.valueAsNumber || 0)}
             />
           </div>
@@ -202,7 +206,8 @@ function NewTemplateDialog({
             <input
               type="number"
               name="a3+Input"
-              value={a3Plus}
+              value={a3Plus === 0 ? "" : a3Plus} // Visa tomt fält istället för 0
+              placeholder="0"
               onChange={(e) => setA3Plus(e.target.valueAsNumber || 0)}
             />
           </div>
@@ -213,7 +218,8 @@ function NewTemplateDialog({
             <input
               type="number"
               name="compInput"
-              value={comp}
+              value={comp === 0 ? "" : comp} // Visa tomt fält istället för 0
+              placeholder="0"
               onChange={(e) => setComp(e.target.valueAsNumber || 0)}
             />
           </div>
