@@ -17,6 +17,7 @@ import Athletes from "./pages/athletes/Athletes";
 
 function App() {
   const [activities, setActivities] = useState<Activity[]>([]); // En tom låda för sporter
+  const [isCoachMode, setIsCoachMode] = useState<boolean>(false); // NYTT: State för tränarläge
 
   // Så fort appen startar, hämta sporterna
   useEffect(() => {
@@ -25,14 +26,14 @@ function App() {
   return (
     <BrowserRouter>
       <div className="app-layout">
-        <NavigationMenu />
+        <NavigationMenu isCoachMode={isCoachMode}/>
 
         <main>
           <Routes>
-            <Route path="/" element={<Calender activities={activities} />} />
+            <Route path="/" element={<Calender activities={activities} isCoachMode={isCoachMode} setIsCoachMode={setIsCoachMode} />} />
             <Route
               path="/calendar"
-              element={<Calender activities={activities} />}
+              element={<Calender activities={activities} isCoachMode={isCoachMode} setIsCoachMode={setIsCoachMode} />}
             />
             <Route path="/stats" element={<Stats activities={activities} />} />
             <Route

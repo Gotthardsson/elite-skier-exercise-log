@@ -16,11 +16,13 @@ import { dayStatusApi } from "../../api/dayStatusApi";
 
 interface CalenderProps {
   activities: Activity[];
+  isCoachMode: boolean;
+  setIsCoachMode: (isCoachMode: boolean) => void;
 }
 
 const timeSlots = ["Morgon", "Förmiddag", "Eftermiddag", "Kväll"];
 
-export default function Calendar({ activities }: CalenderProps) {
+export default function Calendar({ activities, isCoachMode, setIsCoachMode }: CalenderProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [buttonPopup, setButtonPopup] = useState(false);
   const [dayStatusPopup, setDayStatusPopup] = useState(false);
@@ -38,6 +40,13 @@ export default function Calendar({ activities }: CalenderProps) {
   const [userId, setUserId] = useState(1); // Hårt kodat för demo, byt ut mot dynamiskt id vid implementering
 
   const days = useMemo(() => getWeekDays(currentDate), [currentDate]);
+
+  const toLocalISOString = (date: Date | string) => {
+    const d = new Date(date);
+    const tzOffset = d.getTimezoneOffset() * 60000; // i millisekunder
+    const localISOTime = new Date(d.getTime() - tzOffset).toISOString();
+    return localISOTime;
+  };
 
   const fetchSessions = async () => {
     try {
@@ -77,7 +86,7 @@ export default function Calendar({ activities }: CalenderProps) {
       const newSession = {
         userId: userId, // Ditt hårdkodade demo-id
         activityId: template.activityId || 0,
-        scheduledDate: date.toISOString(),
+        scheduledDate: toLocalISOString(date),
         timeOfDay: slot,
         isLogged: false,
         description: template.description || "",
@@ -278,6 +287,8 @@ export default function Calendar({ activities }: CalenderProps) {
         setCurrentDate={setCurrentDate}
         userId={userId}
         setUserId={setUserId}
+        isCoachMode={isCoachMode}
+        setIsCoachMode={setIsCoachMode}
       />
 
       <div className="calendar-grid" style={{ border: borderStyle }}>

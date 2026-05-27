@@ -6,6 +6,13 @@
   --clr-a3plus: rgb(248 113 113 / 1);
   --clr-comp: rgb(185 28 28 / 1);
 }
+.templates-page{
+    display: flex;
+    flex-direction: column;
+    max-width: 98%;
+    padding: 20px;
+    padding-left: 30px;
+}
 
 .header{
     padding: 10px;

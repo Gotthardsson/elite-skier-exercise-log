@@ -89,6 +89,7 @@ function Templates(props) {
 
   return (
     <>
+    <div className="templates-page">
       <div className="header">
         <div>
           <h1 className="title">Mallar av träningssessioner</h1>
@@ -203,6 +204,7 @@ function Templates(props) {
           </div>
         </div>
       )}
+    </div>
     </>
   );
 }
