@@ -8,15 +8,16 @@ import Swal from "sweetalert2";
 interface DayStatusModalProps {
   trigger: boolean;
   setTrigger: (val: boolean) => void;
-  date: Date | string;
-  onStatusSaved?: () => void;
+  date: Date;
+  userId: number; // Hämtas dynamiskt från kalendern
+  onStatusSaved: () => void;
 }
 
 export default function DayStatusModal(props: DayStatusModalProps) {
   // 1. Sätt upp ett grund-state baserat på dayType-interfacet
   const [status, setStatus] = useState<dayType>({
     id: 0,
-    userId: 1,
+    userId: props.userId, // DYNAMISKT: Initiera med rätt userId direkt
     sick: false,
     injured: false,
     day: "",
@@ -26,19 +27,20 @@ export default function DayStatusModal(props: DayStatusModalProps) {
     travelDay: false,
   });
 
-  // 2. Läs in data från backend så fort modalen öppnas på ett specifikt datum
+  // 2. Läs in data från backend så fort modalen öppnas på ett specifikt datum och för en specifik användare
   useEffect(() => {
     if (!props.trigger || !props.date) return;
 
     const loadDayStatus = async () => {
       try {
-        const response = await dayStatusApi.getByDate(props.date);
+        // FIXAT: Skicka med det dynamiska userId:t till API-anropet
+        const response = await dayStatusApi.getByDate(props.date, props.userId);
 
         if (response.status === 200 && response.data) {
           // Det fanns redan sparad data -> Läs in!
           setStatus(response.data);
         } else {
-          // FIXAT: Skapa en ren, LOKAL datumsträng (YYYY-MM-DD) utan tidszonsförskjutning
+          // Skapa en ren, LOKAL datumsträng (YYYY-MM-DD) utan tidszonsförskjutning
           const targetDate =
             props.date instanceof Date ? props.date : new Date(props.date);
           const year = targetDate.getFullYear();
@@ -48,6 +50,7 @@ export default function DayStatusModal(props: DayStatusModalProps) {
 
           setStatus({
             id: 0,
+            userId: props.userId, // DYNAMISKT: Säkra att det nya id:t sätts här med
             sick: false,
             injured: false,
             day: localDateStr,
@@ -63,12 +66,13 @@ export default function DayStatusModal(props: DayStatusModalProps) {
     };
 
     loadDayStatus();
-  }, [props.trigger, props.date]);
+  }, [props.trigger, props.date, props.userId]); // Lyssna även på props.userId om tränaren byter atlet i bakgrunden
 
   // 3. Funktion för att skicka tillbaka datan till backend via din apiClient
   const handleSave = async () => {
     try {
-      await dayStatusApi.saveStatus(status);
+      // FIXAT: Skicka med props.userId som det andra argumentet till saveStatus
+      await dayStatusApi.saveStatus(status, props.userId);
 
       Swal.fire({
         title: "Sparat!",
@@ -182,7 +186,7 @@ export default function DayStatusModal(props: DayStatusModalProps) {
                 checked={status.restDay}
                 onChange={(e) =>
                   setStatus({ ...status, restDay: e.target.checked })
-                } // ÄNDRAT
+                }
               />
               <span className="ds-card-icon"></span>
               <div className="ds-card-text">
@@ -203,7 +207,7 @@ export default function DayStatusModal(props: DayStatusModalProps) {
                 checked={status.travelDay}
                 onChange={(e) =>
                   setStatus({ ...status, travelDay: e.target.checked })
-                } // ÄNDRAT
+                }
               />
               <span className="ds-card-icon"></span>
               <div className="ds-card-text">

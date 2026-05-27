@@ -311,6 +311,18 @@ export default function Calendar({ activities }: CalenderProps) {
             <div className="calendar-day-total">
               {getDayTotal(day.fullDate)} min
             </div>
+            {/* dagsstatus */}
+            <div key={`status-row-${day.key}`} className="day-status-container">
+              <div className={getStatusClassForDate(day.fullDate)}>
+                <ButtonPrimary
+                  text={`${getStatusEmojiForDate(day.fullDate)}Dagsstatus`}
+                  onClick={() => {
+                    setDateOfCell(day.fullDate);
+                    setDayStatusPopup(true);
+                  }}
+                />
+              </div>
+            </div>
           </div>
         ))}
 
@@ -547,27 +559,6 @@ export default function Calendar({ activities }: CalenderProps) {
               );
             })}
           </Fragment>
-        ))}
-
-        {/* DAGSSTATUS-RADEN */}
-        <div className="calendar-row-label"></div>
-        {days.map((day) => (
-          <div
-            key={`status-row-${day.key}`}
-            className="calendar-cell calendar-status-cell"
-          >
-            <div className="day-status-container">
-              <div className={getStatusClassForDate(day.fullDate)}>
-                <ButtonPrimary
-                  text={`${getStatusEmojiForDate(day.fullDate)}Dagsstatus`}
-                  onClick={() => {
-                    setDateOfCell(day.fullDate);
-                    setDayStatusPopup(true);
-                  }}
-                />
-              </div>
-            </div>
-          </div>
         ))}
       </div>
 

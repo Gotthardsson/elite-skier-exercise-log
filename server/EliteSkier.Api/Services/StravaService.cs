@@ -122,7 +122,10 @@ public class StravaService : IStravaService
         }
     }
 
-    var finalJsonRaw = $"{{\"activity\":{activityJson},\"streams\":{streamsJson}}}";
+    string safeStreamsJson = string.IsNullOrEmpty(streamsJson) ? "[]" : streamsJson;
+
+    // Använd den säkra strängen istället
+    var finalJsonRaw = $"{{\"activity\":{activityJson},\"streams\":{safeStreamsJson}}}";
 
     // 6. Skapa objektet med all data (inklusive de nya pulszonerna!)
     var workout = new WorkoutSession

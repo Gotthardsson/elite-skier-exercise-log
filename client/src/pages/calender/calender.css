@@ -476,7 +476,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px !important;
+  padding: 0px !important;
   background-color: #f8fafc; /* Svagt ljusgrå för att markera sammanfattningsraden */
   border: none;
 }
@@ -491,6 +491,14 @@
 
 .calendar-status-cell .day-status-container button {
   width: 100%;
+}
+
+.day-status-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
 }
 
 /* Sjuk -> Mjuk Röd */
