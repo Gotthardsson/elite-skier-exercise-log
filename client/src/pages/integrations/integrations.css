@@ -1,70 +1,75 @@
-/* Huvudrubrik och text */
-h1 {
-  color: #0f172a;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.5rem;
+.integrations-page {
+  padding: 40px;
+  display: flex;
+  justify-content: flex-start;
 }
 
-p {
-  color: #64748b;
-  margin-bottom: 2rem;
-}
-
-/* App-kortet */
 .ig-app-container {
-  background-color: white;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08); /* Lite mjukare skugga */
-  border-radius: 20px; /* Matcha kalenderns runda hörn */
-  width: 100%;
-  max-width: 500px; /* Lagom bredd för ett kort */
-  padding: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 24px;
   display: flex;
   align-items: center;
-  gap: 1.5rem; /* Skapar jämnt avstånd mellan logga, text och knapp */
-  transition: transform 0.2s ease;
+  gap: 20px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.ig-app-container:hover {
-  transform: translateY(-2px);
-}
-
-/* Loggan */
 .strava-logo-svg {
-  width: 50px; /* Fast storlek är ofta bättre än % för loggor */
-  height: 50px;
-  object-fit: contain;
+  width: 48px;
+  height: 48px;
 }
 
-/* Textinnehållet */
 .ig-txt-content {
-  flex-grow: 1; /* Låter texten ta upp allt ledigt utrymme */
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  flex-grow: 1;
+  text-align: left;
 }
 
 .ig-txt-content h2 {
-  margin: 0;
+  margin: 0 0 4px 0;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #111827;
 }
 
 .ig-txt-content p {
   margin: 0;
   font-size: 0.9rem;
-  color: #64748b;
+  color: #6b7280;
 }
 
-/* Knappen */
-.connect-btn {
-  display: flex;
-  align-items: center;
+/* --- INTEGRATION BADGE --- */
+.ig-status {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-/* Speciell stil om den är kopplad (valfritt) */
-.ig-connect-btn.connected {
-  background: #f1f5f9;
-  color: #0f172a;
+.ig-status.is-disconnected {
+  color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.ig-status.is-connected {
+  color: #16a34a;
+  background-color: #f0fdf4;
+}
+
+/* --- DYNAMISK GRÖN KNAPP --- */
+.strava-btn-connected {
+  background-color: #16a34a !important; /* Strava-grön vid lyckad anslutning */
+  border-color: #16a34a !important;
+  color: #ffffff !important;
+}
+
+.strava-btn-connected:hover {
+  background-color: #15803d !important; /* Mörkare grön vid hovring */
+  border-color: #15803d !important;
 }

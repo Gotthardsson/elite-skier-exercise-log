@@ -19,7 +19,7 @@ function Templates(props) {
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [editingTemplate, setEditingTemplate] = useState<TemplateType | null>(
-    null,
+    null
   );
 
   useEffect(() => {
@@ -58,7 +58,6 @@ function Templates(props) {
     ? templates.filter((t) => t.folderId === selectedFolderId)
     : templates;
 
-
   const handleTemplateCreate = (newTemplate: TemplateType) => {
     setTemplates([...templates, newTemplate]);
   };
@@ -68,7 +67,7 @@ function Templates(props) {
 
   const handleTemplateUpdate = (updatedTemplate: TemplateType) => {
     setTemplates((prev) =>
-      prev.map((t) => (t.id === updatedTemplate.id ? updatedTemplate : t)),
+      prev.map((t) => (t.id === updatedTemplate.id ? updatedTemplate : t))
     );
     setEditingTemplate(null);
   };
@@ -76,19 +75,18 @@ function Templates(props) {
   const handleTemplateDelete = (deletedTemplate: TemplateType) => {
     setTemplates((prev) => prev.filter((t) => t.id !== deletedTemplate.id));
   };
-  
 
   function openNewTemplateDialog() {
     setIsTemplateDialogOpen(true);
   }
-  
+
   // Funktion för att toggla en mapp (klickar man på samma igen så nollställs filtret)
   const handleFolderClick = (folderId: number) => {
     setSelectedFolderId((prevId) => (prevId === folderId ? null : folderId));
   };
 
   return (
-    <>
+    <div className="main-template-container">
       <div className="header">
         <div>
           <h1 className="title">Mallar av träningssessioner</h1>
@@ -98,10 +96,16 @@ function Templates(props) {
           </p>
         </div>
         <div className="new-buttons">
-          <ButtonPrimary className="new-template-button" onClick={openNewTemplateDialog}>
-             Ny Träningsmall
+          <ButtonPrimary
+            className="new-template-button"
+            onClick={openNewTemplateDialog}
+          >
+            Ny Träningsmall
           </ButtonPrimary>
-          <ButtonPrimary className="new-folder-button" onClick={() => setIsFolderDialogOpen(true)}>
+          <ButtonPrimary
+            className="new-folder-button"
+            onClick={() => setIsFolderDialogOpen(true)}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="15"
@@ -135,18 +139,20 @@ function Templates(props) {
             isActive={selectedFolderId === folder.id}
             onClick={() => handleFolderClick(folder.id)}
             style={{
-          // color-mix tar din färg, behåller 20% av den och blandar resten med transparent (80% opacity)
-          backgroundColor: selectedFolderId === folder.id 
-            ? `color-mix(in srgb, ${folder.color} 20%, transparent)` 
-            : "transparent",
-          
-          // Vi sätter texten till mappens skarpa originalfärg så den syns tydligt mot den bleka bakgrunden
-          color: selectedFolderId === folder.id ? "#000000" : "inherit",
-          
-          // Vi gör ramen lite softare men i samma färg
-          borderColor: selectedFolderId === folder.id ? folder.color : "#ccc",
-          fontWeight: selectedFolderId === folder.id ? "bold" : "normal"
-        }}
+              // color-mix tar din färg, behåller 20% av den och blandar resten med transparent (80% opacity)
+              backgroundColor:
+                selectedFolderId === folder.id
+                  ? `color-mix(in srgb, ${folder.color} 20%, transparent)`
+                  : "transparent",
+
+              // Vi sätter texten till mappens skarpa originalfärg så den syns tydligt mot den bleka bakgrunden
+              color: selectedFolderId === folder.id ? "#000000" : "inherit",
+
+              // Vi gör ramen lite softare men i samma färg
+              borderColor:
+                selectedFolderId === folder.id ? folder.color : "#ccc",
+              fontWeight: selectedFolderId === folder.id ? "bold" : "normal",
+            }}
           />
         ))}
       </div>
@@ -167,7 +173,7 @@ function Templates(props) {
           />
         ))}
       </div>
-      <NewFolderDialog 
+      <NewFolderDialog
         isOpen={isFolderDialogOpen}
         onClose={() => setIsFolderDialogOpen(false)}
         onFolderCreate={handleFolderCreate}
@@ -203,7 +209,7 @@ function Templates(props) {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
 

@@ -13,4 +13,10 @@ public interface IStravaService
 
     // Hjälpmetod för att säkerställa giltig nyckel
     Task<string> GetValidAccessTokenAsync(StravaIntegration integration);
+
+    // NYTT: Kontrollera om användaren har en aktiv koppling
+    Task<bool> HasActiveConnectionAsync(int userId);
+
+    // NYTT: Koppla bort användaren (rensa tokens i DB)
+    Task<bool> DisconnectAsync(int userId);
 }

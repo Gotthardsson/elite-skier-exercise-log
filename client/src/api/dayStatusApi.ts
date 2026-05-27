@@ -13,21 +13,24 @@ export const dayStatusApi = {
   /**
    * Hämtar dagsstatus för ett specifikt datum och en specifik användare.
    */
-  getByDate: async (date: string | Date) => {
+  getByDate: async (date: string | Date, userId: number) => {
+    // <-- NYTT: Ta emot userId här
     const dateStr = formatLocalYYYYMMDD(date);
-    // FIXAT: Skicka med userId som en query-parameter (matchar [FromQuery] i C# om du har det där)
+
+    // DYNAMISKT: Skicka med det inskickade userId istället för =1
     return await apiClient.get<dayType | null>(
-      `/day-status?date=${dateStr}&userId=1`
+      `/day-status?date=${dateStr}&userId=${userId}`
     );
   },
 
   /**
    * Sparar eller uppdaterar en dagsstatus (Upsert).
    */
-  saveStatus: async (status: dayType) => {
+  saveStatus: async (status: dayType, userId: number) => {
+    // <-- NYTT: Ta emot userId här
     const cleanStatus = {
       ...status,
-      userId: 1, // FIXAT: Garantera att userId följer med i bodyn till din POST
+      userId: userId, // DYNAMISKT: Sätt den aktiva användarens id i bodyn
       day: formatLocalYYYYMMDD(status.day),
     };
 
@@ -35,10 +38,10 @@ export const dayStatusApi = {
   },
 
   /**
-   * Hämtar alla dagsstatusar för den inloggade användaren.
+   * Hämtar alla dagsstatusar för en viss användare.
    */
-  getAllStatuses: async () => {
-    // FIXAT: Skicka med userId till din /all-endpoint
-    return await apiClient.get<dayType[]>("/day-status/all?userId=1");
+  getAllStatuses: async (userId: number) => {
+    // FIXAT: Ändrat från " till ` runt hela URL-strängen
+    return await apiClient.get<dayType[]>(`/day-status/all?userId=${userId}`);
   },
 };
