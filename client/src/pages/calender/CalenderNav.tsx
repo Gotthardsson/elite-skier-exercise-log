@@ -167,15 +167,18 @@ export default function CalendarNav({
           ))}
         </select>
       </div>
-      <ButtonPrimary 
-      className="coach-button"
-      style={{ backgroundColor: isCoachMode ? "#007bff" : "#000000" }}
-      onClick={handleCoachModeToggle}
-      text="Tränarläge"
+      <ButtonPrimary
+        className="coach-button"
+        style={{ backgroundColor: isCoachMode ? "#007bff" : "#000000" }}
+        onClick={handleCoachModeToggle}
+        text="Tränarläge"
       ></ButtonPrimary>
-      <div className="dropdowns-container"> 
+      <div className="dropdowns-container">
         {isCoachMode && (
-          <AthleteDropdown athleteId={userId} onAthleteChange={handleUserIdChange} />
+          <AthleteDropdown
+            athleteId={userId}
+            onAthleteChange={handleUserIdChange}
+          />
         )}
         <TemplateDropdown folders={folders || []} templates={templates || []} />
       </div>

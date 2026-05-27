@@ -357,7 +357,7 @@ td[data-p-other-month="true"] {
   font-size: 1rem;
   font-weight: 700;
   text-align: center;
-  color: #c81e1e; /* En röd nyans för att symbolisera puls */
+  color: black; /* En röd nyans för att symbolisera puls */
 }
 
 .sm-slider-field {

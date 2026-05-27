@@ -13,7 +13,7 @@ public class StravaRepository : IStravaRepository
         _context = context;
     }
 
-    // Sparar eller uppdaterar tokens för en användare
+    // 1. Sparar eller uppdaterar tokens för en användare
     public async Task UpsertIntegrationAsync(StravaIntegration integration)
     {
         var existing = await _context.StravaIntegrations
@@ -32,14 +32,13 @@ public class StravaRepository : IStravaRepository
         await _context.SaveChangesAsync();
     }
 
-    // Hittar integrationen baserat på vår interna UserId
-    public async Task<StravaIntegration?> GetByUserIdAsync(int userId)
+    // 2. Hittar integrationen baserat på vår interna UserId (Helt rätt-typad mot interfacet!)
+    public async Task<StravaIntegration?> GetByIdAsync(int userId)
     {
-        return await _context.StravaIntegrations
-            .FirstOrDefaultAsync(x => x.UserId == userId);
+        return await _context.StravaIntegrations.FindAsync(userId);
     }
 
-    // VIKTIGAST FÖR WEBHOOKEN: Hittar integrationen via Stravas id
+    // 3. VIKTIGAST FÖR WEBHOOKEN: Hittar integrationen via Stravas interna athleteId
     public async Task<StravaIntegration?> GetByStravaAthleteIdAsync(string athleteId)
     {
         return await _context.StravaIntegrations

@@ -37,9 +37,9 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
   );
   const [savedDayStatuses, setSavedDayStatuses] = useState<dayType[]>([]);
   const [editClicked, setEditClicked] = useState(false);
-  const [userId, setUserId] = useState(1); // Hårt kodat för demo, byt ut mot dynamiskt id vid implementering
+  const [userId, setUserId] = useState(1); // Ändras dynamiskt via CalendarNav
 
-  const days = useMemo(() => getWeekDays(currentDate), [currentDate]);
+  const days = useMemo(() => getWeekDays(currentDate), [currentDate, userId]);
 
   const toLocalISOString = (date: Date | string) => {
     const d = new Date(date);
@@ -57,13 +57,23 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
     }
   };
 
-  useEffect(() => {
-    fetchSessions();
-  }, [userId]);
-
+  // Hämtar dagsstatusar synkat med det valda userId:t
   const fetchAllDayStatuses = async () => {
+    // 1. Tvinga fram en tömning av gamla statusar direkt så att UI nollställs för den nya användaren
+    setSavedDayStatuses([]);
+
     try {
-      const requests = days.map((day) => dayStatusApi.getByDate(day.fullDate));
+      // 2. Skapa en lokal kopia av det ID som gäller JUST NU när funktionen körs
+      const currentActiveUserId = userId;
+      console.log(
+        "[Kalender] Hämtar dagsstatusar för användare:",
+        currentActiveUserId
+      );
+
+      // 3. Skicka med den lokala kopian i anropet
+      const requests = days.map((day) =>
+        dayStatusApi.getByDate(day.fullDate, currentActiveUserId)
+      );
       const responses = await Promise.all(requests);
 
       const activeStatuses = responses
@@ -84,7 +94,7 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
     try {
       const template = JSON.parse(rawTemplateData);
       const newSession = {
-        userId: userId, // Ditt hårdkodade demo-id
+        userId: userId,
         activityId: template.activityId || 0,
         scheduledDate: toLocalISOString(date),
         timeOfDay: slot,
@@ -238,7 +248,10 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
     setButtonPopup(true);
   }
 
-  const handleDeleteSession = async (e, sessionId) => {
+  const handleDeleteSession = async (
+    e: React.MouseEvent,
+    sessionId: number
+  ) => {
     e.stopPropagation();
     const result = await Swal.fire({
       title: "Vill du radera passet?",
@@ -275,10 +288,11 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
       .reduce((sum, s) => sum + getTotalTime(s), 0);
   };
 
+  // Ser till att kalendern laddar om ALLT (både pass och dagsstatusar) när användare eller datum ändras
   useEffect(() => {
     fetchSessions();
     fetchAllDayStatuses();
-  }, [currentDate]);
+  }, [currentDate, userId]);
 
   return (
     <section className="calendar">
@@ -307,6 +321,18 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
             </span>
             <div className="calendar-day-total">
               {getDayTotal(day.fullDate)} min
+            </div>
+            {/* dagsstatus */}
+            <div key={`status-row-${day.key}`} className="day-status-container">
+              <div className={getStatusClassForDate(day.fullDate)}>
+                <ButtonPrimary
+                  text={`${getStatusEmojiForDate(day.fullDate)}Dagsstatus`}
+                  onClick={() => {
+                    setDateOfCell(day.fullDate);
+                    setDayStatusPopup(true);
+                  }}
+                />
+              </div>
             </div>
           </div>
         ))}
@@ -371,17 +397,12 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
                           s.isLogged ? "logged" : "planned"
                         } ${s.stravaRaw ? "strava" : ""}`}
                         onClick={(e) => {
-                          // 1. Stoppa klicket från att bubbla ut till kalendercellen
                           e.stopPropagation();
-
-                          // 2. Kontrollera om passet är loggat eller inte
                           if (!s.isLogged) {
-                            // Planerat pass (eller planerat Strava-pass) -> Öppna direkt i loggningsvyn
-                            setEditClicked(false); // Säkra att vi inte är i redigeringsläge
+                            setEditClicked(false);
                             logOrEditSession(e, s, s.isLogged, false);
                           } else {
-                            // Redan loggat pass (oavsett om det är vanligt eller Strava) -> Öppna i redigeringsvyn
-                            setEditClicked(true); // <-- FIX: Detta talar om för modalen att den ska tillåta ändringar!
+                            setEditClicked(true);
                             logOrEditSession(e, s, s.isLogged, true);
                           }
                         }}
@@ -398,21 +419,17 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
                             <div className="session-cell-card-content">
                               <span>{getTotalTime(s)} min</span>
 
-                              {/* HÄR ÄR DEN UPPDATERADE ZONSTAPELN */}
+                              {/* VISUELL ZONSTAPEL */}
                               {getTotalTime(s) > 0 && (
                                 <div className="session-zone-bar">
                                   {(() => {
                                     const total = getTotalTime(s);
-
-                                    // 1. Välj rätt zon-objekt baserat på om passet är loggat eller planerat
                                     const zoneObj = s.isLogged
                                       ? s.actualZones
                                       : s.plannedZones;
 
-                                    // Om zon-objektet saknas helt (t.ex. vid felaktig initiering), rita inget
                                     if (!zoneObj) return null;
 
-                                    // 2. Skapa arrayen av minuter i exakt ordning utifrån ditt underobjekt
                                     const zones = [
                                       zoneObj.a1,
                                       zoneObj.a2,
@@ -422,7 +439,6 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
                                       zoneObj.comp,
                                     ];
 
-                                    // Matchande CSS-klasser (samma som i ditt CSS)
                                     const zoneClasses = [
                                       "zone-a1",
                                       "zone-a2",
@@ -434,8 +450,6 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
 
                                     return zones.map((minutes, index) => {
                                       if (!minutes || minutes <= 0) return null;
-
-                                      // Räkna ut den procentuella andelen av totaltiden
                                       const percentage =
                                         (minutes / total) * 100;
 
@@ -466,7 +480,6 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
                                 );
                               })()}
                             </div>
-                            {/* NYTT: Dynamisk statustext i hörnet */}
                             <span className="session-status-badge">
                               {(() => {
                                 if (!s.isLogged && s.stravaRaw)
@@ -528,7 +541,7 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
                                   ? "sm-edit-btn logged delete"
                                   : "sm-edit-btn planned delete "
                               }
-                              onClick={(e) => handleDeleteSession(e, s.id)}
+                              onClick={(e) => handleDeleteSession(e, s.id!)}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -558,26 +571,6 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
             })}
           </Fragment>
         ))}
-
-        <div className="calendar-row-label"></div>
-        {days.map((day) => (
-          <div
-            key={`status-row-${day.key}`}
-            className="calendar-cell calendar-status-cell"
-          >
-            <div className="day-status-container">
-              <div className={getStatusClassForDate(day.fullDate)}>
-                <ButtonPrimary
-                  text={`${getStatusEmojiForDate(day.fullDate)}Dagsstatus`}
-                  onClick={() => {
-                    setDateOfCell(day.fullDate);
-                    setDayStatusPopup(true);
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        ))}
       </div>
 
       <SessionModal
@@ -605,6 +598,7 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
         trigger={dayStatusPopup}
         setTrigger={(val: boolean) => setDayStatusPopup(val)}
         date={dateOfCell}
+        userId={userId} // Skickar med det aktiva användar-id:t till spara-modalen
         onStatusSaved={fetchAllDayStatuses}
       />
     </section>

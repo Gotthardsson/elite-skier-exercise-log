@@ -133,7 +133,11 @@ export default function SessionModal(props) {
       setLogSelected(true);
     } else {
       // Helt nytt tomt pass
-      const newSession = createInitialSession(props.date, props.timeOfDay, props.userId);
+      const newSession = createInitialSession(
+        props.date,
+        props.timeOfDay,
+        props.userId
+      );
       setSession(newSession);
       setLogSelected(props.isLogSelected);
     }
@@ -146,7 +150,7 @@ export default function SessionModal(props) {
     props.isLogSelected,
     props.editClicked,
     props.isLogged,
-    props.userId
+    props.userId,
   ]);
 
   const handleZoneChange = (zoneKey, value) => {
@@ -322,10 +326,12 @@ export default function SessionModal(props) {
                   // FIXAT: Om värdet är 0, visa en tom sträng i rutan istället
                   value={
                     isLogSelected
-                      ? session.actualZones[zone] === 0
+                      ? session.actualZones[zone] === 0 ||
+                        session.actualZones[zone] < 0
                         ? ""
                         : session.actualZones[zone]
-                      : session.plannedZones[zone] === 0
+                      : session.plannedZones[zone] === 0 ||
+                        session.plannedZones[zone] < 0
                       ? ""
                       : session.plannedZones[zone]
                   }
@@ -400,8 +406,12 @@ export default function SessionModal(props) {
           <input
             type="number"
             className="sm-pulse-input"
-            placeholder="BPM"
-            value={session.avgHeartRate ?? 0}
+            placeholder="0"
+            value={
+              session.avgHeartRate === 0 || session.avgHeartRate < 0
+                ? ""
+                : session.avgHeartRate
+            }
             onFocus={(e) => e.target.select()}
             onChange={(e) =>
               setSession({ ...session, avgHeartRate: Number(e.target.value) })
