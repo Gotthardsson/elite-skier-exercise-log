@@ -232,16 +232,16 @@ function Stats(props: { activities: any[] }) {
           <label>Hälsa (Sjuk / Skadad)</label>
           <br />
           <strong>
-            <span className="text-red">🤒 {statusSummary.sick}d</span>{" "}
-            <span className="text-orange">🤕 {statusSummary.injured}d</span>
+            <span className="text-red">{statusSummary.sick}d /</span>{" "}
+            <span className="text-orange">{statusSummary.injured}d</span>
           </strong>
         </div>
         <div className="stats-item status-indicator-rest-travel">
           <label>Logistik (Vila / Resa)</label>
           <br />
           <strong>
-            <span className="text-blue">💤 {statusSummary.rest}d</span>{" "}
-            <span className="text-cyan">✈️ {statusSummary.travel}d</span>
+            <span className="text-blue">{statusSummary.rest}d /</span>{" "}
+            <span className="text-cyan">{statusSummary.travel}d</span>
           </strong>
         </div>
       </div>

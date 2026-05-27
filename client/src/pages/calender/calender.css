@@ -1,4 +1,7 @@
-/* --- OVERALL CALENDAR LAYOUT --- */
+/* ==========================================================================
+   1. OVERALL CALENDAR LAYOUT & GRID
+   ========================================================================== */
+
 .calendar {
   max-width: 80vw;
   min-width: 60vw;
@@ -8,18 +11,16 @@
 .calendar-grid {
   display: grid;
   grid-template-columns: 120px repeat(7, minmax(0, 1fr));
-
-  /* FIX 1: Istället för 1fr låter vi raden bli så hög som passen kräver, men minst t.ex. 100px */
-  grid-auto-rows: minmax(100px, auto);
-
+  grid-auto-rows: minmax(
+    100px,
+    auto
+  ); /* Låter raden växa om passen kräver det */
   gap: 12px;
   padding: 18px;
   border: 3px solid #2fd08f;
   border-radius: 24px;
   background: #f8f8f8;
   align-items: stretch;
-
-  /* FIX 2: Ändra height till min-height så griddet får expandera nedåt vid behov */
   min-height: 70vh;
 }
 
@@ -28,13 +29,24 @@
   align-items: center;
   justify-content: center;
   color: #0f172a;
-  font-size: 2rem;
+  font-size: 1.2rem; /* SÄNKT: Från 2rem till 1.2rem för bättre proportioner */
   font-weight: 800;
   letter-spacing: -0.02em;
   text-transform: capitalize;
 }
 
-/* --- DAY HEADERS --- */
+.calendar-row-label {
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #98a0ad;
+}
+
+/* ==========================================================================
+     2. DAY HEADERS (Mån, Tis, Ons...)
+     ========================================================================== */
+
 .calendar-day {
   min-height: 70px;
   display: flex;
@@ -52,12 +64,12 @@
 }
 
 .calendar-day-date {
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   border-radius: 999px;
   display: grid;
   place-items: center;
-  font-size: 1.8rem;
+  font-size: 1.1rem; /* SÄNKT: Från 1.8rem för att siffran ska andas inuti cirkeln */
   font-weight: 700;
   color: #2c3442;
 }
@@ -66,78 +78,11 @@
   background: #111827;
   color: white;
 }
-.calendar-cell.drag-over {
-  background-color: #e3f2fd !important; /* Ljusblå highlight */
-  border: 2px dashed #2196f3 !important;
-  cursor: copy;
-}
 
-.calendar-row-label {
-  display: flex;
-  align-items: center;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #98a0ad;
-}
+/* ==========================================================================
+     3. CALENDAR CELLS (Tomma rutor & Drag-and-drop)
+     ========================================================================== */
 
-/* --- DYNAMISKA STATUSHANTERINGAR FÖR KALENDERKNAPPARNA --- */
-
-/* Sjuk -> Mjuk Röd */
-.status-saved-sick button {
-  background-color: #ef4444 !important;
-  border-color: #ef4444 !important;
-  color: #ffffff !important;
-  font-weight: 700;
-}
-.status-saved-sick button:hover {
-  background-color: #dc2626 !important;
-}
-
-/* Skadad -> Mjuk Orange */
-.status-saved-injured button {
-  background-color: #f97316 !important;
-  border-color: #f97316 !important;
-  color: #ffffff !important;
-  font-weight: 700;
-}
-.status-saved-injured button:hover {
-  background-color: #ea580c !important;
-}
-
-/* Vilodag -> Mjuk Blå/Lila återhämtning */
-.status-saved-rest button {
-  background-color: #3b82f6 !important;
-  border-color: #3b82f6 !important;
-  color: #ffffff !important;
-  font-weight: 700;
-}
-.status-saved-rest button:hover {
-  background-color: #2563eb !important;
-}
-
-/* Resdag -> Mjuk Turkos */
-.status-saved-travel button {
-  background-color: #06b6d4 !important;
-  border-color: #06b6d4 !important;
-  color: #ffffff !important;
-  font-weight: 700;
-}
-.status-saved-travel button:hover {
-  background-color: #0891b2 !important;
-}
-
-/* Bara biometri (Puls/HRV sparat) -> Behåll kalendergrön */
-.status-saved-biometrics button {
-  background-color: #2fd08f !important;
-  border-color: #2fd08f !important;
-  color: #ffffff !important;
-  font-weight: 700;
-}
-.status-saved-biometrics button:hover {
-  background-color: #26b37a !important;
-}
-
-/* --- CALENDAR CELLS --- */
 .calendar-cell {
   min-height: 100%;
   width: 100%;
@@ -148,26 +93,28 @@
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  padding: 8px; /* Lite mer andningsutrymme inuti */
+  padding: 8px;
   box-sizing: border-box;
   cursor: pointer;
   position: relative;
-
-  /* Mjuk övergång när hela cellen växer */
+  z-index: 1;
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease,
     border-color 0.2s ease, box-shadow 0.2s ease;
-  z-index: 1;
 }
 
 .calendar-cell:hover {
-  background: #ffffff; /* Ger cellen en solid vit bakgrund vid hover så den täcker bakomvarande linjer */
+  background: #ffffff; /* Täcker bakomvarande linjer */
   border-color: #cbd5e1;
-  transform: scale(
-    1.04
-  ); /* Skalar upp cellen 4% – precis lagom för att ge plats */
+  transform: scale(1.04); /* Mjuk zoom */
   box-shadow: 0 12px 20px -8px rgba(15, 23, 42, 0.15),
     0 4px 12px -2px rgba(15, 23, 42, 0.05);
-  z-index: 10; /* Lägger sig garanterat ovanpå grann-cellerna */
+  z-index: 10; /* Lägger sig ovanpå grannarna */
+}
+
+.calendar-cell.drag-over {
+  background-color: #e3f2fd !important;
+  border: 2px dashed #2196f3 !important;
+  cursor: copy;
 }
 
 .cell-plus {
@@ -195,29 +142,44 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  /* Ingen absolut-positionering här, låt flexbox sköta bredden automatiskt */
 }
 
-/* --- TRÄNINGSKORT (SESSION BUBBLAN) --- */
+/* ==========================================================================
+     4. TRÄNINGSKORT (Session-bubblan)
+     ========================================================================== */
+
 .session-cell-card {
   width: 100%;
   box-sizing: border-box;
-  padding: 4px 8px; /* Mycket mindre padding på höjden */
+  padding: 8px 10px; /* Optimerat avstånd inuti kortet */
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   text-align: left;
-  position: relative;
+  position: relative; /* Absolut nödvändig för att statustexten ska hamna rätt */
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
-/* Subtil lyft-effekt vid hovring */
 .session-cell-card:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
+
+/* --- STATUSTEXT / BADGE (NY!) --- */
+.session-status-badge {
+  position: absolute;
+  top: 6px; /* Lite närmare överkanten */
+  right: 10px; /* Lite närmare högerkanten */
+  font-size: 9px !important; /* Ligger någon global regel som sabbar */
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.5; /* SÄNKT: Från 0.75 till 0.5 för att smälta in bättre i bakgrunden */
+}
+
+/* --- FÄRGKODNINGAR BASERAT PÅ STATUS --- */
 
 /* Status: Planerat (Mjukt blå) */
 .session-cell-card.planned {
@@ -226,6 +188,9 @@
 }
 .session-cell-card.planned strong,
 .session-cell-card.planned span {
+  color: #1d4ed8;
+}
+.session-cell-card.planned .session-status-badge {
   color: #1d4ed8;
 }
 
@@ -239,6 +204,9 @@
 .session-cell-card.strava span {
   color: #c2410c;
 }
+.session-cell-card.strava .session-status-badge {
+  color: #c2410c;
+}
 
 /* Status: Loggat (Mjukt grön) */
 .session-cell-card.logged {
@@ -249,8 +217,62 @@
 .session-cell-card.logged span {
   color: #15803d;
 }
+.session-cell-card.logged .session-status-badge {
+  color: #15803d;
+}
 
-/* Kortets Header (Aktivitet + Knappar) */
+/* ==========================================================================
+     5. INNEHÅLL I TRÄNINGSKORTEN (Texter & Kommentarer)
+     ========================================================================== */
+/* Själva spåret/containern för stapeln */
+.session-zone-bar {
+  display: flex;
+  width: 100%;
+  height: 6px; /* Tunn och smidig stapel */
+  border-radius: 999px; /* Gör hela stapeln rund i ändarna */
+  background: rgba(
+    0,
+    0,
+    0,
+    0.05
+  ); /* Väldigt ljusgrå bakgrund för tomma partier */
+  overflow: hidden; /* Klipper segmenten inuti så att rundningen bibehålls */
+  margin-top: 4px; /* Avstånd från minut-texten */
+  margin-bottom: 2px;
+  gap: 1px; /* Skapar det lilla eleganta avbrottet mellan zonerna */
+}
+
+/* De individuella färgblocken inuti stapeln */
+.zone-segment {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* --- DINA ZON-FÄRGER (Justera dessa så de matchar din modal exakt!) --- */
+.zone-segment.zone-a1 {
+  background-color: #10b981; /* Grön */
+}
+
+.zone-segment.zone-a2 {
+  background-color: #a3e635; /* Ljusgrön/Gulgrön */
+}
+
+.zone-segment.zone-a3minus {
+  background-color: #facc15; /* Gul */
+}
+
+.zone-segment.zone-a3 {
+  background-color: #f97316; /* Orange */
+}
+
+.zone-segment.zone-a3plus {
+  background-color: #ef4444; /* Röd */
+}
+
+.zone-segment.zone-comp {
+  background-color: #8b5cf6; /* Lila för tävling/maxfart */
+}
+
 .session-cell-header {
   display: flex;
   flex-direction: row;
@@ -265,13 +287,13 @@
   flex-grow: 1;
   flex-shrink: 1;
   min-width: 0;
+  padding-right: 60px; /* Förhindrar att sportkoden (t.ex LVG) krockar med statustexten */
 }
 
-/* Kortets Content (Minuter) */
 .session-cell-card-content {
   display: flex;
-  flex-direction: column; /* Ändrat till column så de staplas på höjden */
-  align-items: flex-start; /* Justera texten till vänster */
+  flex-direction: column;
+  align-items: flex-start;
   width: 100%;
   gap: 2px;
 }
@@ -292,45 +314,44 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-
-  /* FIXAT: Aktivera radbrytning istället för att klippa texten */
-  white-space: normal; /* Tillåter texten att brytas till ny rad */
-  word-break: break-word; /* Bryter långa ord om det absolut behövs så det inte trycks ut */
-
-  /* Färgmatchning baserat på status */
+  white-space: normal;
+  word-break: break-word;
   color: inherit;
   opacity: 0.8;
 }
 
 .session-cell-card.strava .session-cell-comment-preview {
-  color: #c2410c; /* Orangeaktig ton för Strava-pass */
+  color: #c2410c;
 }
 .session-cell-card.logged .session-cell-comment-preview {
-  color: #047857; /* Grönaktig ton för loggade pass */
+  color: #047857;
 }
-
 .session-cell-card.planned .session-cell-comment-preview {
-  color: #1d4ed8; /* Blåaktig ton för planerade pass */
+  color: #1d4ed8;
 }
 
-/* --- INTERAKTIVA KNAPPAR (Döljs och visas vid hovring) --- */
-.sm-edit-btns-container .sm-edit-btn {
-  opacity: 1 !important;
-  display: inline-flex !important;
-}
+/* ==========================================================================
+     6. INTERAKTIVA KNAPPAR INUTI KORTEN (Redigera/Radera/Logga)
+     ========================================================================== */
+
 .sm-edit-btns-container {
   display: flex;
   flex-direction: row;
   gap: 4px;
   opacity: 0;
   transition: opacity 0.15s ease;
-
-  /* FIXAT: Knappar får ALDRIG tryckas ihop eller skjutas ut */
   flex-shrink: 0;
+  margin-top: 12px; /* Skjuter ner knapparna så de inte krockar med statustexten */
 }
-/* Visa knapparna enbart när muspekaren är på just det här kortet */
+
+/* Visar redigera/radera-knapparna enbart vid hover på kortet */
 .session-cell-card:hover .sm-edit-btns-container {
   opacity: 1;
+}
+
+.sm-edit-btns-container .sm-edit-btn {
+  opacity: 1 !important;
+  display: inline-flex !important;
 }
 
 .sm-edit-btn {
@@ -352,7 +373,6 @@
   background: #3b82f6;
   color: white;
 }
-
 .session-cell-card.strava .sm-edit-btn:hover {
   background: #f97316;
   color: white;
@@ -361,18 +381,17 @@
   background: #11b981;
   color: white;
 }
-
 .sm-edit-btn.delete:hover {
   background: #ef4444 !important;
   color: white !important;
 }
 
-/* Den lilla runda Logga-knappen för ologgade pass */
+/* Den blå logga-knappen för planerade pass */
 .session-cell-log-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 20px;
+  height: 22px;
   padding: 2px 8px;
   border: none;
   border-radius: 6px;
@@ -380,27 +399,33 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
+  margin-top: 4px;
 }
 
 .session-cell-log-btn.planned {
   background: #3b82f6;
   color: white;
+  width: 100%; /* FIXAT: Ändrat från 200% till 100% för att hålla sig inuti kortet */
 }
 
 .session-cell-log-btn.strava {
   background: #f97316;
   color: white;
+  width: 100%;
 }
 
 .session-cell-log-btn:hover {
-  transform: scale(1.03);
+  transform: scale(1.02);
 }
 
 .session-cell-log-btn.logged {
   display: none;
 }
 
-/* --- TOGGLE BUTTONS (PLANERA / LOGGA TYPER) --- */
+/* ==========================================================================
+     7. MODAL TOGGLE BUTTONS (Planera / Logga flikar)
+     ========================================================================== */
+
 .nav-log-type-div {
   width: 30%;
   display: flex;
@@ -443,19 +468,21 @@
   border: solid #3b82f6 1px;
 }
 
-/* Placerar statusknappen snyggt centrerad i bottenradens celler */
+/* ==========================================================================
+     8. DAGSSTATUS-RADEN (Sjuk, Skadad, Vila, Resa i botten)
+     ========================================================================== */
+
 .calendar-status-cell {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 8px !important;
-  background-color: #f8fafc; /* Gör raden svagt ljusgrå för att markera att det är en sammanfattning */
+  background-color: #f8fafc; /* Svagt ljusgrå för att markera sammanfattningsraden */
   border: none;
 }
 
-/* Gömmer det lilla plus-tecknet (+) på just statusraden */
 .calendar-status-cell .cell-plus {
-  display: none;
+  display: none; /* Gömmer plustecknet på statusraden */
 }
 
 .calendar-status-cell .day-status-container {
@@ -464,4 +491,59 @@
 
 .calendar-status-cell .day-status-container button {
   width: 100%;
+}
+
+/* Sjuk -> Mjuk Röd */
+.status-saved-sick button {
+  background-color: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+.status-saved-sick button:hover {
+  background-color: #dc2626 !important;
+}
+
+/* Skadad -> Mjuk Orange */
+.status-saved-injured button {
+  background-color: #f97316 !important;
+  border-color: #f97316 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+.status-saved-injured button:hover {
+  background-color: #ea580c !important;
+}
+
+/* Vilodag -> Mjuk Blå */
+.status-saved-rest button {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+.status-saved-rest button:hover {
+  background-color: #2563eb !important;
+}
+
+/* Resdag -> Mjuk Turkos */
+.status-saved-travel button {
+  background-color: #06b6d4 !important;
+  border-color: #06b6d4 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+.status-saved-travel button:hover {
+  background-color: #0891b2 !important;
+}
+
+/* Biometri -> Kalendergrön */
+.status-saved-biometrics button {
+  background-color: #2fd08f !important;
+  border-color: #2fd08f !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+.status-saved-biometrics button:hover {
+  background-color: #26b37a !important;
 }

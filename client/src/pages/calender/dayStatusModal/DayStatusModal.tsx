@@ -139,7 +139,7 @@ export default function DayStatusModal(props: DayStatusModalProps) {
                   setStatus({ ...status, sick: e.target.checked })
                 }
               />
-              <span className="ds-card-icon">🤒</span>
+              <span className="ds-card-icon"></span>
               <div className="ds-card-text">
                 <strong>Sjuk</strong>
                 <span>Förkylning, feber etc.</span>
@@ -160,7 +160,7 @@ export default function DayStatusModal(props: DayStatusModalProps) {
                   setStatus({ ...status, injured: e.target.checked })
                 }
               />
-              <span className="ds-card-icon">🤕</span>
+              <span className="ds-card-icon"></span>
               <div className="ds-card-text">
                 <strong>Skadad</strong>
                 <span>Överbelastning, känning</span>
@@ -184,7 +184,7 @@ export default function DayStatusModal(props: DayStatusModalProps) {
                   setStatus({ ...status, restDay: e.target.checked })
                 } // ÄNDRAT
               />
-              <span className="ds-card-icon">💤</span>
+              <span className="ds-card-icon"></span>
               <div className="ds-card-text">
                 <strong>Vilodag</strong>
                 <span>Planerad återhämtning</span>
@@ -205,7 +205,7 @@ export default function DayStatusModal(props: DayStatusModalProps) {
                   setStatus({ ...status, travelDay: e.target.checked })
                 } // ÄNDRAT
               />
-              <span className="ds-card-icon">✈️</span>
+              <span className="ds-card-icon"></span>
               <div className="ds-card-text">
                 <strong>Resdag</strong>
                 <span>Läger eller tävling</span>
