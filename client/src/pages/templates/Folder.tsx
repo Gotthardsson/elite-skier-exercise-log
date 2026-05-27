@@ -5,14 +5,15 @@ interface FolderProps {
   folder: FolderType;
   isActive: boolean;
   onClick: () => void;
+  style?: React.CSSProperties;
 }
 
-function Folder({ folder, isActive, onClick }: FolderProps) {
+function Folder({ folder, isActive, onClick, style }: FolderProps) {
   return (
     <div 
       className={`folder-card ${isActive ? "active" : ""}`}
       onClick={onClick}
-      style={{ cursor: "pointer" }} // Gör det tydligt att den går att klicka på
+      style={{ cursor: "pointer", ...style }} // Gör det tydligt att den går att klicka på
     >
       <h4 className="folder-name">{folder.name}</h4>
       <svg

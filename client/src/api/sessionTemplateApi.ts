@@ -8,7 +8,6 @@ export const sessionTemplateApi = {
   // Skapa en ny mall
   create: async (template: TemplateType) => {
     const dto = {
-      Id: template.id,
       Title: template.title,
       FolderId: template.folderId ? template.folderId : null,
       ActivityId: template.activityId,

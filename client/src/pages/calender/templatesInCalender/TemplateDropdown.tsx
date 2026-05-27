@@ -2,6 +2,8 @@
 import { useState, useRef, useEffect } from "react";
 import type { FolderType } from "../../../types/FolderType";
 import type { TemplateType } from "../../../types/TemplateType";
+// Importera din nya knappkomponent
+import ButtonPrimary from "../../../components/ButtonPrimary";
 
 interface TemplateDropdownProps {
   folders: FolderType[];
@@ -32,7 +34,6 @@ export default function TemplateDropdown({ folders, templates }: TemplateDropdow
   };
 
   const handleDragStart = (e: React.DragEvent, template: TemplateType) => {
-    // Gör om mall-objektet till en textsträng så kalendercellen kan läsa av den vid drop
     e.dataTransfer.setData("application/json", JSON.stringify(template));
     e.dataTransfer.effectAllowed = "move";
   };
@@ -41,14 +42,15 @@ export default function TemplateDropdown({ folders, templates }: TemplateDropdow
   const looseTemplates = templates.filter(t => !t.folderId && t.folderId !== 0);
 
   return (
-    <div ref={dropdownRef} className="template-dropdown-wrapper" style={{ position: "relative", marginLeft: "auto", width: "100px" }}>
-      <button 
-        className="btn btn-primary"
+    <div ref={dropdownRef} className="template-dropdown-wrapper" style={{ position: "relative", marginLeft: "auto" }}>
+      
+      {/* NYTT: Använd ButtonPrimary istället för den gamla HTML-knappen */}
+      <ButtonPrimary 
         onClick={() => setIsOpen(!isOpen)}
         style={{ display: "flex", alignItems: "center", gap: "6px" }}
       >
-         Mallar ▾
-      </button>
+        Mallar ▾
+      </ButtonPrimary>
 
       {isOpen && (
         <div className="template-dropdown-menu" style={{
@@ -85,14 +87,19 @@ export default function TemplateDropdown({ folders, templates }: TemplateDropdow
                     padding: "6px 8px",
                     cursor: "pointer",
                     borderRadius: "4px",
-                    backgroundColor: isExpanded ? "#f0f4f8" : "transparent"
+                    // NYTT: Soft färg-mix här också baserat på mappen egna färg istället för tråkigt grå!
+                    backgroundColor: isExpanded 
+                      ? `color-mix(in srgb, ${folder.color || "#3b82f6"} 15%, transparent)` 
+                      : "transparent",
+                    color: isExpanded ? (folder.color || "#000") : "inherit",
+                    fontWeight: isExpanded ? "bold" : "normal"
                   }}
                 >
-                  <span style={{ fontSize: "10px", color: "#888" }}>{isExpanded ? "▼" : "▶"}</span>
+                  <span style={{ fontSize: "10px", color: "#888", marginRight: "2px" }}>{isExpanded ? "▼" : "▶"}</span>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={folder.color || "#444"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path>
                   </svg>
-                  <span style={{ fontSize: "14px", fontWeight: 500 }}>{folder.name}</span>
+                  <span style={{ fontSize: "14px" }}>{folder.name}</span>
                 </div>
 
                 {/* VISAL MALLAR INUTI MAPPEN (Dropdown nivå 2) */}
@@ -111,10 +118,12 @@ export default function TemplateDropdown({ folders, templates }: TemplateDropdow
                             margin: "2px 0",
                             backgroundColor: "#f9f9f9",
                             border: "1px solid #eef",
-                            borderLeft: "3px solid #3b82f6",
+                            // Snygg detalj: Mallens vänsterkant matchar mappens färg
+                            borderLeft: `3px solid ${folder.color || "#3b82f6"}`,
                             borderRadius: "4px",
                             cursor: "grab",
-                            fontSize: "13px"
+                            fontSize: "13px",
+                            color: "#333" // Tvinga mörk text i dropdownen
                           }}
                         >
                            {template.title}
@@ -127,7 +136,7 @@ export default function TemplateDropdown({ folders, templates }: TemplateDropdow
             );
           })}
 
-          {/* LÖSA MALLAR (UTAN MAPP) - Visas i botten om man scrollar förbi mappar */}
+          {/* LÖSA MALLAR (UTAN MAPP) */}
           {looseTemplates.length > 0 && (
             <>
               <div style={{ padding: "6px 8px 2px 8px", fontWeight: "bold", fontSize: "11px", color: "#999", textTransform: "uppercase", marginTop: "6px" }}>
@@ -146,7 +155,8 @@ export default function TemplateDropdown({ folders, templates }: TemplateDropdow
                     borderLeft: "3px solid #999",
                     borderRadius: "4px",
                     cursor: "grab",
-                    fontSize: "13px"
+                    fontSize: "13px",
+                    color: "#333"
                   }}
                 >
                    {template.title}
