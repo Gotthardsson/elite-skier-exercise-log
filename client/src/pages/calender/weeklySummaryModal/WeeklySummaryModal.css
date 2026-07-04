@@ -1,0 +1,151 @@
+/* Huvudbehållaren är nu transparent för att smälta in i sidans bakgrund */
+.dashboard-summary-card {
+  width: 100%;
+  background-color: transparent;
+  padding: 10px 0 24px 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin-top: 20px;
+}
+
+/* Titel i samma stil som kalendermånaden */
+.dashboard-summary-title {
+  margin: 0 0 16px 4px;
+  font-size: 1.3rem;
+  color: #0f172a;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Tredelad grid-layout */
+.dashboard-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* Kolumn-baser */
+.dashboard-summary-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Vänsterkolumnen håller ihop de två mindre korten */
+.overview-col {
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* DE VITA KORTEN: Delade stilar för alla elementinneslutningar */
+.overview-block,
+.data-block {
+  background-color: #ffffff; /* Ändrat från grå till vit! */
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03),
+    0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+}
+
+/* Specifikt för översiktsblocken i kolumn 1 */
+.overview-block {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+}
+
+.overview-block label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.overview-time-value {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.overview-count-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Rubrikrader inuti de vita korten (Kondition & Sportfördelning) */
+.column-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #0f172a;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #0f172a;
+  margin-bottom: 8px;
+}
+
+.column-header-total {
+  font-size: 0.95rem;
+}
+
+/* Datarader */
+.dashboard-data-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.95rem;
+}
+
+.dashboard-data-row:last-child {
+  border-bottom: none;
+}
+
+.dashboard-row-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Färgprickarna */
+.dashboard-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dashboard-row-name {
+  color: #334155;
+  font-weight: 500;
+}
+
+.dashboard-row-value {
+  font-weight: 600;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tomt tillstånd */
+.dashboard-row-empty {
+  font-size: 0.95rem;
+  color: #64748b;
+  font-style: italic;
+  padding: 24px;
+  text-align: center;
+  background-color: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+}

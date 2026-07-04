@@ -6,6 +6,7 @@ import CalendarNav from "./CalenderNav";
 import type { Activity } from "../../types/Activity";
 import { workoutSessionApi } from "../../api/workoutSessionApi";
 import type { SessionType } from "../../types/SessionType";
+import { getStartOfWeek } from "../../utils/date/dateHelper";
 
 import Swal from "sweetalert2";
 
@@ -13,6 +14,7 @@ import ButtonPrimary from "../../components/ButtonPrimary";
 import DayStatusModal from "./dayStatusModal/DayStatusModal";
 import type { dayType } from "../../types/dayType";
 import { dayStatusApi } from "../../api/dayStatusApi";
+import { WeeklySummary } from "./weeklySummaryModal/WeeklySummaryModal";
 
 interface CalenderProps {
   activities: Activity[];
@@ -22,7 +24,11 @@ interface CalenderProps {
 
 const timeSlots = ["Morgon", "Förmiddag", "Eftermiddag", "Kväll"];
 
-export default function Calendar({ activities, isCoachMode, setIsCoachMode }: CalenderProps) {
+export default function Calendar({
+  activities,
+  isCoachMode,
+  setIsCoachMode,
+}: CalenderProps) {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [buttonPopup, setButtonPopup] = useState(false);
   const [dayStatusPopup, setDayStatusPopup] = useState(false);
@@ -85,6 +91,26 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
       console.error("Kunde inte hämta dagsstatusar till kalendern:", error);
     }
   };
+
+  const weeklySessions = useMemo(() => {
+    if (!sessions || !currentDate) return [];
+
+    // 1. Hämta måndagen i den aktuella veckan (00:00:00) via din hjälpmetod
+    const startOfWeek = getStartOfWeek(currentDate);
+
+    // 2. Räkna ut söndagen i samma vecka genom att addera 6 dagar
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    // Sätt tiden till precis slutet av söndagen så inga kvällspass missas
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    // 3. Filtrera listan så bara pass inom måndag-söndag sparas
+    return sessions.filter((session) => {
+      const sessionDate = new Date(session.scheduledDate);
+      return sessionDate >= startOfWeek && sessionDate <= endOfWeek;
+    });
+  }, [sessions, currentDate]);
 
   const handleTemplateDrop = async (
     date: Date,
@@ -601,6 +627,8 @@ export default function Calendar({ activities, isCoachMode, setIsCoachMode }: Ca
         userId={userId} // Skickar med det aktiva användar-id:t till spara-modalen
         onStatusSaved={fetchAllDayStatuses}
       />
+
+      <WeeklySummary weeklySessions={weeklySessions} activities={activities} />
     </section>
   );
 }
