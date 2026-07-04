@@ -314,6 +314,8 @@ export default function Calendar({
       .reduce((sum, s) => sum + getTotalTime(s), 0);
   };
 
+  console.log(activities);
+
   // Ser till att kalendern laddar om ALLT (både pass och dagsstatusar) när användare eller datum ändras
   useEffect(() => {
     fetchSessions();

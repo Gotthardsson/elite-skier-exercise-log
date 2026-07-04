@@ -4,7 +4,7 @@ import "./WeeklySummaryModal.css";
 
 interface WeeklySummaryProps {
   weeklySessions?: SessionType[];
-  activities?: any[];
+  activities?: any[]; // Detta är nu er aktivitetslista från DB!
 }
 
 export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
@@ -15,7 +15,7 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
     if (!weeklySessions || weeklySessions.length === 0) return null;
 
     let totalMinutes = 0;
-    const sportsMap: { [key: string]: number } = {};
+    const sportsMap: { [key: string]: { sport: string; minutes: number } } = {};
     let a1 = 0;
     let a2 = 0;
     let a3Minus = 0;
@@ -37,21 +37,16 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
 
       totalMinutes += sessionDuration;
 
-      const stravaActivity = activities.find(
-        (a) =>
-          a.id === session.activityId || a.activityId === session.activityId
+      // KORRIGERING: Leta upp namnet i er egen aktivitetslista från databasen
+      const dbActivity = activities.find(
+        (a) => Number(a.id) === Number(session.activityId)
       );
+      const sportName = dbActivity ? dbActivity.name : "Övrigt";
 
-      let sportName = "Längdskidor";
-      if (stravaActivity) {
-        const type = stravaActivity.sport_type || stravaActivity.type;
-        if (type === "NordicSki") sportName = "Längdskidor";
-        else if (type === "Run") sportName = "Löpning";
-        else if (type === "WeightTraining") sportName = "Styrka";
-        else if (type) sportName = type;
+      if (!sportsMap[sportName]) {
+        sportsMap[sportName] = { sport: sportName, minutes: 0 };
       }
-
-      sportsMap[sportName] = (sportsMap[sportName] || 0) + sessionDuration;
+      sportsMap[sportName].minutes += sessionDuration;
 
       a1 += zones.a1 || 0;
       a2 += zones.a2 || 0;
@@ -64,10 +59,7 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
     return {
       totalMinutes,
       zones: { a1, a2, a3Minus, a3, a3Plus, comp },
-      sports: Object.entries(sportsMap).map(([sport, minutes]) => ({
-        sport,
-        minutes,
-      })),
+      sports: Object.values(sportsMap),
       loggedCount: weeklySessions.filter((s) => s.isLogged).length,
     };
   }, [weeklySessions, activities]);
@@ -107,7 +99,6 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
       <h3 className="dashboard-summary-title">Veckosammanfattning</h3>
 
       <div className="dashboard-summary-grid">
-        {/* KOLUMN 1: ÖVERSIKT (Två vita kort) */}
         <div className="dashboard-summary-col overview-col">
           <div className="overview-block">
             <label>Total träningsvolym</label>
@@ -121,7 +112,6 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
           </div>
         </div>
 
-        {/* KOLUMN 2: TID PER ZON (Ett stort vitt kort) */}
         <div className="dashboard-summary-col data-block">
           <div className="column-header-row">
             <span>Kondition</span>
@@ -147,7 +137,6 @@ export const WeeklySummary: React.FC<WeeklySummaryProps> = ({
           </div>
         </div>
 
-        {/* KOLUMN 3: SPORTFÖRDELNING (Ett stort vitt kort) */}
         <div className="dashboard-summary-col data-block">
           <div className="column-header-row">
             <span>Sportfördelning</span>
