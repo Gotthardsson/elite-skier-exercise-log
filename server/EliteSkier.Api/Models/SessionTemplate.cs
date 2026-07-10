@@ -28,24 +28,8 @@ public class SessionTemplate
     [Column("is_interval")]
     public bool IsInterval { get; set; }
 
-    // Pulszoner - Planerad tid i sekunder
-    [Column("tiz_a1_planned")]
-    public int Tiz_a1_planned { get; set; }
-
-    [Column("tiz_a2_planned")]
-    public int Tiz_a2_planned { get; set; }
-
-    [Column("tiz_a3_minus_planned")]
-    public int Tiz_a3_minus_planned { get; set; }
-
-    [Column("tiz_a3_planned")]
-    public int Tiz_a3_planned { get; set; }
-
-    [Column("tiz_a3_plus_planned")]
-    public int Tiz_a3_plus_planned { get; set; }
-
-    [Column("tiz_competition_planned")]
-    public int Tiz_competition_planned { get; set; }
+    // Planerade pulszoner, en rad per zon i session_template_zones
+    public ICollection<SessionTemplateZone> Zones { get; set; } = new List<SessionTemplateZone>();
 
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
