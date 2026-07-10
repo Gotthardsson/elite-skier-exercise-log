@@ -8,14 +8,21 @@ namespace EliteSkier.Api.Services;
 public class WorkoutSessionService : IWorkoutSessionService
 {
     private readonly IWorkoutSessionRepository _repo;
+    private readonly ICurrentUserService _currentUserService;
 
-    public WorkoutSessionService(IWorkoutSessionRepository repo)
+    public WorkoutSessionService(IWorkoutSessionRepository repo, ICurrentUserService currentUserService)
     {
         _repo = repo;
+        _currentUserService = currentUserService;
     }
 
     public async Task<WorkoutSessionDto> CreateSessionAsync(WorkoutSessionDto dto)
     {
+        if (!await _currentUserService.CanAccessUserAsync(dto.UserId))
+        {
+            throw new UnauthorizedAccessException("Du kan inte skapa pass för denna användare.");
+        }
+
         // 1. Mappa DTO -> Model
         var session = new WorkoutSession
         {
@@ -57,6 +64,11 @@ public class WorkoutSessionService : IWorkoutSessionService
     }
     public async Task<IEnumerable<WorkoutSessionDto>> GetUserSessionsAsync(int userId)
     {
+    if (!await _currentUserService.CanAccessUserAsync(userId))
+    {
+        throw new UnauthorizedAccessException("Du har inte behörighet att se dessa pass.");
+    }
+
     var sessions = await _repo.GetAllByUserIdAsync(userId);
 
     return sessions.Select(s => new WorkoutSessionDto
@@ -99,15 +111,23 @@ public class WorkoutSessionService : IWorkoutSessionService
 
     public async Task<bool> DeleteSessionAsync(int id)
     {
-        // Här kan du lägga till logik senare, t.ex. kolla om användaren 
-        // faktiskt äger passet innan det raderas.
-        var result = await _repo.DeleteAsync(id);
-        return result;
+        var session = await _repo.GetByIdAsync(id);
+        if (session == null)
+        {
+            return false;
+        }
+
+        if (!await _currentUserService.CanAccessUserAsync(session.UserId))
+        {
+            throw new UnauthorizedAccessException("Du har inte behörighet att radera detta pass.");
+        }
+
+        return await _repo.DeleteAsync(id);
     }
 
 
     public async Task UpdateSessionAsync (WorkoutSessionDto dto)
-    { 
+    {
 
        // 1. Hämta det befintliga passet från databasen med ID:t från DTO:n
     var existingSession = await _repo.GetByIdAsync(dto.Id??0);
@@ -115,6 +135,11 @@ public class WorkoutSessionService : IWorkoutSessionService
     if (existingSession == null)
     {
         throw new Exception($"Passet med ID {dto.Id} hittades inte i databasen.");
+    }
+
+    if (!await _currentUserService.CanAccessUserAsync(existingSession.UserId))
+    {
+        throw new UnauthorizedAccessException("Du har inte behörighet att ändra detta pass.");
     }
 
     // 2. Uppdatera fälten på det existerande objektet

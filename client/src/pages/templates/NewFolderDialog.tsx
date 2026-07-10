@@ -3,6 +3,7 @@ import { folderApi } from "../../api/folderApi";
 import type { FolderType } from "../../types/FolderType";
 import ButtonPrimary from "../../components/ButtonPrimary";
 import "./templates.css"; // Se till att css-filen är importerad
+import { useCurrentUser } from "../../auth/CurrentUserContext";
 
 interface NewFolderDialogProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface NewFolderDialogProps {
 }
 
 function NewFolderDialog({ isOpen, onClose, onFolderCreate }: NewFolderDialogProps) {
+  const currentUser = useCurrentUser();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [folderName, setFolderName] = useState("");
   const [folderColor, setFolderColor] = useState("#3b82f6"); // Standard till en trevlig blå istället för svart
@@ -43,7 +45,7 @@ function NewFolderDialog({ isOpen, onClose, onFolderCreate }: NewFolderDialogPro
       const newFolderData: Omit<FolderType, "id"> = {
         name: folderName,
         color: folderColor,
-        userId: 1,
+        userId: currentUser.id,
       };
 
       const response = await folderApi.create(newFolderData);

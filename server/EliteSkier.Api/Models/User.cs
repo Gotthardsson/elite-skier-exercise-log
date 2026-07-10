@@ -13,7 +13,9 @@ public class User
     [Column("email")]
     public string Email { get; set; } = string.Empty;
     [Column("role")]
-    public string Role { get; set; } = "athlete"; // Default to "athlete"
+    public string Role { get; set; } = "atlet"; // DB-constraint users_role_check tillåter "atlet"/"coach"
     [Column("coach_id")]
-    public int CoachId { get; set; }
+    public int? CoachId { get; set; }
+    [Column("entra_object_id")]
+    public string? EntraObjectId { get; set; }
 }

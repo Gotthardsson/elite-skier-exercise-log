@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { userApi } from "../../api/userApi";
 import type { UserType } from "../../types/UserType";
 import ButtonPrimary from "../../components/ButtonPrimary.tsx";
+import { useCurrentUser } from "../../auth/CurrentUserContext";
 
 interface AthleteDropdownProps {
   athleteId: number;
@@ -10,7 +11,7 @@ interface AthleteDropdownProps {
 }
 
 export default function AthleteDropdown({ athleteId, onAthleteChange }: AthleteDropdownProps) {
-  const coachId = 1; // Ersätt med dynamiskt coachId vid implementering
+  const currentUser = useCurrentUser();
   const [athletes, setAthletes] = useState<UserType[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -22,14 +23,14 @@ export default function AthleteDropdown({ athleteId, onAthleteChange }: AthleteD
   useEffect(() => {
     const fetchAthletes = async () => {
       try {
-        const response = await userApi.getUsersByCoachId(coachId);
+        const response = await userApi.getUsersByCoachId(currentUser.id);
         setAthletes(response.data);
       } catch (error) {
         console.error("Error fetching athletes:", error);
       }
     };
     fetchAthletes();
-  }, []);
+  }, [currentUser.id]);
 
   // Stäng menyn vid klick utanför
   useEffect(() => {

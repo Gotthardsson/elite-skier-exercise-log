@@ -15,6 +15,7 @@ import DayStatusModal from "./dayStatusModal/DayStatusModal";
 import type { dayType } from "../../types/dayType";
 import { dayStatusApi } from "../../api/dayStatusApi";
 import { WeeklySummary } from "./weeklySummaryModal/WeeklySummaryModal";
+import { useCurrentUser } from "../../auth/CurrentUserContext";
 
 interface CalenderProps {
   activities: Activity[];
@@ -43,7 +44,8 @@ export default function Calendar({
   );
   const [savedDayStatuses, setSavedDayStatuses] = useState<dayType[]>([]);
   const [editClicked, setEditClicked] = useState(false);
-  const [userId, setUserId] = useState(1); // Ändras dynamiskt via CalendarNav
+  const currentUser = useCurrentUser();
+  const [userId, setUserId] = useState(currentUser.id); // Ändras dynamiskt via CalendarNav
 
   const days = useMemo(() => getWeekDays(currentDate), [currentDate, userId]);
 

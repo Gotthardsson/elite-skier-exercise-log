@@ -14,8 +14,10 @@ import { dayStatusApi } from "../../api/dayStatusApi.ts"; // NY: Importera ditt 
 import type { SessionType } from "../../types/SessionType.ts";
 import type { dayType } from "../../types/dayType.ts"; // NY: Importera din typ
 import TimePerPeriod from "./TimePerPeriod";
+import { useCurrentUser } from "../../auth/CurrentUserContext";
 
 function Stats(props: { activities: any[] }) {
+  const currentUser = useCurrentUser();
   const [sessions, setSessions] = useState<SessionType[]>([]);
   const [dayStatuses, setDayStatuses] = useState<dayType[]>([]); // NY: State för dagsstatusar
   const [timeSpan, setTimeSpan] = useState("Säsong");
@@ -42,10 +44,10 @@ function Stats(props: { activities: any[] }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const sessionResponse = await workoutSessionApi.getByUserId(1);
+        const sessionResponse = await workoutSessionApi.getByUserId(currentUser.id);
         setSessions(sessionResponse.data);
 
-        const statusResponse = await dayStatusApi.getAllStatuses();
+        const statusResponse = await dayStatusApi.getAllStatuses(currentUser.id);
         if (statusResponse.status === 200 && statusResponse.data) {
           setDayStatuses(statusResponse.data);
         }
@@ -54,7 +56,7 @@ function Stats(props: { activities: any[] }) {
       }
     };
     fetchData();
-  }, []);
+  }, [currentUser.id]);
 
   // Beräkna träningsstatistik baserat på valen i UI
   const activeStats = useMemo(() => {

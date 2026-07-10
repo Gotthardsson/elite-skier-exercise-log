@@ -3,6 +3,7 @@ using EliteSkier.Api.Data;
 using EliteSkier.Api.Repositories;
 using EliteSkier.Api.Services;
 using EliteSkier.Api.Data.Repositories;
+using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 // I början av Program.cs
@@ -20,18 +21,28 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     ));
 
 // 2. CORS - Registrera policyn (Viktigt för React!)
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") 
+            policy.WithOrigins(allowedOrigins)
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
 });
 
 builder.Services.AddHttpClient();
+
+// 3. Autentisering mot Microsoft Entra External ID (CIAM)
+// Config-värden (Instance/Domain/TenantId/ClientId) sätts via User Secrets lokalt
+// och App Service-konfiguration/Key Vault i produktion, se sektionen "EntraId" i appsettings.json.
+builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("EntraId"));
+builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // Registrera Repository
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
@@ -76,6 +87,7 @@ app.UseHttpsRedirection();
 // 3. AKTIVERA CORS (Måste ligga före Authorization och MapControllers)
 app.UseCors("AllowReactApp");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 // 4. Koppla ihop endpoints

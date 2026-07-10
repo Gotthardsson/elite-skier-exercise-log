@@ -1,6 +1,6 @@
-import axios from "axios";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import apiClient from "../../api/apiClient";
 
 // Denna funktion exporteras och körs när man klickar på "Koppla" i Integrations.tsx
 export const handleStravaConnect = () => {
@@ -38,7 +38,7 @@ export default function StravaCallback() {
       const exchangeToken = async () => {
         try {
           // Anropar din ExchangeToken-metod i StravaController
-          await axios.post("http://localhost:5255/api/strava/exchange-token", {
+          await apiClient.post("/strava/exchange-token", {
             code: code,
           });
 

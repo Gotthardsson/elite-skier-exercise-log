@@ -2,21 +2,31 @@
 
 Denna mapp innehåller infrastrukturkod för projektet, skriven i Bicep.
 
-Syftet är att definiera och automatisera uppsättning av Azure-resurser, exempelvis hosting av applikationen.
+`main.bicep` provisionerar:
 
-## Planerad användning
+- **Azure Database for PostgreSQL Flexible Server** (ersätter skolans databas)
+- **App Service (Linux, .NET 10)** för API:t
+- **Static Web App** för klienten
 
-I ett senare skede av projektet planerar vi att använda Bicep för att:
+## Manuella steg innan första deploy
 
-- Skapa en Azure Static Web App för frontend
-- Hantera miljövariabler och konfiguration
-- Möjliggöra reproducerbar deployment av applikationen
+1. **Entra External ID (CIAM)**: skapa en egen tenant i Azure Portal (separat från skolans workforce-tenant), registrera en app för API:t (exponera scope `access_as_user`) och en för SPA:n. Notera Tenant ID och API-appens Client ID.
+2. Logga in med `az login` och välj rätt prenumeration (`az account set --subscription <id>`).
+3. Kör deployment (lösenordet skickas bara på kommandoraden, hamnar aldrig i en fil):
 
-## Struktur
+   ```bash
+   az deployment group create \
+     --resource-group <ditt-resursgrupp-namn> \
+     --template-file main.bicep \
+     --parameters main.parameters.json \
+     --parameters postgresAdminPassword='<välj-ett-starkt-lösenord>' \
+     --parameters entraTenantId='<tenant-id>' entraApiClientId='<api-client-id>'
+   ```
 
-- `main.bicep` – huvudfil för deployment (kommer att implementeras senare)
-- `modules/` – återanvändbara delar av infrastrukturen
+4. Efter första deploy: hämta `staticWebAppUrl` från outputen och kör om deploymenten med `corsAllowedOrigins=["<staticWebAppUrl>"]` så att API:t tillåter anrop från klienten.
+5. Kör EF Core-migrationerna mot den nya databasen (se separat anteckning om migrationshistorik i `server/EliteSkier.Api/Migrations` — den måste stämmas av mot skolans databas innan den nya servern kan lita på `dotnet ef database update`).
+6. Publicera API-koden till App Service och klienten till Static Web App (t.ex. via GitHub Actions — `az staticwebapp` respektive `az webapp deploy`).
 
 ## Status
 
-Infrastrukturen är ännu inte implementerad, utan kommer att utvecklas i takt med att projektet fortskrider.
+Grundinfrastrukturen är definierad i `main.bicep`. CI/CD för att bygga och publicera koden till dessa resurser är inte uppsatt än.

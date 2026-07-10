@@ -8,6 +8,7 @@ import { folderApi } from "../../api/folderApi";
 import { sessionTemplateApi } from "../../api/sessionTemplateApi";
 import { useEffect, useState } from "react";
 import AthleteDropdown from "./AthleteDropdown";
+import { useCurrentUser } from "../../auth/CurrentUserContext";
 
 
 interface CalendarNavProps {
@@ -27,6 +28,7 @@ export default function CalendarNav({
   isCoachMode,
   setIsCoachMode,
 }: CalendarNavProps) {
+  const currentUser = useCurrentUser();
   // --- HJÄLPFUNKTION: Räkna ut första måndagen i maj för ett givet år ---
   const getFirstMondayOfMay = (year: number): Date => {
     const date = new Date(year, 4, 1); // 1 maj
@@ -82,16 +84,16 @@ export default function CalendarNav({
   }
   
   const handleCoachModeToggle = () => {
-    
+
     setIsCoachMode((prevMode) => {
     const nextMode = !prevMode;
-    
+
     // Om nästa läge är falskt (vi stänger av tränarläget),
-    // återställ userId till demonstrations-profilen (1)
+    // återställ userId till den inloggade användarens egna profil
     if (!nextMode) {
-      setUserId(1);
+      setUserId(currentUser.id);
     }
-    
+
     return nextMode;
   });
 };
@@ -99,8 +101,8 @@ export default function CalendarNav({
   const fetchFoldersAndTemplates = async () => {
     try {
       const [foldersResponse, templatesResponse] = await Promise.all([
-        folderApi.getByUserId(1),
-        sessionTemplateApi.getByUserId(1),
+        folderApi.getByUserId(currentUser.id),
+        sessionTemplateApi.getByUserId(currentUser.id),
       ]);
       setFolders(foldersResponse.data);
       setTemplates(templatesResponse.data);
@@ -118,7 +120,7 @@ export default function CalendarNav({
 
   useEffect(() => {
     fetchFoldersAndTemplates();
-  }, []);
+  }, [currentUser.id]);
   return (
     <div className="calendar-nav-container">
       <div className="nav-group buttons">
@@ -167,12 +169,14 @@ export default function CalendarNav({
           ))}
         </select>
       </div>
-      <ButtonPrimary
-        className="coach-button"
-        style={{ backgroundColor: isCoachMode ? "#007bff" : "#000000" }}
-        onClick={handleCoachModeToggle}
-        text="Tränarläge"
-      ></ButtonPrimary>
+      {currentUser.role === "coach" && (
+        <ButtonPrimary
+          className="coach-button"
+          style={{ backgroundColor: isCoachMode ? "#007bff" : "#000000" }}
+          onClick={handleCoachModeToggle}
+          text="Tränarläge"
+        ></ButtonPrimary>
+      )}
       <div className="dropdowns-container">
         {isCoachMode && (
           <AthleteDropdown

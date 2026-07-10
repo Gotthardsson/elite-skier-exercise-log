@@ -14,26 +14,29 @@ public class StravaService : IStravaService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _config;
     private readonly IHeartrateZoneService _heartrateZoneService;
+    private readonly ILogger<StravaService> _logger;
 
     public StravaService(
-        IStravaRepository stravaRepo, 
-        IWorkoutSessionRepository workoutRepo, 
-        IHttpClientFactory httpClientFactory, 
+        IStravaRepository stravaRepo,
+        IWorkoutSessionRepository workoutRepo,
+        IHttpClientFactory httpClientFactory,
         IConfiguration config,
-        IHeartrateZoneService heartrateZoneService)
+        IHeartrateZoneService heartrateZoneService,
+        ILogger<StravaService> logger)
     {
         _stravaRepo = stravaRepo;
         _workoutRepo = workoutRepo;
         _httpClientFactory = httpClientFactory;
         _config = config;
         _heartrateZoneService = heartrateZoneService;
+        _logger = logger;
     }
 
     // Steg 1: Byter kod mot tokens vid första parkopplingen
     public async Task<bool> ExchangeCodeAndSaveAsync(int userId, string code)
     {
         var client = _httpClientFactory.CreateClient();
-        
+
         var payload = new Dictionary<string, string>
         {
             { "client_id", _config["Strava:ClientId"] ?? "" },
@@ -43,7 +46,17 @@ public class StravaService : IStravaService
         };
 
         var response = await client.PostAsync("https://www.strava.com/oauth/token", new FormUrlEncodedContent(payload));
-        if (!response.IsSuccessStatusCode) return false;
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync();
+            _logger.LogError(
+                "Strava token exchange misslyckades. Status: {StatusCode}, ClientId satt: {HasClientId}, ClientSecret satt: {HasClientSecret}, Svar: {Body}",
+                response.StatusCode,
+                !string.IsNullOrEmpty(_config["Strava:ClientId"]),
+                !string.IsNullOrEmpty(_config["Strava:ClientSecret"]),
+                errorBody);
+            return false;
+        }
 
         var jsonString = await response.Content.ReadAsStringAsync();
         using var json = JsonDocument.Parse(jsonString);

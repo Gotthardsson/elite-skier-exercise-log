@@ -1,11 +1,13 @@
 using EliteSkier.Api.Dtos;
 using EliteSkier.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EliteSkier.Api.Controllers;
 
 [ApiController]
 [Route("api/day-status")]
+[Authorize]
 public class DayStatusController : ControllerBase
 {
     private readonly IDayStatusService _service;
@@ -19,9 +21,15 @@ public class DayStatusController : ControllerBase
    [HttpGet]
     public async Task<IActionResult> GetByDate([FromQuery] DateTime date, [FromQuery] int userId)
     {
-        // Om userId skickas från frontend blir det automatiskt '1' här nu istället för hårdkodat!
-        var status = await _service.GetStatusByDateAsync(userId, date);
-        return Ok(status);
+        try
+        {
+            var status = await _service.GetStatusByDateAsync(userId, date);
+            return Ok(status);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
     }
 
     // POST: api/day-status
@@ -30,14 +38,28 @@ public class DayStatusController : ControllerBase
     {
         if (dto == null) return BadRequest("Felaktig data.");
 
-        var result = await _service.SaveStatusAsync(dto);
-        return Ok(result);
+        try
+        {
+            var result = await _service.SaveStatusAsync(dto);
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
     }
 
     [HttpGet("all")]
     public async Task<IActionResult> GetAllStatuses([FromQuery] int userId)
     {
-        var statuses = await _service.GetAllStatusesAsync(userId);
-        return Ok(statuses);
+        try
+        {
+            var statuses = await _service.GetAllStatusesAsync(userId);
+            return Ok(statuses);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
     }
 }

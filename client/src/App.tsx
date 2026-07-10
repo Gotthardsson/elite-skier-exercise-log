@@ -11,13 +11,38 @@ import type { Activity } from "./types/Activity";
 import Integrations from "./pages/integrations/Integrations";
 import StravaCallback from "./pages/integrations/StravaCallback";
 import Athletes from "./pages/athletes/Athletes";
+import {
+  AuthenticatedTemplate,
+  UnauthenticatedTemplate,
+  useMsal,
+} from "@azure/msal-react";
+import { loginRequest } from "./auth/authConfig";
+import { CurrentUserProvider, useCurrentUser } from "./auth/CurrentUserContext";
+import ButtonPrimary from "./components/ButtonPrimary";
 
 
 //https://www.w3schools.com/react/react_router.asp
 
-function App() {
+function LoginPage() {
+  const { instance } = useMsal();
+  return (
+    <div style={{ textAlign: "center", marginTop: "100px" }}>
+      <h2>SkiPlan</h2>
+      <p>Logga in för att fortsätta.</p>
+      <ButtonPrimary
+        onClick={() => instance.loginRedirect(loginRequest)}
+        text="Logga in"
+      />
+    </div>
+  );
+}
+
+function AppRoutes() {
   const [activities, setActivities] = useState<Activity[]>([]); // En tom låda för sporter
-  const [isCoachMode, setIsCoachMode] = useState<boolean>(false); // NYTT: State för tränarläge
+  const currentUser = useCurrentUser();
+  const [isCoachMode, setIsCoachMode] = useState<boolean>(
+    currentUser.role === "coach"
+  );
 
   // Så fort appen startar, hämta sporterna
   useEffect(() => {
@@ -26,7 +51,7 @@ function App() {
   return (
     <BrowserRouter>
       <div className="app-layout">
-        <NavigationMenu isCoachMode={isCoachMode}/>
+        <NavigationMenu isCoachMode={isCoachMode} />
 
         <main>
           <Routes>
@@ -46,12 +71,27 @@ function App() {
             <Route path="/integrations" element={<Integrations />} />
 
             <Route path="/strava-callback" element={<StravaCallback />} />
-            
+
           </Routes>
-          
+
         </main>
       </div>
     </BrowserRouter>
+  );
+}
+
+function App() {
+  return (
+    <>
+      <AuthenticatedTemplate>
+        <CurrentUserProvider>
+          <AppRoutes />
+        </CurrentUserProvider>
+      </AuthenticatedTemplate>
+      <UnauthenticatedTemplate>
+        <LoginPage />
+      </UnauthenticatedTemplate>
+    </>
   );
 }
 
