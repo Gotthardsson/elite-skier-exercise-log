@@ -1,28 +1,24 @@
 import { userApi } from "../../api/userApi";
 import { useEffect, useState } from "react";
 import type { UserType } from "../../types/UserType";
+import { useCurrentUser } from "../../auth/CurrentUserContext";
 import "./athletes.css";
 
 export default function Athletes() {
+  const currentUser = useCurrentUser();
+  const [athletes, setAthletes] = useState<UserType[]>([]);
 
-
-
-const [athletes, setAthletes] = useState<UserType[]>([]);
-const coachId = 1; // Exempel på coachId, du kan hämta detta från inloggningen eller kontext
-
-
-useEffect(() => {
-
-  const fetchAthletes = async () => {
-    try {
-      const response = await userApi.getUsersByCoachId(coachId); // Exempel på hur du kan anropa API:t
-      setAthletes(response.data);
-    } catch (error) {
-      console.error("Error fetching athletes:", error);
-    }
-  };
+  useEffect(() => {
+    const fetchAthletes = async () => {
+      try {
+        const response = await userApi.getUsersByCoachId(currentUser.id);
+        setAthletes(response.data);
+      } catch (error) {
+        console.error("Error fetching athletes:", error);
+      }
+    };
     fetchAthletes();
-  }, []);
+  }, [currentUser.id]);
 
   return (
     <div className="athletes-page">

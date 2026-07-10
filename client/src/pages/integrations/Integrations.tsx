@@ -6,7 +6,7 @@ import stravaLogo from "../../assets/strava.svg";
 import ButtonPrimary from "../../components/ButtonPrimary";
 import "../../components/button.css";
 import { handleStravaConnect } from "./StravaCallback";
-import axios from "axios";
+import apiClient from "../../api/apiClient";
 
 export default function Integrations() {
   const [stravaConnected, setStravaConnected] = useState(false);
@@ -17,9 +17,7 @@ export default function Integrations() {
   useEffect(() => {
     const checkStravaConnection = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5255/api/strava/status"
-        );
+        const response = await apiClient.get("/strava/status");
         // Sätter staten baserat på vad ditt repo/service svarade (true/false)
         setStravaConnected(response.data.connected);
       } catch (error) {
@@ -81,7 +79,7 @@ export default function Integrations() {
 
       if (result.isConfirmed) {
         // Ropar på din nya Disconnect-endpoint i din StravaController
-        await axios.post("http://localhost:5255/api/strava/disconnect");
+        await apiClient.post("/strava/disconnect");
 
         setStravaConnected(false);
         Swal.fire(

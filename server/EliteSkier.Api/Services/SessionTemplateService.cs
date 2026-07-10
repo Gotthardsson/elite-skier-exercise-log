@@ -6,14 +6,21 @@ namespace EliteSkier.Api.Services;
 public class SessionTemplateService : ISessionTemplateService
 {
     private readonly ISessionTemplateRepository _repository;
+    private readonly ICurrentUserService _currentUserService;
 
-    public SessionTemplateService(ISessionTemplateRepository repository)
+    public SessionTemplateService(ISessionTemplateRepository repository, ICurrentUserService currentUserService)
     {
         _repository = repository;
+        _currentUserService = currentUserService;
     }
 
     public async Task<IEnumerable<SessionTemplateDto>> GetUserTemplatesAsync(int userId)
     {
+        if (!await _currentUserService.CanAccessUserAsync(userId))
+        {
+            throw new UnauthorizedAccessException("Du har inte behörighet att se dessa mallar.");
+        }
+
         var templates = await _repository.GetAllByUserIdAsync(userId);
         return templates.Select(t => new SessionTemplateDto
         {
@@ -108,6 +115,15 @@ public class SessionTemplateService : ISessionTemplateService
 
     public async Task DeleteTemplateAsync(int id)
     {
+        var template = await _repository.GetByIdAsync(id);
+        if (template == null) return;
+
+        var currentUser = await _currentUserService.GetCurrentUserAsync();
+        if (template.CreatorId != currentUser.Id)
+        {
+            throw new UnauthorizedAccessException("Du har inte behörighet att radera denna mall.");
+        }
+
         await _repository.DeleteAsync(id);
     }
 
@@ -115,6 +131,12 @@ public class SessionTemplateService : ISessionTemplateService
     {
         var template = await _repository.GetByIdAsync(dto.Id);
         if (template == null) throw new InvalidOperationException("Template not found");
+
+        var currentUser = await _currentUserService.GetCurrentUserAsync();
+        if (template.CreatorId != currentUser.Id)
+        {
+            throw new UnauthorizedAccessException("Du har inte behörighet att ändra denna mall.");
+        }
 
         template.Title = dto.Title;
         template.Description = dto.Description;

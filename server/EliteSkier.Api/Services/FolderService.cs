@@ -6,10 +6,21 @@ namespace EliteSkier.Api.Services;
 public class FolderService : IFolderService
 {
     private readonly IFolderRepository _folderRepository;
-    public FolderService(IFolderRepository folderRepository) => _folderRepository = folderRepository;
+    private readonly ICurrentUserService _currentUserService;
+
+    public FolderService(IFolderRepository folderRepository, ICurrentUserService currentUserService)
+    {
+        _folderRepository = folderRepository;
+        _currentUserService = currentUserService;
+    }
+
     public async Task<IEnumerable<Folder>> GetFoldersByUserIdAsync(int userId)
     {
-        // Här kan du lägga till logik om det behövs i framtiden
+        if (!await _currentUserService.CanAccessUserAsync(userId))
+        {
+            throw new UnauthorizedAccessException("Du har inte behörighet att se dessa mappar.");
+        }
+
         return await _folderRepository.GetByUserIdAsync(userId);
     }
     public async Task<IEnumerable<Folder>> GetAllFoldersAsync()
@@ -20,7 +31,11 @@ public class FolderService : IFolderService
 
     public async Task<Folder> CreateFolderAsync(Folder folder)
     {
-        // Här kan du lägga till validering eller annan logik innan skapandet
+        if (!await _currentUserService.CanAccessUserAsync(folder.UserId))
+        {
+            throw new UnauthorizedAccessException("Du kan inte skapa en mapp för denna användare.");
+        }
+
         return await _folderRepository.CreateAsync(folder);
     }
 }

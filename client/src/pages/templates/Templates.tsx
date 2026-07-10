@@ -10,8 +10,10 @@ import type { TemplateType } from "../../types/TemplateType.ts";
 import type { FolderType } from "../../types/FolderType.ts";
 import Folder from "./Folder.tsx";
 import ButtonPrimary from "../../components/ButtonPrimary.tsx";
+import { useCurrentUser } from "../../auth/CurrentUserContext";
 
 function Templates(props) {
+  const currentUser = useCurrentUser();
   const [templates, setTemplates] = useState<TemplateType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [folders, setFolders] = useState<FolderType[]>([]);
@@ -25,7 +27,7 @@ function Templates(props) {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await sessionTemplateApi.getByUserId(1); // Hårdkodad userId för demo
+        const response = await sessionTemplateApi.getByUserId(currentUser.id);
         setTemplates(response.data);
       } catch (error) {
         console.error("Error fetching templates:", error);
@@ -35,12 +37,12 @@ function Templates(props) {
     };
 
     fetchTemplates();
-  }, []);
+  }, [currentUser.id]);
 
   useEffect(() => {
     const fetchFolders = async () => {
       try {
-        const response = await folderApi.getByUserId(1); // Hårdkodad userId för demo
+        const response = await folderApi.getByUserId(currentUser.id);
         setFolders(response.data); // Assuming response.data contains the array of folders
         console.log("Fetched folders:", response.data); // Logga de hämtade mapparna
       } catch (error) {
@@ -49,8 +51,7 @@ function Templates(props) {
     };
 
     fetchFolders();
-    // Log fetched folders directly from the response inside fetchFolders if needed
-  }, []); // Kör endast en gång när komponenten mountas
+  }, [currentUser.id]);
 
   // NYTT: Beräkna filtrerade mallar baserat på vald mapp
   // Vi antar här att dina mallar har en property som heter 'folder_id' eller 'folderId'

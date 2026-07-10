@@ -1,7 +1,7 @@
 export interface UserType {
   id: number;
   name: string;
-  role: "athlete" | "coach";
+  role: "atlet" | "coach";
   email: string;
-  coachId: number;
+  coachId: number | null;
 }
