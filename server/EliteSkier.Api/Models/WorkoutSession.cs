@@ -39,43 +39,8 @@ public class WorkoutSession
     [Column("mental_rpe")]
     public int? MentalRpe { get; set; }
 
-    // --- PLANNED ZONES ---
-    [Column("tiz_a1_planned")]
-    public int TizA1Planned { get; set; }
-
-    [Column("tiz_a2_planned")]
-    public int TizA2Planned { get; set; }
-
-    [Column("tiz_a3_minus_planned")]
-    public int TizA3MinusPlanned { get; set; }
-
-    [Column("tiz_a3_planned")]
-    public int TizA3Planned { get; set; }
-
-    [Column("tiz_a3_plus_planned")]
-    public int TizA3PlusPlanned { get; set; }
-
-    [Column("tiz_comp_planned")]
-    public int TizCompPlanned { get; set; }
-
-    // --- ACTUAL ZONES ---
-    [Column("tiz_a1_actual")]
-    public int TizA1Actual { get; set; }
-
-    [Column("tiz_a2_actual")]
-    public int TizA2Actual { get; set; }
-
-    [Column("tiz_a3_minus_actual")]
-    public int TizA3MinusActual { get; set; }
-
-    [Column("tiz_a3_actual")]
-    public int TizA3Actual { get; set; }
-
-    [Column("tiz_a3_plus_actual")]
-    public int TizA3PlusActual { get; set; }
-
-    [Column("tiz_comp_actual")]
-    public int TizCompActual { get; set; }
+    // Planerade + faktiska pulszoner, en rad per zon/kind i workout_session_zones
+    public ICollection<WorkoutSessionZone> Zones { get; set; } = new List<WorkoutSessionZone>();
 
     // --- ÖVRIGT (Från din SELECT) ---
     [Column("external_id")]

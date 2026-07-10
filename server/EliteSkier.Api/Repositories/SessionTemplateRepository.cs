@@ -13,10 +13,13 @@ public class SessionTemplateRepository : ISessionTemplateRepository
     }
 
     public async Task<SessionTemplate?> GetByIdAsync(int id) =>
-        await _context.SessionTemplates.FindAsync(id);
+        await _context.SessionTemplates
+            .Include(t => t.Zones)
+            .FirstOrDefaultAsync(t => t.Id == id);
 
     public async Task<IEnumerable<SessionTemplate>> GetAllByUserIdAsync(int userId) =>
         await _context.SessionTemplates
+            .Include(t => t.Zones)
             .Where(t => t.CreatorId == userId)
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();

@@ -1,7 +1,6 @@
 using EliteSkier.Api.Dtos;
 using EliteSkier.Api.Models;
 using EliteSkier.Api.Repositories;
-using Microsoft.Extensions.ObjectPool;
 
 namespace EliteSkier.Api.Services;
 
@@ -34,26 +33,19 @@ public class WorkoutSessionService : IWorkoutSessionService
             Comment = dto.Comment,
             LoggedComment = dto.LoggedComment,
             PhysicalRpe = dto.PhysicalRpe,
-            MentalRpe =dto.MentalRpe,
-            AvgHeartRate=dto.AvgHeartRate,
-    
-            
-            // Mappa planerade zoner
-            TizA1Planned = dto.PlannedZones.A1,
-            TizA2Planned = dto.PlannedZones.A2,
-            TizA3MinusPlanned = dto.PlannedZones.A3Minus,
-            TizA3Planned = dto.PlannedZones.A3,
-            TizA3PlusPlanned = dto.PlannedZones.A3Plus,
-            TizCompPlanned = dto.PlannedZones.Comp,
-
-            // Mappa faktiska zoner
-            TizA1Actual = dto.ActualZones.A1,
-            TizA2Actual = dto.ActualZones.A2,
-            TizA3MinusActual = dto.ActualZones.A3Minus,
-            TizA3Actual = dto.ActualZones.A3,
-            TizA3PlusActual = dto.ActualZones.A3Plus,
-            TizCompActual = dto.ActualZones.Comp
+            MentalRpe = dto.MentalRpe,
+            AvgHeartRate = dto.AvgHeartRate,
         };
+
+        // Mappa zoner (planerade + faktiska) till de normaliserade zon-raderna
+        foreach (var zone in ZoneMapping.ToWorkoutSessionZoneRows(0, dto.PlannedZones, "planned"))
+        {
+            session.Zones.Add(zone);
+        }
+        foreach (var zone in ZoneMapping.ToWorkoutSessionZoneRows(0, dto.ActualZones, "actual"))
+        {
+            session.Zones.Add(zone);
+        }
 
         // 2. Spara via Repo
         var createdSession = await _repo.AddAsync(session);
@@ -87,25 +79,8 @@ public class WorkoutSessionService : IWorkoutSessionService
         MentalRpe = s.MentalRpe,
         AvgHeartRate = s.AvgHeartRate,
 
-        PlannedZones = new ZoneDto
-        {
-            A1 = s.TizA1Planned,
-            A2 = s.TizA2Planned,
-            A3Minus = s.TizA3MinusPlanned,
-            A3 = s.TizA3Planned,
-            A3Plus = s.TizA3PlusPlanned,
-            Comp = s.TizCompPlanned
-        },
-
-        ActualZones = new ZoneDto
-        {
-            A1 = s.TizA1Actual,
-            A2 = s.TizA2Actual,
-            A3Minus = s.TizA3MinusActual,
-            A3 = s.TizA3Actual,
-            A3Plus = s.TizA3PlusActual,
-            Comp = s.TizCompActual
-        }
+        PlannedZones = ZoneMapping.ToZoneDto(s.Zones, "planned"),
+        ActualZones = ZoneMapping.ToZoneDto(s.Zones, "actual")
     });
 }
 
@@ -153,24 +128,18 @@ public class WorkoutSessionService : IWorkoutSessionService
     existingSession.MentalRpe = dto.MentalRpe;
     existingSession.AvgHeartRate = dto.AvgHeartRate;
 
-    // Uppdatera planerade zoner (Platta fält i modellen)
-    existingSession.TizA1Planned = dto.PlannedZones?.A1 ?? 0;
-    existingSession.TizA2Planned = dto.PlannedZones?.A2 ?? 0;
-    existingSession.TizA3MinusPlanned = dto.PlannedZones?.A3Minus ?? 0;
-    existingSession.TizA3Planned = dto.PlannedZones?.A3 ?? 0;
-    existingSession.TizA3PlusPlanned = dto.PlannedZones?.A3Plus ?? 0;
-    existingSession.TizCompPlanned = dto.PlannedZones?.Comp ?? 0;
-
-    // Uppdatera faktiska zoner (Platta fält i modellen)
-    existingSession.TizA1Actual = dto.ActualZones?.A1 ?? 0;
-    existingSession.TizA2Actual = dto.ActualZones?.A2 ?? 0;
-    existingSession.TizA3MinusActual = dto.ActualZones?.A3Minus ?? 0;
-    existingSession.TizA3Actual = dto.ActualZones?.A3 ?? 0;
-    existingSession.TizA3PlusActual = dto.ActualZones?.A3Plus ?? 0;
-    existingSession.TizCompActual = dto.ActualZones?.Comp ?? 0;
+    // Byt ut zon-raderna (enklare och säkrare än att diffa rad för rad)
+    existingSession.Zones.Clear();
+    foreach (var zone in ZoneMapping.ToWorkoutSessionZoneRows(existingSession.Id, dto.PlannedZones, "planned"))
+    {
+        existingSession.Zones.Add(zone);
+    }
+    foreach (var zone in ZoneMapping.ToWorkoutSessionZoneRows(existingSession.Id, dto.ActualZones, "actual"))
+    {
+        existingSession.Zones.Add(zone);
+    }
 
     // 3. Spara ändringarna via repositoryt
-    // EF Core kommer nu bara att generera SQL för de kolumner som faktiskt har ändrats
     await _repo.UpdateAsync(existingSession);
     }
 

@@ -17,8 +17,11 @@ public class AppDbContext : DbContext
 
     public DbSet <HeartRateZones> HeartRateZones {get; set;}
     public DbSet <User> Users {get; set;}
-  
+
     public DbSet <DayStatus> DayStatus {get; set;}
+
+    public DbSet<WorkoutSessionZone> WorkoutSessionZones { get; set; }
+    public DbSet<SessionTemplateZone> SessionTemplateZones { get; set; }
 
 
     protected override void OnModelCreating (ModelBuilder modelBuilder)
@@ -27,6 +30,20 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<WorkoutSession>()
         .Property(b => b.StravaRaw)
         .HasColumnType("jsonb"); // Explicit mappning för PostgreSQL
+
+        modelBuilder.Entity<WorkoutSessionZone>()
+            .HasKey(z => new { z.WorkoutSessionId, z.Zone, z.Kind });
+        modelBuilder.Entity<WorkoutSessionZone>()
+            .HasOne<WorkoutSession>()
+            .WithMany(s => s.Zones)
+            .HasForeignKey(z => z.WorkoutSessionId);
+
+        modelBuilder.Entity<SessionTemplateZone>()
+            .HasKey(z => new { z.SessionTemplateId, z.Zone });
+        modelBuilder.Entity<SessionTemplateZone>()
+            .HasOne<SessionTemplate>()
+            .WithMany(t => t.Zones)
+            .HasForeignKey(z => z.SessionTemplateId);
     }
 
 }

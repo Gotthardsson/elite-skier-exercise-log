@@ -17,11 +17,12 @@ public class WorkoutSessionRepository : IWorkoutSessionRepository
     {
         // 1. Kolla om passet redan finns via Stravas ID (ExternalId)
         var existingSession = await _context.WorkoutSessions
+            .Include(w => w.Zones)
             .FirstOrDefaultAsync(w => w.ExternalId == session.ExternalId);
 
         if (existingSession != null)
         {
-            // 2. Om passet finns, uppdatera bara rådatan och eventuellt kommentar 
+            // 2. Om passet finns, uppdatera bara rådatan och eventuellt kommentar
             // men RÖR INTE IsLogged om användaren redan hunnit logga det.
             existingSession.StravaRaw = session.StravaRaw;
 
@@ -30,14 +31,18 @@ public class WorkoutSessionRepository : IWorkoutSessionRepository
                 existingSession.Comment = session.Comment;
                 existingSession.ScheduledDate = session.ScheduledDate;
                 // Här kan du uppdatera fler fält som t.ex. ActivityId om Strava-typen ändras
-                existingSession.TizA1Actual = session.TizA1Actual;
-                existingSession.TizA2Actual = session.TizA2Actual;
-                existingSession.TizA3MinusActual = session.TizA3MinusActual;
-                existingSession.TizA3Actual = session.TizA3Actual;
-                existingSession.TizA3PlusActual = session.TizA3PlusActual;
-                existingSession.TizCompActual = session.TizCompActual;
+
+                // Ersätt bara de faktiska zonerna, låt eventuella planerade vara orörda
+                foreach (var old in existingSession.Zones.Where(z => z.Kind == "actual").ToList())
+                {
+                    existingSession.Zones.Remove(old);
+                }
+                foreach (var zone in session.Zones.Where(z => z.Kind == "actual"))
+                {
+                    existingSession.Zones.Add(zone);
+                }
             }
-            
+
             _context.WorkoutSessions.Update(existingSession);
         }
         else
@@ -50,11 +55,14 @@ public class WorkoutSessionRepository : IWorkoutSessionRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<WorkoutSession?> GetByIdAsync(int id) => 
-        await _context.WorkoutSessions.FindAsync(id);
+    public async Task<WorkoutSession?> GetByIdAsync(int id) =>
+        await _context.WorkoutSessions
+            .Include(s => s.Zones)
+            .FirstOrDefaultAsync(s => s.Id == id);
 
     public async Task<IEnumerable<WorkoutSession>> GetAllByUserIdAsync(int userId) =>
         await _context.WorkoutSessions
+            .Include(s => s.Zones)
             .Where(s => s.UserId == userId)
             .OrderByDescending(s => s.ScheduledDate)
             .ToListAsync();

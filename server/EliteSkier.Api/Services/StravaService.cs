@@ -160,15 +160,13 @@ public class StravaService : IStravaService
         ActivityId = MapStravaTypeToActivityId(stravaSportType),
         AvgHeartRate = avgHr,
 
-        TizA1Actual = calculatedZones.A1,
-        TizA2Actual = calculatedZones.A2,
-        TizA3MinusActual = calculatedZones.A3Minus,
-        TizA3Actual = calculatedZones.A3,
-        TizA3PlusActual = calculatedZones.A3Plus,
-        TizCompActual = calculatedZones.Comp,
-
         StravaRaw = finalJsonRaw
     };
+
+    foreach (var zone in ZoneMapping.ToWorkoutSessionZoneRows(0, calculatedZones, "actual"))
+    {
+        workout.Zones.Add(zone);
+    }
 
     // 7. LÅT DITT REPO SKÖTA ALL LOGIK (Hitta, uppdatera eller spara ny)!
     await _workoutRepo.UpsertStravaWorkoutAsync(workout);
